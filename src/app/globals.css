@@ -1,0 +1,227 @@
+@import "tailwindcss";
+
+@theme {
+  /* ─────────────────────────────────────────────
+     메디록 (Medirok) 디자인 토큰
+     Charcoal + Soft Gold 럭셔리 미니멀
+     ───────────────────────────────────────────── */
+
+  /* Primary — Charcoal */
+  --color-primary-50:  #F7F8FA;
+  --color-primary-100: #EDF0F5;
+  --color-primary-200: #D7DCE3;
+  --color-primary-300: #B0B7C3;
+  --color-primary-400: #8492A6;
+  --color-primary-500: #4A5568;
+  --color-primary-600: #2D3748;
+  --color-primary-700: #1F2937;
+  --color-primary-800: #141A23;
+  --color-primary-900: #0B0F15;
+
+  /* Accent — Soft Gold */
+  --color-accent-50:  #FAF6ED;
+  --color-accent-100: #F3EAD0;
+  --color-accent-200: #E8D4A8;
+  --color-accent-300: #D6B783;
+  --color-accent-400: #B89968;
+  --color-accent-500: #9A7E4F;
+  --color-accent-600: #7C6238;
+  --color-accent-700: #5C4828;
+  --color-accent-800: #3D2F1A;
+  --color-accent-900: #1F180D;
+
+  /* Surface */
+  --color-surface-bg:      #FAF8F3;
+  --color-surface-bg2:     #F4F1E8;
+  --color-surface-bg3:     #EDE9DC;
+  --color-surface-card:    #FFFFFF;
+  --color-surface-border:  #E8E2D4;
+  --color-surface-divider: #F0EAD8;
+
+  /* Text */
+  --color-text-primary:   #1F2937;
+  --color-text-secondary: #4A5568;
+  --color-text-muted:     #6B5F45;
+  --color-text-inverse:   #FAF8F3;
+  --color-text-on-gold:   #2D2412;
+
+  /* Semantic */
+  --color-success: #2E7D5C;
+  --color-warning: #C4892D;
+  --color-danger:  #B4453E;
+  --color-info:    #4A6FA0;
+
+  /* Typography */
+  --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-serif: "Cormorant Garamond", "Noto Serif KR", Georgia, serif;
+  --font-hanja: "Noto Serif KR", "Source Han Serif", serif;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Layout */
+  --container-max: 1200px;
+  --container-content: 960px;
+}
+
+/* ─────────────────────────────────────────────
+   Base styles — 시니어 친화 (큰 글자, 명확한 색)
+   ───────────────────────────────────────────── */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    font-feature-settings: "ss01", "ss03";
+  }
+
+  body {
+    background: var(--color-surface-bg);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  @media (min-width: 768px) {
+    body { font-size: 15px; }
+  }
+
+  h1, h2, h3, h4 {
+    color: var(--color-text-primary);
+    letter-spacing: -0.01em;
+    font-weight: 500;
+  }
+
+  h1 { font-size: 28px; line-height: 1.25; }
+  h2 { font-size: 22px; line-height: 1.3; }
+  h3 { font-size: 18px; line-height: 1.35; }
+  h4 { font-size: 16px; line-height: 1.4; }
+
+  @media (min-width: 768px) {
+    h1 { font-size: 36px; }
+    h2 { font-size: 26px; }
+    h3 { font-size: 20px; }
+  }
+
+  /* 시니어 친화: 링크는 명확히 인지 가능 */
+  a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  button {
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* 한자 표기 전용 */
+  .hanja {
+    font-family: var(--font-hanja);
+    font-weight: 500;
+  }
+
+  .editorial {
+    font-family: var(--font-serif);
+    letter-spacing: -0.01em;
+    /* Cormorant Garamond 등 세리프체의 옛날식 숫자(old-style figures)는
+       4·3·5·7·9 가 베이스라인 아래로 내려감. 현대식 lining 숫자로 강제. */
+    font-variant-numeric: lining-nums tabular-nums;
+    font-feature-settings: "lnum", "tnum";
+  }
+
+  /* 모든 숫자가 균일하게 렌더되도록 본문에도 적용 */
+  body {
+    font-variant-numeric: lining-nums;
+    font-feature-settings: "lnum";
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Utility classes
+   ───────────────────────────────────────────── */
+
+@utility container-page {
+  max-width: var(--container-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@utility container-content {
+  max-width: var(--container-content);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@utility tier1-card {
+  background: var(--color-surface-card);
+  border: 1.5px solid var(--color-accent-400);
+  border-radius: var(--radius-lg);
+}
+
+@utility tier2-card {
+  background: var(--color-surface-bg);
+  border: 0.5px solid var(--color-surface-border);
+  border-radius: var(--radius-md);
+}
+
+@utility badge-premium {
+  background: var(--color-accent-400);
+  color: var(--color-text-on-gold);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+}
+
+@utility badge-certified {
+  background: var(--color-success);
+  color: white;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+
+@utility btn-primary {
+  background: var(--color-primary-600);
+  color: white;
+  border: none;
+  padding: 11px 22px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.15s ease;
+  &:hover { background: var(--color-primary-700); }
+}
+
+@utility btn-accent {
+  background: var(--color-accent-400);
+  color: var(--color-text-on-gold);
+  border: none;
+  padding: 11px 22px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.15s ease;
+  &:hover { background: var(--color-accent-500); }
+}
+
+@utility btn-outline {
+  background: transparent;
+  color: var(--color-primary-600);
+  border: 1px solid var(--color-primary-600);
+  padding: 10px 22px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+}

@@ -1,0 +1,555 @@
+// 메디록 (Medirok) — 시니어 의료 디렉터리 플랫폼
+// Prisma Schema v1 (Phase 1 MVP)
+//
+// 핵심 설계 원칙:
+// 1. URL slug 기반 (모두닥 ID 기반 URL 대비 SEO 우위)
+// 2. 醫錄 4단계 인증 시스템을 1급 객체로 모델링
+// 3. 진료과×지역 cross 페이지를 위한 SEO 메타 모델 분리
+// 4. 다국어(한·영·일) 확장 대비 — 텍스트 필드는 locale 분리 가능 구조
+// 5. 인덱스 최적화 — slug, region, dept 조합
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────────
+// 진료과 (Department)
+// 모두닥 ID 매핑은 내부 참조용. 사용자 노출은 slug
+// ─────────────────────────────────────────────────────────────
+model Department {
+  id           Int      @id @default(autoincrement())
+  slug         String   @unique // dental, orthopedics, ophthalmology, checkup
+  nameKr       String   // 치과, 정형외과, 안과, 종합검진
+  nameEn       String   // Dental, Orthopedics, Ophthalmology, Checkup
+  nameJp       String?  // 歯科, 整形外科, 眼科, 健康診断
+  hanja        String?  // 齒, 骨, 眼, 診
+  description  String?
+  iconKey      String?  // 시각 아이콘 키
+  priority     Int      @default(0) // 시니어 niche 우선순위 (1순위=임플란트치과)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  hospitals    HospitalDepartment[]
+  treatments   Treatment[]
+  articles     Article[]
+  seoPages     DeptRegionPage[]
+
+  @@index([priority])
+}
+
+// ─────────────────────────────────────────────────────────────
+// 지역 (Region) — 시도 → 시군구 → 동/읍/면 3단계
+// ─────────────────────────────────────────────────────────────
+model Region {
+  id           Int      @id @default(autoincrement())
+  slug         String   @unique // gangnam, seocho, songpa
+  nameKr       String   // 강남구
+  nameEn       String?  // Gangnam-gu
+  level        RegionLevel // SIDO | SIGUNGU | DONG
+  parentId     Int?
+  parent       Region?  @relation("RegionHierarchy", fields: [parentId], references: [id])
+  children     Region[] @relation("RegionHierarchy")
+  latitude     Float?
+  longitude    Float?
+  population   Int?     // 시니어 인구 가중치
+  createdAt    DateTime @default(now())
+
+  hospitals    Hospital[]
+  seoPages     DeptRegionPage[]
+
+  @@index([slug])
+  @@index([level, parentId])
+}
+
+enum RegionLevel {
+  SIDO    // 서울특별시
+  SIGUNGU // 강남구
+  DONG    // 역삼동
+}
+
+// ─────────────────────────────────────────────────────────────
+// 의원 (Hospital) — 핵심 객체
+// ─────────────────────────────────────────────────────────────
+model Hospital {
+  id              Int      @id @default(autoincrement())
+  slug            String   @unique // hangyeol-dental
+  nameKr          String   // 강남 한결치과의원
+  nameEn          String?
+  nameJp          String?
+  shortDescription String?
+  longDescription String?  @db.Text
+
+  // 위치
+  regionId        Int
+  region          Region   @relation(fields: [regionId], references: [id])
+  addressLine1    String   // 서울 강남구 역삼동 819-3
+  addressLine2    String?  // 한결빌딩 5F
+  latitude        Float
+  longitude       Float
+  nearestStation  String?  // 2호선 역삼역
+  walkingMinutes  Int?     // 3
+
+  // 운영
+  phone           String?
+  websiteUrl      String?
+  yearEstablished Int?     // 2014
+  isActive        Boolean  @default(true)
+
+  // 醫錄 인증
+  certification   MedirokCertification?
+
+  // 가격 통계 (캐시)
+  avgReviewRating Float?   // 4.9
+  reviewCount     Int      @default(0)
+  doctorCount     Int      @default(0)
+
+  // 등급
+  tier            HospitalTier @default(STANDARD)
+  isPartner       Boolean  @default(false) // SEO/AEO 영업 계약 의원
+  partnerSince    DateTime?
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // 관계
+  departments     HospitalDepartment[]
+  doctors         Doctor[]
+  reviews         Review[]
+  photos          HospitalPhoto[]
+  hours           BusinessHour[]
+  treatmentPrices HospitalTreatmentPrice[]
+  estimates       Estimate[]
+  bookings        Booking[]
+
+  @@index([slug])
+  @@index([regionId, isActive])
+  @@index([tier, isActive])
+  @@index([isPartner])
+}
+
+enum HospitalTier {
+  STANDARD   // 인증 의원
+  PREMIUM    // 프리미엄 (유료 파트너)
+  HERITAGE   // 헤리티지 (장기 인증 + 우수)
+}
+
+model HospitalDepartment {
+  hospitalId   Int
+  departmentId Int
+  isPrimary    Boolean @default(false)
+  hospital     Hospital   @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  department   Department @relation(fields: [departmentId], references: [id])
+
+  @@id([hospitalId, departmentId])
+  @@index([departmentId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// 醫錄 4단계 인증 (브랜드 핵심)
+// ─────────────────────────────────────────────────────────────
+model MedirokCertification {
+  id                 Int      @id @default(autoincrement())
+  hospitalId         Int      @unique
+  hospital           Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  // 4단계 인증 통과 여부
+  stage1History      Boolean  @default(false) // 진료 이력 검증
+  stage2Reviews      Boolean  @default(false) // 실방문자 후기
+  stage3Credentials  Boolean  @default(false) // 의료진 자격
+  stage4Facility     Boolean  @default(false) // 시설·장비
+
+  // 인증 세부 (각 단계별 detail)
+  stage1Detail       String?  // "12년 운영 · 임플란트 5,200건"
+  stage2Detail       String?  // "312건 · 영수증 인증 100%"
+  stage3Detail       String?  // "서울대 치대 졸 · 4인 전문의"
+  stage4Detail       String?  // "3D CT · 위생 1등급"
+
+  // 인증 메타
+  certifiedAt        DateTime?
+  expiresAt          DateTime?
+  certifiedBy        String?  // 심사관
+  isFullyCertified   Boolean  @default(false)
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([isFullyCertified])
+}
+
+// ─────────────────────────────────────────────────────────────
+// 의사 (Doctor)
+// ─────────────────────────────────────────────────────────────
+model Doctor {
+  id              Int      @id @default(autoincrement())
+  slug            String   @unique // han-jinwoo
+  nameKr          String   // 한진우
+  nameEn          String?
+  hanja           String?  // 韓
+  title           String?  // 원장 / 부원장
+  hospitalId      Int
+  hospital        Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  specialty       String?  // 임플란트·보철
+  yearsExperience Int?     // 12
+  bio             String?  @db.Text
+  photoUrl        String?
+
+  // 자격증
+  credentials     Credential[]
+
+  // SEO (E-E-A-T 강화)
+  metaTitle       String?
+  metaDescription String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([slug])
+  @@index([hospitalId])
+}
+
+model Credential {
+  id        Int    @id @default(autoincrement())
+  doctorId  Int
+  doctor    Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  type      String // "졸업학교", "전문의 자격", "수상"
+  title     String // "서울대학교 치과대학"
+  year      Int?
+
+  @@index([doctorId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// 시술 (Treatment) — 마스터 데이터
+// ─────────────────────────────────────────────────────────────
+model Treatment {
+  id              Int      @id @default(autoincrement())
+  slug            String   @unique // implant, cataract, herniated-disc
+  nameKr          String   // 임플란트, 백내장 수술, 디스크
+  nameEn          String?
+  departmentId    Int
+  department      Department @relation(fields: [departmentId], references: [id])
+  description     String?  @db.Text
+  avgPriceLow     Int?     // 1200000 (전국 평균 최저)
+  avgPriceHigh    Int?     // 1800000
+  isCovered       Boolean  @default(false) // 보험 적용
+  isSeniorTarget  Boolean  @default(false) // 시니어 직격 시술
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+
+  prices          HospitalTreatmentPrice[]
+  estimates       Estimate[]
+  articles        Article[]  @relation("ArticleTreatment")
+
+  @@index([departmentId])
+  @@index([isSeniorTarget])
+}
+
+// 의원별 시술 가격
+model HospitalTreatmentPrice {
+  id           Int       @id @default(autoincrement())
+  hospitalId   Int
+  hospital     Hospital  @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  treatmentId  Int
+  treatment    Treatment @relation(fields: [treatmentId], references: [id])
+  priceLow     Int
+  priceHigh    Int
+  note         String?   // "국산 오스템 · 평생 보장"
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([hospitalId, treatmentId])
+  @@index([treatmentId, priceLow])
+}
+
+// ─────────────────────────────────────────────────────────────
+// 후기 (Review) — 인증 4단계 시스템
+// ─────────────────────────────────────────────────────────────
+model Review {
+  id              Int      @id @default(autoincrement())
+  hospitalId      Int
+  hospital        Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  userId          Int?
+  user            User?    @relation(fields: [userId], references: [id])
+  rating          Int      // 1-5
+  title           String?
+  content         String   @db.Text
+
+  // 인증 단계
+  isPhoneVerified   Boolean @default(false)
+  isReceiptVerified Boolean @default(false)
+  isManualReviewed  Boolean @default(false)
+  verificationLevel Int     @default(0) // 0~3
+
+  treatmentId     Int?
+  visitedAt       DateTime?
+  photos          ReviewPhoto[]
+
+  isHidden        Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([hospitalId, isHidden, createdAt])
+  @@index([userId])
+}
+
+model ReviewPhoto {
+  id        Int    @id @default(autoincrement())
+  reviewId  Int
+  review    Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  url       String
+  caption   String?
+  order     Int    @default(0)
+}
+
+// ─────────────────────────────────────────────────────────────
+// 의원 사진 / 영업시간
+// ─────────────────────────────────────────────────────────────
+model HospitalPhoto {
+  id         Int      @id @default(autoincrement())
+  hospitalId Int
+  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  url        String
+  caption    String?
+  type       PhotoType @default(EXTERIOR)
+  order      Int      @default(0)
+
+  @@index([hospitalId, order])
+}
+
+enum PhotoType {
+  EXTERIOR  // 외관
+  INTERIOR  // 내부
+  EQUIPMENT // 장비
+  STAFF     // 의료진
+}
+
+model BusinessHour {
+  id         Int      @id @default(autoincrement())
+  hospitalId Int
+  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  dayOfWeek  Int      // 0=일요일, 6=토요일
+  openTime   String?  // "09:00"
+  closeTime  String?  // "18:30"
+  lunchStart String?  // "13:00"
+  lunchEnd   String?  // "14:00"
+  isClosed   Boolean  @default(false)
+
+  @@unique([hospitalId, dayOfWeek])
+}
+
+// ─────────────────────────────────────────────────────────────
+// 매거진 (Article) — Phase 2, AEO·SEO 핵심
+// ─────────────────────────────────────────────────────────────
+model Article {
+  id              Int      @id @default(autoincrement())
+  slug            String   @unique
+  title           String
+  excerpt         String?
+  content         String   @db.Text // Markdown
+  coverImageUrl   String?
+  type            ArticleType @default(MAGAZINE)
+
+  departmentId    Int?
+  department      Department? @relation(fields: [departmentId], references: [id])
+  treatments      Treatment[] @relation("ArticleTreatment")
+  linkedHospitals Hospital[]  @relation("ArticleHospital")
+
+  authorId        Int?
+  author          User?    @relation(fields: [authorId], references: [id])
+
+  publishedAt     DateTime?
+  viewCount       Int      @default(0)
+
+  metaTitle       String?
+  metaDescription String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([slug])
+  @@index([publishedAt, type])
+}
+
+enum ArticleType {
+  MAGAZINE  // 매거진
+  GUIDE     // 가이드
+  NEWS      // 뉴스
+}
+
+// 매거진 ↔ 의원 (cross link 위한 implicit m:n)
+
+// ─────────────────────────────────────────────────────────────
+// Q&A — AEO 최적화 핵심
+// ─────────────────────────────────────────────────────────────
+model QnA {
+  id              Int      @id @default(autoincrement())
+  slug            String   @unique
+  question        String
+  answer          String   @db.Text
+  shortAnswer     String?  // LLM 답변용 짧은 답 (1~2문장)
+
+  departmentId    Int?
+  treatmentSlug   String?  // 시술별 분류
+  expertDoctorId  Int?     // 답변 작성한 의사
+
+  viewCount       Int      @default(0)
+  metaTitle       String?
+  metaDescription String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([slug])
+  @@index([departmentId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// 무료 견적 신청
+// ─────────────────────────────────────────────────────────────
+model Estimate {
+  id           Int      @id @default(autoincrement())
+  treatmentId  Int
+  treatment    Treatment @relation(fields: [treatmentId], references: [id])
+
+  userId       Int?
+  user         User?    @relation(fields: [userId], references: [id])
+
+  phone        String
+  ageGroup     String?  // "60s"
+  preferredRegion String?
+  symptoms     String?  @db.Text
+
+  // 매칭된 의원들
+  matchedHospitals Hospital[] @relation("EstimateHospital")
+
+  status       EstimateStatus @default(PENDING)
+  createdAt    DateTime @default(now())
+
+  @@index([status, createdAt])
+}
+
+enum EstimateStatus {
+  PENDING
+  MATCHED
+  CONTACTED
+  CLOSED
+}
+
+// ─────────────────────────────────────────────────────────────
+// 예약 (Booking)
+// ─────────────────────────────────────────────────────────────
+model Booking {
+  id           Int      @id @default(autoincrement())
+  hospitalId   Int
+  hospital     Hospital @relation(fields: [hospitalId], references: [id])
+  userId       Int?
+  user         User?    @relation(fields: [userId], references: [id])
+
+  name         String
+  phone        String
+  preferredDate DateTime?
+  note         String?  @db.Text
+
+  status       BookingStatus @default(REQUESTED)
+  createdAt    DateTime @default(now())
+
+  @@index([hospitalId, createdAt])
+  @@index([status])
+}
+
+enum BookingStatus {
+  REQUESTED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+// ─────────────────────────────────────────────────────────────
+// SEO 페이지 메타 (진료과 × 지역 cross 페이지용)
+// 자동 생성되지만 메타데이터·콘텐츠를 수동 조정 가능
+// ─────────────────────────────────────────────────────────────
+model DeptRegionPage {
+  id              Int      @id @default(autoincrement())
+  departmentId    Int
+  department      Department @relation(fields: [departmentId], references: [id])
+  regionId        Int
+  region          Region   @relation(fields: [regionId], references: [id])
+
+  // SEO 메타
+  metaTitle       String?  // "강남구 임플란트 치과 추천 TOP 18 | 메디록"
+  metaDescription String?
+  h1Override      String?  // H1 커스텀 가능
+  introContent    String?  @db.Text // 상단 인트로 콘텐츠
+  faqJsonLd       String?  @db.Text // FAQ schema JSON-LD
+
+  // 캐시 통계
+  hospitalCount   Int      @default(0)
+  avgPriceLow     Int?
+  avgPriceHigh    Int?
+  avgRating       Float?
+
+  // 인덱싱 제어
+  noindex         Boolean  @default(false) // 의원 0개일 때 noindex
+  lastBuiltAt     DateTime?
+
+  updatedAt       DateTime @updatedAt
+
+  @@unique([departmentId, regionId])
+  @@index([departmentId])
+  @@index([regionId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// 사용자
+// ─────────────────────────────────────────────────────────────
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String?  @unique
+  phone        String?  @unique
+  name         String?
+  ageGroup     String?  // "60s"
+  birthYear    Int?
+
+  role         UserRole @default(MEMBER)
+
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  reviews      Review[]
+  estimates    Estimate[]
+  bookings     Booking[]
+  articles     Article[]
+  favorites    Favorite[]
+
+  @@index([phone])
+}
+
+enum UserRole {
+  MEMBER         // 일반 사용자
+  HOSPITAL_ADMIN // 의원 관리자
+  EDITOR         // 매거진 에디터
+  REVIEWER       // 후기 검수자
+  ADMIN          // 시스템 관리자
+}
+
+model Favorite {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hospitalId Int
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, hospitalId])
+  @@index([userId])
+}
