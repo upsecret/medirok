@@ -8,7 +8,6 @@ import {
   linkedRegionsField,
   linkedDepartmentField,
   linkedTreatmentsField,
-  featuredDoctorField,
 } from "@/payload/fields/linkedEntities";
 import { disclaimerField } from "@/payload/fields/medicalDisclaimer";
 
@@ -67,8 +66,9 @@ export const RegionalGuides: CollectionConfig = {
     linkedDepartmentField,
     linkedTreatmentsField,
     {
-      ...featuredDoctorField,
       name: "authorDoctor",
+      type: "relationship",
+      relationTo: "doctors",
       label: "저자 (의사, 선택)",
       admin: {
         description:

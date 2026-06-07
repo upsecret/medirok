@@ -33,7 +33,7 @@ export const QnAs: CollectionConfig = {
       required: true,
       admin: { description: "3~5문단. 근거·예시·주의사항 포함." },
     },
-    ...seoMetaFields.filter((f) => f.name !== "seoTitle"),
+    ...seoMetaFields.filter((f) => !("name" in f) || f.name !== "seoTitle"),
     featuredDoctorField,
     linkedHospitalsField,
     linkedDepartmentField,

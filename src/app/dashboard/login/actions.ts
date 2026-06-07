@@ -1,5 +1,6 @@
 "use server";
 
+import type { Route } from "next";
 import { redirect } from "next/navigation";
 import { DASHBOARD_PASSWORD, setDashboardCookie } from "@/lib/dashboard-auth";
 
@@ -12,5 +13,5 @@ export async function loginAction(formData: FormData) {
   }
 
   await setDashboardCookie();
-  redirect(next);
+  redirect(next as Route);
 }

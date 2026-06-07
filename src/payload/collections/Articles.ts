@@ -9,7 +9,6 @@ import {
   linkedDepartmentField,
   linkedRegionsField,
   linkedTreatmentsField,
-  featuredDoctorField,
 } from "@/payload/fields/linkedEntities";
 import { disclaimerField } from "@/payload/fields/medicalDisclaimer";
 
@@ -42,8 +41,9 @@ export const Articles: CollectionConfig = {
     // ★ 의사 저자 — 의원 양방향 cross-link 자동 생성
     // 의원 상세 페이지에 "이 의원 의료진이 쓴 매거진" 섹션에 자동 표시됨
     {
-      ...featuredDoctorField,
       name: "authorDoctor",
+      type: "relationship",
+      relationTo: "doctors",
       label: "저자 (의사)",
       admin: {
         description:

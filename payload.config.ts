@@ -1,10 +1,10 @@
 // 메디록 Payload CMS 설정
-// SQLite for dev, Postgres for production
+// Postgres (DATABASE_URI). 로컬/프로덕션 모두 Postgres 사용 (Vercel 호환)
 // Admin UI: /admin
 
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { sqliteAdapter } from "@payloadcms/db-sqlite";
+import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { buildConfig } from "payload";
 
@@ -49,9 +49,9 @@ export default buildConfig({
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "default-dev-secret-please-change",
-  db: sqliteAdapter({
-    client: {
-      url: process.env.DATABASE_URI || "file:./medirok.db",
+  db: postgresAdapter({
+    pool: {
+      connectionString: process.env.DATABASE_URI || "",
     },
   }),
   typescript: {
