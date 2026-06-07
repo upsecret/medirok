@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: PageProps) {
   if (!label) return {};
   return {
     title: `${label} · 메디록 매거진`,
-    description: `메디록 醫錄 매거진 ${label} 카테고리`,
+    description: `메디록 메디록 매거진 ${label} 카테고리`,
   };
 }
 
@@ -47,7 +47,7 @@ export default async function CategoryPage({ params }: PageProps) {
       <section className="bg-[var(--color-surface-bg)] py-7">
         <div className="container-content">
           <p className="editorial text-[10px] tracking-[0.14em] uppercase text-[var(--color-accent-600)] mb-1">
-            <span className="hanja">醫錄</span> MAGAZINE
+            메디록 MAGAZINE
           </p>
           <h1>{label}</h1>
           <p className="text-sm text-[var(--color-text-muted)] mt-2">

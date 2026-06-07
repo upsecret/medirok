@@ -6,11 +6,11 @@ import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: {
-    default: "메디록 · 내가 직접 고른 醫錄 의원",
+    default: "메디록 · 내가 직접 고른 인증 의원",
     template: "%s | 메디록",
   },
   description:
-    "醫錄 4단계 인증 + 큐레이션을 통과한 의원만. 산부인과·피부과·치과·정형·안과·내과·검진. 광고가 아닌 신뢰로 선택하세요.",
+    "메디록 4단계 인증 + 큐레이션을 통과한 의원만. 산부인과·피부과·치과·정형·안과·내과·검진. 평점·가격·후기를 직접 비교하세요.",
   metadataBase: new URL("https://medirok.com"),
   openGraph: {
     type: "website",

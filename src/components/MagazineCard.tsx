@@ -64,7 +64,7 @@ export function MagazineCard({ magazine, size = "sm" }: MagazineCardProps) {
         </span>
         {magazine.linkedHospitalSlugs && magazine.linkedHospitalSlugs.length > 0 && (
           <span className="text-[var(--color-accent-600)]">
-            <span className="hanja">醫錄</span> 의원 {magazine.linkedHospitalSlugs.length}곳
+            메디록 의원 {magazine.linkedHospitalSlugs.length}곳
           </span>
         )}
       </div>

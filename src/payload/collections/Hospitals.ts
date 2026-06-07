@@ -19,7 +19,7 @@ export const Hospitals: CollectionConfig = {
       required: true,
       defaultValue: "STANDARD",
       options: [
-        { label: "STANDARD (일반 醫錄 인증)", value: "STANDARD" },
+        { label: "STANDARD (일반 인증)", value: "STANDARD" },
         { label: "PREMIUM (큐레이션 + 유료 파트너)", value: "PREMIUM" },
         { label: "HERITAGE (장기 + 우수)", value: "HERITAGE" },
       ],
@@ -43,16 +43,16 @@ export const Hospitals: CollectionConfig = {
     { name: "phone", type: "text" },
     { name: "yearEstablished", type: "number" },
 
-    // 醫錄 4단계 인증
+    // 메디록 4단계 인증
     {
       name: "certification",
       type: "group",
-      label: "醫錄 4단계 인증",
+      label: "메디록 4단계 인증",
       fields: [
-        { name: "stage1Detail", type: "text", label: "一 진료이력" },
-        { name: "stage2Detail", type: "text", label: "二 실방문 후기" },
-        { name: "stage3Detail", type: "text", label: "三 의료진" },
-        { name: "stage4Detail", type: "text", label: "四 시설·장비" },
+        { name: "stage1Detail", type: "text", label: "01 진료이력" },
+        { name: "stage2Detail", type: "text", label: "02 실방문 후기" },
+        { name: "stage3Detail", type: "text", label: "03 의료진" },
+        { name: "stage4Detail", type: "text", label: "04 시설·장비" },
         { name: "certifiedAt", type: "date" },
       ],
     },

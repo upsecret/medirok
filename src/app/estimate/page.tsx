@@ -1,6 +1,6 @@
 export const metadata = {
   title: "백내장·임플란트 무료 견적",
-  description: "醫錄 인증 의원에서 시니어 시술 무료 견적을 받으세요.",
+  description: "메디록 인증 의원에서 시니어 시술 무료 견적을 받으세요.",
 };
 
 export default function EstimatePage() {
@@ -8,11 +8,11 @@ export default function EstimatePage() {
     <section className="bg-[var(--color-surface-bg)] py-8 min-h-[60vh]">
       <div className="container-content">
         <span className="inline-block text-[10px] tracking-[0.05em] bg-[var(--color-accent-100)] text-[var(--color-accent-600)] px-2.5 py-1 rounded font-medium mb-2.5">
-          <span className="hanja">醫錄</span> 인증 의원만 매칭
+          메디록 인증 의원만 매칭
         </span>
         <h1>백내장·임플란트 무료 견적</h1>
         <p className="text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed max-w-xl">
-          희망 진료과·지역·시술명을 알려주시면, <span className="hanja">醫錄</span> 4단계 인증
+          희망 진료과·지역·시술명을 알려주시면, 메디록 4단계 인증
           의원 3곳에서 견적을 받아드립니다. 24시간 내 연락.
         </p>
 
@@ -62,7 +62,7 @@ export default function EstimatePage() {
             />
           </div>
           <button type="submit" className="btn-accent w-full py-3 text-sm">
-            <span className="hanja">醫錄</span> 인증 의원 3곳 견적 받기
+            메디록 인증 의원 3곳 견적 받기
           </button>
         </form>
       </div>

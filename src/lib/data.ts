@@ -100,7 +100,7 @@ export const hospitals: Hospital[] = [
   {
     slug: "hangyeol-dental",
     nameKr: "강남 한결치과의원",
-    shortDescription: "齒 임플란트·보철 전문",
+    shortDescription: "임플란트·보철 전문",
     departmentSlug: "dental",
     regionSlug: "gangnam",
     addressLine: "서울 강남구 역삼동 819-3 한결빌딩 5F",
@@ -223,7 +223,7 @@ export const hospitals: Hospital[] = [
   {
     slug: "myungheon-dental",
     nameKr: "청담 명헌치과",
-    shortDescription: "齒 임플란트·교정",
+    shortDescription: "임플란트·교정",
     departmentSlug: "dental",
     regionSlug: "gangnam",
     addressLine: "서울 강남구 청담동 12-3",
@@ -270,7 +270,7 @@ export const hospitals: Hospital[] = [
   {
     slug: "songhak-dental",
     nameKr: "신사 송학치과",
-    shortDescription: "齒 시니어 임플란트 특화",
+    shortDescription: "시니어 임플란트 특화",
     departmentSlug: "dental",
     regionSlug: "gangnam",
     addressLine: "서울 강남구 신사동 532-1",
@@ -317,7 +317,7 @@ export const hospitals: Hospital[] = [
   {
     slug: "myungheon-ophthalmology",
     nameKr: "송파 명헌안과",
-    shortDescription: "眼 백내장 다초점 렌즈",
+    shortDescription: "백내장 다초점 렌즈",
     departmentSlug: "ophthalmology",
     regionSlug: "songpa",
     addressLine: "서울 송파구 잠실동 47-15",
@@ -347,7 +347,7 @@ export const hospitals: Hospital[] = [
   {
     slug: "songhak-orthopedics",
     nameKr: "서초 송학정형외과",
-    shortDescription: "骨 척추·관절 전문",
+    shortDescription: "척추·관절 전문",
     departmentSlug: "orthopedics",
     regionSlug: "seocho",
     addressLine: "서울 서초구 서초동 1303-22",
@@ -380,7 +380,7 @@ export const articles: Article[] = [
   {
     slug: "senior-implant-vs-denture",
     title: "시니어 임플란트 vs 틀니, 무엇이 나을까",
-    excerpt: "65세 이상 시니어의 의치 선택 기준을 醫錄 전문 큐레이터가 정리했습니다.",
+    excerpt: "65세 이상 시니어의 의치 선택 기준을 메디록 전문 큐레이터가 정리했습니다.",
     category: "치과",
     publishedAt: "2026-05-20",
   },

@@ -18,8 +18,8 @@ export async function generateMetadata({ params }: PageProps) {
   const r = getRegionBySlug(region);
   if (!d || !r) return {};
   return {
-    title: `${r.nameKr} ${d.nameKr} 추천 TOP — 醫錄 인증`,
-    description: `${r.nameKr} ${d.nameKr} 醫錄 인증 의원. 평점·가격·후기를 비교하세요.`,
+    title: `${r.nameKr} ${d.nameKr} 추천 TOP — 메디록 인증`,
+    description: `${r.nameKr} ${d.nameKr} 메디록 인증 의원. 평점·가격·후기를 비교하세요.`,
   };
 }
 
@@ -51,7 +51,7 @@ export default async function DeptRegionPage({ params }: PageProps) {
             {regionData.nameKr} {department.nameKr} 추천 TOP {standard.length}
           </h1>
           <p className="text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed">
-            2026년 6월 기준, 메디록 <span className="hanja">醫錄</span> 4단계 인증을 통과한{" "}
+            2026년 6월 기준, 메디록 메디록 4단계 인증을 통과한{" "}
             {regionData.nameKr} {department.nameKr} {standard.length}곳입니다.
           </p>
         </div>
@@ -65,7 +65,7 @@ export default async function DeptRegionPage({ params }: PageProps) {
             </p>
             <h2 className="editorial mb-4">
               {regionData.nameKr} {department.nameKr}{" "}
-              <span className="hanja">醫錄</span> 큐레이션
+              메디록 큐레이션
             </h2>
             <div className="space-y-3">
               {curated.map((h) => (

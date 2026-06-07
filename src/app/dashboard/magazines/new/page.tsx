@@ -24,7 +24,7 @@ const TEMPLATES: TemplateInfo[] = [
   {
     type: "regional",
     title: "지역 가이드",
-    description: "Local SEO. 지역×시술 TOP 랭킹. 醫錄 인증 의원 중 큐레이션.",
+    description: "Local SEO. 지역×시술 TOP 랭킹. 메디록 인증 의원 중 큐레이션.",
     hanja: "地",
   },
   {

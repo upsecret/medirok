@@ -6,10 +6,10 @@ interface MedirokCertBoxProps {
 }
 
 const stages = [
-  { hanja: "一", labelKr: "진료 이력" },
-  { hanja: "二", labelKr: "실방문 후기" },
-  { hanja: "三", labelKr: "의료진" },
-  { hanja: "四", labelKr: "시설·장비" },
+  { num: "01", labelKr: "진료 이력" },
+  { num: "02", labelKr: "실방문 후기" },
+  { num: "03", labelKr: "의료진" },
+  { num: "04", labelKr: "시설·장비" },
 ];
 
 export function MedirokCertBox({ cert, compact = false }: MedirokCertBoxProps) {
@@ -23,7 +23,7 @@ export function MedirokCertBox({ cert, compact = false }: MedirokCertBoxProps) {
             MEDIROK CERTIFICATION
           </p>
           <h3 className="text-base md:text-lg font-medium text-white mt-1">
-            <span className="hanja">醫錄</span> 4단계 의원 인증
+            메디록 4단계 의원 인증
           </h3>
         </div>
         <span className="text-xs text-[var(--color-accent-300)]">{cert.certifiedAt} 완료</span>
@@ -31,10 +31,12 @@ export function MedirokCertBox({ cert, compact = false }: MedirokCertBoxProps) {
       <div className={`grid ${compact ? "grid-cols-2 md:grid-cols-4" : "grid-cols-2 md:grid-cols-4"} gap-2`}>
         {stages.map((stage, i) => (
           <div
-            key={stage.hanja}
+            key={stage.num}
             className="bg-[var(--color-primary-700)] border border-[var(--color-accent-400)] rounded-md p-3"
           >
-            <span className="hanja text-[var(--color-accent-400)] text-base block">{stage.hanja}</span>
+            <span className="editorial text-[var(--color-accent-400)] text-sm font-medium tracking-wider">
+              {stage.num}
+            </span>
             <p className="text-[11px] font-medium text-white mt-1.5">{stage.labelKr}</p>
             <p className="text-[10px] text-[var(--color-accent-300)] mt-1 leading-relaxed">
               {details[i]}

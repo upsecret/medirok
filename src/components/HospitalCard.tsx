@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { Hospital } from "@/types";
 import { departments, formatKRW } from "@/lib/data";
+import { DepartmentIcon } from "./DepartmentIcon";
 
 interface HospitalCardProps {
   hospital: Hospital;
@@ -21,15 +22,19 @@ export function HospitalCard({ hospital, showPrice = true }: HospitalCardProps) 
     >
       <div className="flex gap-3">
         <div className="w-16 h-16 bg-[var(--color-surface-border)] rounded-md shrink-0 flex items-center justify-center">
-          <span className="hanja text-[var(--color-primary-600)] text-2xl">{dept?.hanja}</span>
+          {dept && (
+            <DepartmentIcon
+              slug={dept.slug}
+              size={32}
+              className="text-[var(--color-primary-600)]"
+            />
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-1 flex-wrap">
             {isPremium && <span className="badge-premium">PREMIUM</span>}
             {hospital.certification?.stage4Facility && (
-              <span className="badge-certified">
-                <span className="hanja">醫錄</span> 4단계
-              </span>
+              <span className="badge-certified">메디록 4단계</span>
             )}
           </div>
           <h3 className="text-sm font-medium text-[var(--color-text-primary)]">

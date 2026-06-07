@@ -37,16 +37,16 @@ export function AuthorProfile({
         aria-label="저자 프로필"
       >
         <p className="editorial text-[10px] tracking-[0.1em] uppercase text-[var(--color-accent-600)] mb-3">
-          <span className="hanja">醫錄</span> AUTHOR
+          MEDIROK · AUTHOR
         </p>
 
         <div className="flex gap-4">
           <div className="w-16 h-16 bg-[var(--color-primary-600)] rounded-full flex items-center justify-center shrink-0">
             <span
-              className="hanja text-[var(--color-accent-400)] text-2xl"
+              className="text-[var(--color-accent-400)] text-xl font-medium"
               aria-hidden
             >
-              {authorDoctor.nameHanja ?? authorDoctor.nameKr[0]}
+              {authorDoctor.nameKr[0]}
             </span>
           </div>
           <div className="flex-1 min-w-0">
@@ -71,7 +71,8 @@ export function AuthorProfile({
                 href={`/hospital/${hospital.slug}` as Route}
                 className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 text-xs text-[var(--color-accent-700)] bg-[var(--color-accent-50)] border border-[var(--color-accent-200)] rounded hover:border-[var(--color-accent-400)]"
               >
-                <span className="hanja text-[var(--color-accent-600)]">醫錄</span>
+                <span className="text-[var(--color-accent-600)] font-medium">메디록 인증</span>
+                <span className="text-[var(--color-text-muted)]">·</span>
                 {hospital.nameKr}
                 <span className="text-[var(--color-text-muted)]">→</span>
               </Link>

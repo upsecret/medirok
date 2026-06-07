@@ -19,12 +19,11 @@ export default function HomePage() {
             TIER 01 · MEDIROK CURATION
           </p>
           <h1 className="editorial mt-1">
-            내가 직접 고른 <span className="hanja">醫錄</span> 의원
+            내가 직접 고른 메디록 큐레이션 의원
           </h1>
           <p className="text-sm text-[var(--color-text-muted)] mt-2 max-w-2xl leading-relaxed">
-            광고비로 노출 순위 살 수 없습니다. 메디록 큐레이터가{" "}
-            <span className="hanja">醫錄</span> 4단계 인증 + 추가 심사를 통과한 의원만
-            매월 선정합니다.
+            메디록 큐레이터가 4단계 인증 + 추가 심사를 통과한 의원만 매월
+            선정합니다.
           </p>
 
           {featuredCuration && (
@@ -49,7 +48,7 @@ export default function HomePage() {
         <div className="container-page">
           <div className="flex justify-between items-baseline mb-3">
             <h2>
-              6월 특가전 <span className="hanja text-[var(--color-accent-600)]">醫錄</span>
+              6월 특가전
             </h2>
             <Link href={"/event" as Route} className="text-xs text-[var(--color-text-muted)]">
               모든 특가 →
@@ -73,12 +72,12 @@ export default function HomePage() {
           </div>
           <div className="bg-[var(--color-surface-bg)] rounded-md p-3 flex gap-3 items-center">
             <div className="w-14 h-14 bg-[var(--color-primary-600)] rounded-md flex items-center justify-center shrink-0">
-              <span className="hanja text-[var(--color-accent-400)] text-xl">齒</span>
+              <span className="text-[var(--color-accent-400)] text-base font-medium">치과</span>
             </div>
             <div className="flex-1">
               <p className="text-sm font-medium">시니어 임플란트 패키지</p>
               <p className="text-xs text-[var(--color-text-muted)] mt-1">
-                서울 18곳 · <span className="hanja">醫錄</span> 인증
+                서울 18곳 · 메디록 인증
               </p>
             </div>
             <div className="text-right shrink-0">
@@ -96,12 +95,12 @@ export default function HomePage() {
           </p>
           <div className="flex justify-between items-baseline mt-1 mb-1">
             <h2 className="text-base font-medium">
-              전체 <span className="hanja">醫錄</span> 인증 의원
+              전체 메디록 인증 의원
             </h2>
             <span className="text-xs text-[var(--color-text-muted)]">312개 · 정렬 ▾</span>
           </div>
           <p className="text-xs text-[var(--color-text-muted)] mt-1.5 mb-4">
-            <span className="hanja">醫錄</span> 4단계 인증을 통과한 의원만. 가격·평점·거리·후기를
+            메디록 4단계 인증을 통과한 의원만. 가격·평점·거리·후기를
             직접 비교하고 선택하세요.
           </p>
           <div className="space-y-2">
@@ -125,7 +124,7 @@ export default function HomePage() {
           <div className="flex gap-3 items-center justify-between">
             <div>
               <p className="text-[10px] tracking-[0.06em] text-[var(--color-accent-400)]">
-                <span className="hanja">醫錄</span> 매거진 오픈
+                메디록 매거진 오픈
               </p>
               <p className="text-white font-medium text-sm mt-1">
                 &ldquo;시니어 임플란트, 의사가 답합니다&rdquo;
@@ -144,7 +143,7 @@ export default function HomePage() {
       <section className="bg-[var(--color-surface-bg)] py-7 border-t border-[var(--color-surface-border)]">
         <div className="container-page">
           <h2 className="text-base font-medium mb-3">
-            <span className="hanja text-[var(--color-accent-600)]">醫錄</span> 매거진
+            메디록 매거진
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {articles.map((a) => (
@@ -175,7 +174,7 @@ export default function HomePage() {
             <div>
               <p className="text-xl md:text-2xl font-medium">312</p>
               <p className="text-[10px] text-[var(--color-text-muted)] mt-1">
-                <span className="hanja">醫錄</span> 인증 의원
+                메디록 인증 의원
               </p>
             </div>
             <div>

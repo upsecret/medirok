@@ -1,9 +1,10 @@
-// TIER 1 — 醫錄 큐레이션 카드 (매거진 톤)
+// TIER 1 — 메디록 큐레이션 카드 (매거진 톤)
 
 import Link from "next/link";
 import type { Route } from "next";
 import type { Hospital } from "@/types";
 import { departments } from "@/lib/data";
+import { DepartmentIcon } from "./DepartmentIcon";
 
 interface CurationCardProps {
   hospital: Hospital;
@@ -16,21 +17,24 @@ export function CurationCard({ hospital, size = "lg" }: CurationCardProps) {
 
   return (
     <article className="tier1-card p-5 md:p-6 relative">
-      <span className="absolute top-4 right-4 hanja text-[10px] font-medium tracking-[0.06em] px-2.5 py-1 rounded-full bg-[var(--color-primary-600)] text-[var(--color-accent-400)]">
+      <span className="absolute top-4 right-4 editorial text-[10px] font-medium tracking-[0.06em] px-2.5 py-1 rounded-full bg-[var(--color-primary-600)] text-[var(--color-accent-400)]">
         CURATION
       </span>
 
       <div className={`grid ${isLarge ? "grid-cols-[80px_1fr]" : "grid-cols-1"} gap-4 items-start`}>
-        {isLarge && (
+        {isLarge && dept && (
           <div className="w-20 h-20 bg-[var(--color-primary-600)] rounded-lg flex items-center justify-center">
-            <span className="hanja text-[var(--color-accent-400)] text-4xl">
-              {dept?.hanja}
-            </span>
+            <DepartmentIcon
+              slug={dept.slug}
+              size={44}
+              strokeWidth={1.4}
+              className="text-[var(--color-accent-400)]"
+            />
           </div>
         )}
         <div>
           <p className="editorial text-xs tracking-[0.1em] text-[var(--color-accent-600)]">
-            {dept?.hanja} · {dept?.nameEn?.toUpperCase()}
+            {dept?.nameKr} · {dept?.nameEn?.toUpperCase()}
           </p>
           <h3 className={`editorial mt-1.5 ${isLarge ? "text-xl" : "text-base"} text-[var(--color-text-primary)]`}>
             {hospital.nameKr}
@@ -51,7 +55,7 @@ export function CurationCard({ hospital, size = "lg" }: CurationCardProps) {
             &ldquo;{hospital.curationNote.text}&rdquo;
           </p>
           <p className="text-[10px] text-[var(--color-text-muted)] mt-2 tracking-[0.04em]">
-            — <span className="hanja">醫錄</span> 큐레이터 {hospital.curationNote.curatorName}
+            — 메디록 큐레이터 {hospital.curationNote.curatorName}
             {hospital.curationNote.curatorTitle && ` (${hospital.curationNote.curatorTitle})`}
           </p>
         </div>

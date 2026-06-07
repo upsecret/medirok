@@ -28,7 +28,7 @@ export default async function DashboardMagazinesPage({ searchParams }: PageProps
         <div>
           <h1 className="text-2xl font-medium">매거진 관리</h1>
           <p className="text-sm text-[var(--color-text-muted)] mt-1">
-            <span className="hanja">醫錄</span> 매거진 {list.length}편
+            메디록 매거진 {list.length}편
           </p>
         </div>
         <Link

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { departments } from "@/lib/data";
+import { DepartmentIcon } from "./DepartmentIcon";
 
 export function DepartmentGrid() {
   return (
@@ -15,7 +16,11 @@ export function DepartmentGrid() {
               href={`/hospitals/${dept.slug}`}
               className="bg-white rounded-md p-3 text-center transition border border-[var(--color-surface-border)] hover:border-[var(--color-accent-400)]"
             >
-              <p className="hanja text-[var(--color-primary-600)] text-2xl leading-none">{dept.hanja}</p>
+              <DepartmentIcon
+                slug={dept.slug}
+                size={26}
+                className="text-[var(--color-primary-600)] mx-auto"
+              />
               <p className="text-[11px] font-medium text-[var(--color-text-primary)] mt-1.5">
                 {dept.nameKr}
               </p>

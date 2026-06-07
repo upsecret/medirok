@@ -18,7 +18,7 @@ export default async function DashboardHomePage() {
     <div>
       <h1 className="text-2xl font-medium">대시보드</h1>
       <p className="text-sm text-[var(--color-text-muted)] mt-1">
-        의원 정보를 관리하고 <span className="hanja">醫錄</span> 매거진을 작성하세요.
+        의원 정보를 관리하고 메디록 매거진을 작성하세요.
       </p>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
@@ -32,7 +32,7 @@ export default async function DashboardHomePage() {
         <ActionCard
           href={"/dashboard/hospitals/new" as Route}
           title="의원 추가"
-          description="신규 醫錄 인증 의원을 등록합니다. 영업한 의원의 정보를 입력하세요."
+          description="신규 메디록 인증 의원을 등록합니다. 영업한 의원의 정보를 입력하세요."
         />
         <ActionCard
           href={"/dashboard/magazines/new" as Route}

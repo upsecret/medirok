@@ -4,9 +4,9 @@ import { loadMagazines } from "@/lib/storage";
 import { MagazineCard } from "@/components/MagazineCard";
 
 export const metadata = {
-  title: "메디록 매거진 · 醫錄",
+  title: "메디록 매거진 · 메디록",
   description:
-    "醫錄 큐레이션 의원이 직접 답하는 시니어 의료 가이드. 시술 가이드·Q&A·지역 비교·의원 인터뷰·실제 케이스.",
+    "메디록 큐레이션 의원이 직접 답하는 시니어 의료 가이드. 시술 가이드·Q&A·지역 비교·의원 인터뷰·실제 케이스.",
 };
 
 const TYPE_TABS = [
@@ -29,14 +29,14 @@ export default async function MagazineListPage() {
       <section className="bg-[var(--color-primary-600)] py-8 md:py-10">
         <div className="container-content">
           <p className="editorial text-[10px] tracking-[0.14em] uppercase text-[var(--color-accent-400)]">
-            MEDIROK MAGAZINE · <span className="hanja">醫錄</span>
+            MEDIROK MAGAZINE · 메디록
           </p>
           <h1 className="editorial text-white mt-2">
-            의료의 기록 · <span className="hanja">醫錄</span> 매거진
+            의료의 기록 · 메디록 매거진
           </h1>
           <p className="text-[var(--color-accent-300)] text-sm mt-3 leading-relaxed max-w-xl">
-            <span className="hanja">醫錄</span> 큐레이션 의원이 직접 답하는 의료 가이드.
-            치과·산부인과·피부과·정형·안과·내과·검진. 광고가 아닌 신뢰 기반.
+            메디록 큐레이션 의원이 직접 답하는 의료 가이드.
+            치과·산부인과·피부과·정형·안과·내과·검진.
           </p>
         </div>
       </section>

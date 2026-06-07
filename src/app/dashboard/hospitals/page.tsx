@@ -19,7 +19,7 @@ export default async function DashboardHospitalsPage({ searchParams }: PageProps
         <div>
           <h1 className="text-2xl font-medium">의원 관리</h1>
           <p className="text-sm text-[var(--color-text-muted)] mt-1">
-            등재된 醫錄 인증 의원 {hospitals.length}곳
+            등재된 메디록 인증 의원 {hospitals.length}곳
           </p>
         </div>
         <Link

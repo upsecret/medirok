@@ -37,7 +37,7 @@ export function HospitalForm({ initial, mode }: Props) {
             name="shortDescription"
             defaultValue={v("shortDescription")}
             className="input"
-            placeholder="齒 임플란트·보철 전문"
+            placeholder="임플란트·보철 전문"
           />
         </Field>
         <div className="grid grid-cols-2 gap-3">
@@ -49,7 +49,7 @@ export function HospitalForm({ initial, mode }: Props) {
             >
               {departments.map((d) => (
                 <option key={d.slug} value={d.slug}>
-                  {d.hanja} {d.nameKr}
+                  {d.nameKr}
                 </option>
               ))}
             </select>
@@ -73,7 +73,7 @@ export function HospitalForm({ initial, mode }: Props) {
         <div className="grid grid-cols-2 gap-3">
           <Field label="등급" hint="PREMIUM = 큐레이션 + 유료 파트너">
             <select name="tier" defaultValue={v("tier", "STANDARD")} className="input">
-              <option value="STANDARD">STANDARD (일반 醫錄 인증)</option>
+              <option value="STANDARD">STANDARD (일반 메디록 인증)</option>
               <option value="PREMIUM">PREMIUM (큐레이션)</option>
               <option value="HERITAGE">HERITAGE</option>
             </select>
@@ -127,12 +127,12 @@ export function HospitalForm({ initial, mode }: Props) {
         </Field>
       </FormSection>
 
-      <FormSection title="醫錄 4단계 인증">
+      <FormSection title="메디록 4단계 인증">
         <CertRow
           stageKey="stage1"
           boolName="cert_stage1"
           detailName="cert_stage1Detail"
-          label="一 진료 이력"
+          label="01 진료 이력"
           placeholder="12년 운영 · 임플란트 5,200건"
           defaultBool={initial?.certification?.stage1History ?? false}
           defaultDetail={initial?.certification?.stage1Detail ?? ""}
@@ -141,7 +141,7 @@ export function HospitalForm({ initial, mode }: Props) {
           stageKey="stage2"
           boolName="cert_stage2"
           detailName="cert_stage2Detail"
-          label="二 실방문 후기"
+          label="02 실방문 후기"
           placeholder="312건 · 영수증 인증 100%"
           defaultBool={initial?.certification?.stage2Reviews ?? false}
           defaultDetail={initial?.certification?.stage2Detail ?? ""}
@@ -150,7 +150,7 @@ export function HospitalForm({ initial, mode }: Props) {
           stageKey="stage3"
           boolName="cert_stage3"
           detailName="cert_stage3Detail"
-          label="三 의료진 자격"
+          label="03 의료진 자격"
           placeholder="서울대 치대 졸 · 4인 전문의"
           defaultBool={initial?.certification?.stage3Credentials ?? false}
           defaultDetail={initial?.certification?.stage3Detail ?? ""}
@@ -159,7 +159,7 @@ export function HospitalForm({ initial, mode }: Props) {
           stageKey="stage4"
           boolName="cert_stage4"
           detailName="cert_stage4Detail"
-          label="四 시설·장비"
+          label="04 시설·장비"
           placeholder="3D CT · 위생 1등급"
           defaultBool={initial?.certification?.stage4Facility ?? false}
           defaultDetail={initial?.certification?.stage4Detail ?? ""}

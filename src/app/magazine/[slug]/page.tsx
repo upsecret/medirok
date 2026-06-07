@@ -123,7 +123,7 @@ export default async function MagazineDetailPage({ params }: PageProps) {
           <h1 className="editorial">{magazine.seoTitle}</h1>
           {magazine.authorName && (
             <p className="text-sm text-[var(--color-text-muted)] mt-3">
-              <span className="hanja text-[var(--color-accent-600)]">醫錄</span>{" "}
+              메디록{" "}
               {authorDoctor ? (
                 <>
                   <span className="text-[var(--color-text-primary)] font-medium">
@@ -206,7 +206,7 @@ export default async function MagazineDetailPage({ params }: PageProps) {
           {linkedHospitals.length > 0 && (
             <section className="my-8 pt-6 border-t border-[var(--color-surface-border)]">
               <h2 className="text-lg font-medium mb-3">
-                관련 <span className="hanja text-[var(--color-accent-600)]">醫錄</span> 의원
+                관련 메디록 의원
               </h2>
               <div className="space-y-2">
                 {linkedHospitals.map((h) => (

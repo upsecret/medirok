@@ -15,7 +15,7 @@ export function ShortAnswerBlock({ answer, authorName, authorTitle }: ShortAnswe
       aria-label="핵심 답변"
     >
       <p className="editorial text-[10px] tracking-[0.1em] uppercase text-[var(--color-accent-400)] mb-2">
-        <span className="hanja">醫錄</span> · 핵심 답변
+        메디록 · 핵심 답변
       </p>
       <p className="text-white text-base md:text-lg leading-relaxed">
         {answer}

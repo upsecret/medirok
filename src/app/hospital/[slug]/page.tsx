@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: PageProps) {
   const h = getHospitalBySlug(slug);
   if (!h) return {};
   return {
-    title: `${h.nameKr} · 醫錄 인증 의원`,
+    title: `${h.nameKr} · 메디록 인증 의원`,
     description: `${h.nameKr} 평점·가격·후기·시술 정보. ${h.certification?.stage1Detail ?? ""}`,
   };
 }
@@ -54,7 +54,7 @@ export default async function HospitalDetailPage({ params }: PageProps) {
             {hospital.tier === "PREMIUM" && <span className="badge-premium">PREMIUM</span>}
             {hospital.certification && (
               <span className="badge-certified">
-                <span className="hanja">醫錄</span> 4단계 인증
+                메디록 4단계 인증
               </span>
             )}
             <span className="text-[10px] font-medium bg-[var(--color-accent-100)] text-[var(--color-accent-600)] px-2 py-0.5 rounded">
@@ -126,7 +126,7 @@ export default async function HospitalDetailPage({ params }: PageProps) {
               &ldquo;{hospital.curationNote.text}&rdquo;
             </blockquote>
             <p className="text-xs text-[var(--color-text-muted)] mt-3">
-              — <span className="hanja">醫錄</span> 큐레이터 {hospital.curationNote.curatorName}
+              — 메디록 큐레이터 {hospital.curationNote.curatorName}
               {hospital.curationNote.curatorTitle && ` (${hospital.curationNote.curatorTitle})`}
             </p>
           </div>
@@ -192,8 +192,8 @@ export default async function HospitalDetailPage({ params }: PageProps) {
                   className="bg-white rounded-md border border-[var(--color-surface-border)] p-3 text-center"
                 >
                   <div className="w-12 h-12 bg-[var(--color-primary-600)] rounded-full mx-auto mb-2 flex items-center justify-center">
-                    <span className="hanja text-[var(--color-accent-400)] text-lg">
-                      {d.nameHanja ?? d.nameKr[0]}
+                    <span className="text-[var(--color-accent-400)] text-base font-medium">
+                      {d.nameKr[0]}
                     </span>
                   </div>
                   <p className="text-xs font-medium">{d.nameKr}</p>
@@ -287,7 +287,7 @@ export default async function HospitalDetailPage({ params }: PageProps) {
             <div className="flex justify-between items-baseline mb-3">
               <div>
                 <p className="text-[10px] tracking-[0.08em] uppercase text-[var(--color-accent-600)] font-medium">
-                  <span className="hanja">醫錄</span> · 의원 매거진
+                  메디록 · 의원 매거진
                 </p>
                 <h2 className="text-base font-medium mt-1">
                   {hospital.nameKr} 의료진이 직접 쓴 글
@@ -310,7 +310,7 @@ export default async function HospitalDetailPage({ params }: PageProps) {
         <section className="py-5 bg-white">
           <div className="container-page">
             <h2 className="text-base font-medium mb-3">
-              비슷한 <span className="hanja">醫錄</span> 의원
+              비슷한 메디록 의원
             </h2>
             <div className="space-y-2">
               {similar.slice(0, 3).map((h) => (
