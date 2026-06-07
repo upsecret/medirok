@@ -50,8 +50,10 @@ export default buildConfig({
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "default-dev-secret-please-change",
   db: postgresAdapter({
+    // 런타임은 pooled 연결(DATABASE_URL), 마이그레이션/스키마 push는 직결(UNPOOLED) 권장
     pool: {
-      connectionString: process.env.DATABASE_URI || "",
+      connectionString:
+        process.env.DATABASE_URL || process.env.DATABASE_URI || "",
     },
   }),
   typescript: {
