@@ -1,6 +1,6 @@
-// 메디록 샘플 매거진 10편 시드
-// 강남 임플란트 키워드 클러스터 — 영업 시뮬레이션
-// 추후 Payload CMS 입력 시 이 구조 그대로 마이그레이션
+// 메디록 매거진 타입 + 시드 데이터
+// 콘텐츠는 Payload CMS(magazines 컬렉션)에서 관리. 이 파일의 seedMagazines는
+// 최초 1회 DB 주입용 시드이며, 런타임 조회는 src/lib/magazines-data.ts를 사용.
 
 export type MagazineType = "article" | "qna" | "regional" | "interview" | "case";
 
@@ -28,7 +28,7 @@ export interface Magazine {
   category: string;
 }
 
-export const magazines: Magazine[] = [
+export const seedMagazines: Magazine[] = [
   // ─────────────────────────────────────────────
   // [01] 시술 가이드 — 강남 임플란트 가격
   // ─────────────────────────────────────────────
@@ -452,39 +452,4 @@ export const magazines: Magazine[] = [
   },
 ];
 
-// ─────────────────────────────────────────────
-// 헬퍼
-// ─────────────────────────────────────────────
-
-export function getMagazineBySlug(slug: string) {
-  return magazines.find((m) => m.slug === slug);
-}
-
-export function getMagazinesByType(type: MagazineType) {
-  return magazines.filter((m) => m.type === type);
-}
-
-export function getMagazinesByHospital(hospitalSlug: string) {
-  return magazines.filter((m) => m.linkedHospitalSlugs?.includes(hospitalSlug));
-}
-
-export function getMagazinesByAuthorDoctorSlug(doctorSlug: string) {
-  return magazines.filter((m) => m.authorDoctorSlug === doctorSlug);
-}
-
-/** 의원에 소속된 모든 의사가 쓴 매거진을 모음. doctorSlugs는 data.ts의 getDoctorsByHospitalSlug로 얻은 의사 slug 배열 */
-export function getMagazinesByDoctorSlugs(doctorSlugs: string[]) {
-  return magazines.filter(
-    (m) => m.authorDoctorSlug && doctorSlugs.includes(m.authorDoctorSlug)
-  );
-}
-
-export function getMagazinesByDepartment(deptSlug: string) {
-  return magazines.filter((m) => m.linkedDepartmentSlug === deptSlug);
-}
-
-export function getRecentMagazines(limit = 6) {
-  return [...magazines]
-    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
-    .slice(0, limit);
-}
+// 런타임 조회 헬퍼는 src/lib/magazines-data.ts (Payload 백엔드)로 이전됨.

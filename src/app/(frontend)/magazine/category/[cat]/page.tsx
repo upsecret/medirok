@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Route } from "next";
-import { getMagazinesByType, type MagazineType } from "@/lib/magazines";
+import type { MagazineType } from "@/lib/magazines";
+import { getMagazinesByType } from "@/lib/magazines-data";
 import { MagazineCard } from "@/components/MagazineCard";
 
 const CAT_LABELS: Record<MagazineType, string> = {
@@ -34,7 +35,7 @@ export default async function CategoryPage({ params }: PageProps) {
   const { cat } = await params;
   const label = CAT_LABELS[cat as MagazineType];
   if (!label) notFound();
-  const items = getMagazinesByType(cat as MagazineType);
+  const items = await getMagazinesByType(cat as MagazineType);
 
   return (
     <>

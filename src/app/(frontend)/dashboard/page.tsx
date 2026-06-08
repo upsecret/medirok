@@ -1,11 +1,12 @@
 import Link from "next/link";
 import type { Route } from "next";
-import { loadHospitals, loadMagazines } from "@/lib/storage";
+import { loadHospitals } from "@/lib/storage";
+import { getAllMagazines } from "@/lib/magazines-data";
 
 export default async function DashboardHomePage() {
   const [hospitals, magazines] = await Promise.all([
     loadHospitals(),
-    loadMagazines(),
+    getAllMagazines(),
   ]);
 
   const premium = hospitals.filter((h) => h.tier === "PREMIUM").length;
@@ -34,22 +35,29 @@ export default async function DashboardHomePage() {
           title="의원 추가"
           description="신규 메디록 인증 의원을 등록합니다. 영업한 의원의 정보를 입력하세요."
         />
-        <ActionCard
-          href={"/dashboard/magazines/new" as Route}
-          title="매거진 작성"
-          description="5종 템플릿(시술 가이드·Q&A·지역·인터뷰·케이스)으로 SEO/AEO 콘텐츠를 만듭니다."
-        />
+        <a
+          href="/admin/collections/magazines/create"
+          className="block bg-white border border-[var(--color-surface-border)] rounded-lg p-5 hover:border-[var(--color-accent-400)]"
+        >
+          <p className="text-base font-medium">매거진 작성</p>
+          <p className="text-xs text-[var(--color-text-muted)] mt-2 leading-relaxed">
+            Payload CMS(/admin)에서 SEO/AEO 매거진을 작성·관리합니다.
+          </p>
+          <p className="mt-3 text-xs text-[var(--color-accent-700)]">
+            /admin 에서 작성 →
+          </p>
+        </a>
       </div>
 
       <section className="bg-white border border-[var(--color-surface-border)] rounded-lg p-5 mt-8">
         <div className="flex justify-between items-baseline mb-3">
           <h2 className="text-base font-medium">최근 매거진</h2>
-          <Link
-            href={"/dashboard/magazines" as Route}
+          <a
+            href="/admin/collections/magazines"
             className="text-xs text-[var(--color-accent-700)]"
           >
-            전체 보기 →
-          </Link>
+            /admin 에서 관리 →
+          </a>
         </div>
         {recent.length === 0 ? (
           <p className="text-sm text-[var(--color-text-muted)]">
@@ -63,7 +71,7 @@ export default async function DashboardHomePage() {
                 className="flex items-center justify-between gap-2 text-sm"
               >
                 <Link
-                  href={`/dashboard/magazines/${m.slug}/edit` as Route}
+                  href={`/magazine/${m.slug}` as Route}
                   className="flex-1 truncate hover:text-[var(--color-accent-700)]"
                 >
                   {m.seoTitle}

@@ -8,11 +8,7 @@ import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { buildConfig } from "payload";
 
-import { Articles } from "@/payload/collections/Articles";
-import { QnAs } from "@/payload/collections/QnAs";
-import { RegionalGuides } from "@/payload/collections/RegionalGuides";
-import { HospitalInterviews } from "@/payload/collections/HospitalInterviews";
-import { CaseStories } from "@/payload/collections/CaseStories";
+import { Magazines } from "@/payload/collections/Magazines";
 import { Hospitals } from "@/payload/collections/Hospitals";
 import { Doctors } from "@/payload/collections/Doctors";
 import { Departments } from "@/payload/collections/Departments";
@@ -31,12 +27,8 @@ export default buildConfig({
     },
   },
   collections: [
-    // 매거진 5종 (CMS 영업 도구)
-    Articles,
-    QnAs,
-    RegionalGuides,
-    HospitalInterviews,
-    CaseStories,
+    // 매거진 (단일 통합 컬렉션)
+    Magazines,
     // 의료 마스터 데이터
     Hospitals,
     Doctors,

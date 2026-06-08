@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getHospitalBySlug, getDepartmentBySlug, formatKRW, hospitals } from "@/lib/data";
-import { getMagazinesByDoctorSlugs } from "@/lib/magazines";
+import { getMagazinesByDoctorSlugs } from "@/lib/magazines-data";
 import { MedirokCertBox } from "@/components/MedirokCertBox";
 import { HospitalCard } from "@/components/HospitalCard";
 import { MagazineCard } from "@/components/MagazineCard";
@@ -31,7 +31,7 @@ export default async function HospitalDetailPage({ params }: PageProps) {
 
   // 이 의원에 소속된 의사들이 쓴 매거진
   const doctorSlugs = hospital.doctors.map((d) => d.slug);
-  const hospitalMagazines = getMagazinesByDoctorSlugs(doctorSlugs);
+  const hospitalMagazines = await getMagazinesByDoctorSlugs(doctorSlugs);
 
   return (
     <>

@@ -7,10 +7,10 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
-const NAV: { href: Route; label: string; hanja?: string }[] = [
+const NAV: { href: string; label: string; hanja?: string; external?: boolean }[] = [
   { href: "/dashboard", label: "대시보드", hanja: "錄" },
-  { href: "/dashboard/hospitals" as Route, label: "의원 관리" },
-  { href: "/dashboard/magazines" as Route, label: "매거진 관리" },
+  { href: "/dashboard/hospitals", label: "의원 관리" },
+  { href: "/admin/collections/magazines", label: "매거진 관리", external: true },
 ];
 
 export default function DashboardLayout({
@@ -28,15 +28,25 @@ export default function DashboardLayout({
               <span className="font-medium">메디록 관리자</span>
             </Link>
             <nav className="hidden md:flex items-center gap-4 text-sm">
-              {NAV.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="text-[var(--color-accent-300)] hover:text-white"
-                >
-                  {item.label}
-                </Link>
-              ))}
+              {NAV.map((item) =>
+                item.external ? (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    className="text-[var(--color-accent-300)] hover:text-white"
+                  >
+                    {item.label}
+                  </a>
+                ) : (
+                  <Link
+                    key={item.href}
+                    href={item.href as Route}
+                    className="text-[var(--color-accent-300)] hover:text-white"
+                  >
+                    {item.label}
+                  </Link>
+                )
+              )}
             </nav>
           </div>
           <div className="flex items-center gap-3">
@@ -59,11 +69,21 @@ export default function DashboardLayout({
       </header>
 
       <nav className="md:hidden bg-[var(--color-primary-600)] text-white px-4 py-2 flex gap-4 text-xs overflow-x-auto">
-        {NAV.map((item) => (
-          <Link key={item.href} href={item.href} className="whitespace-nowrap">
-            {item.label}
-          </Link>
-        ))}
+        {NAV.map((item) =>
+          item.external ? (
+            <a key={item.href} href={item.href} className="whitespace-nowrap">
+              {item.label}
+            </a>
+          ) : (
+            <Link
+              key={item.href}
+              href={item.href as Route}
+              className="whitespace-nowrap"
+            >
+              {item.label}
+            </Link>
+          )
+        )}
       </nav>
 
       <main className="max-w-6xl mx-auto px-4 py-6 md:py-8">{children}</main>

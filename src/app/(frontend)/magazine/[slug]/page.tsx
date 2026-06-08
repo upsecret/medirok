@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { loadMagazines, loadHospitals } from "@/lib/storage";
+import { loadHospitals } from "@/lib/storage";
+import { getAllMagazines, getMagazineBySlug } from "@/lib/magazines-data";
 import { getDoctorBySlug } from "@/lib/data";
 import { ShortAnswerBlock } from "@/components/ShortAnswerBlock";
 import { FaqBlock } from "@/components/FaqBlock";
@@ -22,14 +23,13 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const list = await loadMagazines();
+  const list = await getAllMagazines();
   return list.map((m) => ({ slug: m.slug }));
 }
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
-  const list = await loadMagazines();
-  const m = list.find((x) => x.slug === slug);
+  const m = await getMagazineBySlug(slug);
   if (!m) return {};
   return {
     title: m.seoTitle,
@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function MagazineDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const [magazines, hospitals] = await Promise.all([loadMagazines(), loadHospitals()]);
+  const [magazines, hospitals] = await Promise.all([getAllMagazines(), loadHospitals()]);
   const magazine = magazines.find((m) => m.slug === slug);
   if (!magazine) notFound();
 
@@ -51,6 +51,13 @@ export default async function MagazineDetailPage({ params }: PageProps) {
   const authorDoctor = magazine.authorDoctorSlug
     ? getDoctorBySlug(magazine.authorDoctorSlug)
     : undefined;
+
+  // 저자 의사가 쓴 다른 글 (AuthorProfile에 전달)
+  const authorOtherArticles = authorDoctor
+    ? magazines.filter(
+        (m) => m.authorDoctorSlug === authorDoctor.slug && m.slug !== magazine.slug
+      )
+    : [];
 
   const relatedMagazines = magazines
     .filter(
@@ -200,7 +207,7 @@ export default async function MagazineDetailPage({ params }: PageProps) {
             authorDoctor={authorDoctor}
             authorName={magazine.authorName}
             authorTitle={magazine.authorTitle}
-            currentMagazineSlug={magazine.slug}
+            otherArticles={authorOtherArticles}
           />
 
           {linkedHospitals.length > 0 && (

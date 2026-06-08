@@ -7,7 +7,6 @@ import type { Route } from "next";
 import type { Doctor } from "@/types";
 import type { Magazine } from "@/lib/magazines";
 import { getHospitalByDoctorSlug } from "@/lib/data";
-import { getMagazinesByAuthorDoctorSlug } from "@/lib/magazines";
 
 interface AuthorProfileProps {
   /** 의사 저자가 있는 경우 (이때 의원 링크 + 다른 글 자동 표시) */
@@ -15,21 +14,19 @@ interface AuthorProfileProps {
   /** 큐레이션팀/외부 전문가 등 비-의사 저자 */
   authorName?: string;
   authorTitle?: string;
-  /** 현재 매거진 slug (다른 글 목록에서 자기 자신 제외) */
-  currentMagazineSlug?: string;
+  /** 이 의사 저자가 쓴 다른 글 (현재 글은 부모에서 제외해 전달) */
+  otherArticles?: Magazine[];
 }
 
 export function AuthorProfile({
   authorDoctor,
   authorName,
   authorTitle,
-  currentMagazineSlug,
+  otherArticles = [],
 }: AuthorProfileProps) {
   // 케이스 1: 의사 저자 — 의원 cross-link + 다른 글
   if (authorDoctor) {
     const hospital = getHospitalByDoctorSlug(authorDoctor.slug);
-    const otherArticles = getMagazinesByAuthorDoctorSlug(authorDoctor.slug)
-      .filter((m) => m.slug !== currentMagazineSlug);
 
     return (
       <section

@@ -1,19 +1,13 @@
-// MVP: JSON 파일 저장
-// 추후 Payload DB로 마이그레이션 가능한 동일 인터페이스
-//
-// 파일 위치: data/hospitals.json, data/magazines.json
-// 시드 데이터 (lib/data.ts, lib/magazines.ts) → 파일 없을 때 fallback
+// 병원 데이터: JSON 파일 저장 (MVP)
+// 매거진은 Payload CMS로 이전됨 → src/lib/magazines-data.ts 참조
 
 import fs from "node:fs/promises";
 import path from "node:path";
 import { hospitals as seedHospitals } from "@/lib/data";
-import { magazines as seedMagazines } from "@/lib/magazines";
 import type { Hospital } from "@/types";
-import type { Magazine } from "@/lib/magazines";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const HOSPITALS_FILE = path.join(DATA_DIR, "hospitals.json");
-const MAGAZINES_FILE = path.join(DATA_DIR, "magazines.json");
 
 async function ensureDir() {
   await fs.mkdir(DATA_DIR, { recursive: true });
@@ -60,35 +54,5 @@ export async function deleteHospital(slug: string): Promise<boolean> {
   if (idx < 0) return false;
   list.splice(idx, 1);
   await saveHospitals(list);
-  return true;
-}
-
-// ─────────────────────────────────────────────
-// Magazines
-// ─────────────────────────────────────────────
-
-export async function loadMagazines(): Promise<Magazine[]> {
-  return readJson<Magazine[]>(MAGAZINES_FILE, seedMagazines);
-}
-
-export async function saveMagazines(list: Magazine[]) {
-  await writeJson(MAGAZINES_FILE, list);
-}
-
-export async function upsertMagazine(m: Magazine): Promise<Magazine> {
-  const list = await loadMagazines();
-  const idx = list.findIndex((x) => x.slug === m.slug);
-  if (idx >= 0) list[idx] = m;
-  else list.unshift(m); // 최신이 앞으로
-  await saveMagazines(list);
-  return m;
-}
-
-export async function deleteMagazine(slug: string): Promise<boolean> {
-  const list = await loadMagazines();
-  const idx = list.findIndex((x) => x.slug === slug);
-  if (idx < 0) return false;
-  list.splice(idx, 1);
-  await saveMagazines(list);
   return true;
 }

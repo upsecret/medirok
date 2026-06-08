@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Route } from "next";
-import { loadMagazines } from "@/lib/storage";
+import { getAllMagazines } from "@/lib/magazines-data";
 import { MagazineCard } from "@/components/MagazineCard";
 
 export const metadata = {
@@ -19,7 +19,7 @@ const TYPE_TABS = [
 ] as const;
 
 export default async function MagazineListPage() {
-  const all = await loadMagazines();
+  const all = await getAllMagazines();
   const recent = [...all]
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
     .slice(0, 3);
