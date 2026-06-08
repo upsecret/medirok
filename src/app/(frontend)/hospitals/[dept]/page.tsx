@@ -46,8 +46,7 @@ export default async function DeptListPage({ params }: PageProps) {
             <span className="hanja">{department.hanja}</span> · {department.nameEn?.toUpperCase()}
           </span>
           <h1>
-            {department.nameKr} 메디록 인증 의원 추천 TOP{" "}
-            {standard.length}
+            {department.nameKr} 메디록 인증 의원 {standard.length}곳
           </h1>
           <p className="text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed">
             메디록 메디록 4단계 인증을 통과한 {department.nameKr}{" "}

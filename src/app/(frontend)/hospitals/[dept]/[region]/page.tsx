@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: PageProps) {
   const r = await getRegionBySlug(region);
   if (!d || !r) return {};
   return {
-    title: `${r.nameKr} ${d.nameKr} 추천 TOP — 메디록 인증`,
+    title: `${r.nameKr} ${d.nameKr} 메디록 인증 의원`,
     description: `${r.nameKr} ${d.nameKr} 메디록 인증 의원. 평점·가격·후기를 비교하세요.`,
   };
 }
@@ -48,7 +48,7 @@ export default async function DeptRegionPage({ params }: PageProps) {
             {department.nameKr}
           </span>
           <h1>
-            {regionData.nameKr} {department.nameKr} 추천 TOP {standard.length}
+            {regionData.nameKr} {department.nameKr} 메디록 인증 의원 {standard.length}곳
           </h1>
           <p className="text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed">
             2026년 6월 기준, 메디록 메디록 4단계 인증을 통과한{" "}
