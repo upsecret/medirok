@@ -1,11 +1,9 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { CurationCard } from "@/components/CurationCard";
 import { HospitalCard } from "@/components/HospitalCard";
 import {
   getDepartmentBySlug,
   getHospitalsByDeptAndRegion,
-  getRegionsByParent,
 } from "@/lib/hospitals-data";
 
 interface PageProps {
@@ -30,7 +28,6 @@ export default async function DeptListPage({ params }: PageProps) {
   const allHospitals = await getHospitalsByDeptAndRegion(dept);
   const curated = allHospitals.filter((h) => h.tier === "PREMIUM" && h.curationNote);
   const standard = allHospitals;
-  const regionList = await getRegionsByParent("seoul");
 
   return (
     <>
@@ -39,27 +36,6 @@ export default async function DeptListPage({ params }: PageProps) {
           홈 › 의원찾기 › {department.nameKr}
         </div>
       </nav>
-
-      <section className="bg-[var(--color-surface-bg)] py-6">
-        <div className="container-page">
-          <span className="inline-block text-[10px] tracking-[0.05em] bg-[var(--color-accent-100)] text-[var(--color-accent-600)] px-2.5 py-1 rounded font-medium mb-2.5">
-            <span className="hanja">{department.hanja}</span> · {department.nameEn?.toUpperCase()}
-          </span>
-
-          <div className="mt-4 flex gap-2 flex-wrap">
-            <span className="text-xs text-[var(--color-text-muted)] py-1.5">지역:</span>
-            {regionList.map((r) => (
-              <Link
-                key={r.slug}
-                href={`/hospitals/${department.slug}/${r.slug}`}
-                className="text-xs px-3 py-1.5 rounded-full bg-white border border-[var(--color-surface-border)] text-[var(--color-text-secondary)]"
-              >
-                {r.nameKr}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {curated.length > 0 && (
         <section className="bg-[var(--color-surface-bg)] py-6 border-t border-[var(--color-surface-border)]">
