@@ -45,13 +45,6 @@ export default async function DeptListPage({ params }: PageProps) {
           <span className="inline-block text-[10px] tracking-[0.05em] bg-[var(--color-accent-100)] text-[var(--color-accent-600)] px-2.5 py-1 rounded font-medium mb-2.5">
             <span className="hanja">{department.hanja}</span> · {department.nameEn?.toUpperCase()}
           </span>
-          <h1>
-            {department.nameKr} 메디록 인증 의원 {standard.length}곳
-          </h1>
-          <p className="text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed">
-            메디록 메디록 4단계 인증을 통과한 {department.nameKr}{" "}
-            {standard.length}곳입니다. 평점·가격·후기를 비교해 보세요.
-          </p>
 
           <div className="mt-4 flex gap-2 flex-wrap">
             <span className="text-xs text-[var(--color-text-muted)] py-1.5">지역:</span>
