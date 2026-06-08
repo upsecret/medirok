@@ -1,8 +1,11 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { loadHospitals } from "@/lib/storage";
 import { getAllMagazines, getMagazineBySlug } from "@/lib/magazines-data";
-import { getDoctorBySlug } from "@/lib/data";
+import {
+  getDoctorBySlug,
+  getHospitalByDoctorSlug,
+  getAllHospitals,
+} from "@/lib/hospitals-data";
 import { ShortAnswerBlock } from "@/components/ShortAnswerBlock";
 import { FaqBlock } from "@/components/FaqBlock";
 import { PriceTable } from "@/components/PriceTable";
@@ -40,7 +43,7 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function MagazineDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const [magazines, hospitals] = await Promise.all([getAllMagazines(), loadHospitals()]);
+  const [magazines, hospitals] = await Promise.all([getAllMagazines(), getAllHospitals()]);
   const magazine = magazines.find((m) => m.slug === slug);
   if (!magazine) notFound();
 
@@ -49,7 +52,11 @@ export default async function MagazineDetailPage({ params }: PageProps) {
     : [];
 
   const authorDoctor = magazine.authorDoctorSlug
-    ? getDoctorBySlug(magazine.authorDoctorSlug)
+    ? await getDoctorBySlug(magazine.authorDoctorSlug)
+    : undefined;
+
+  const authorHospital = authorDoctor
+    ? await getHospitalByDoctorSlug(authorDoctor.slug)
     : undefined;
 
   // 저자 의사가 쓴 다른 글 (AuthorProfile에 전달)
@@ -205,6 +212,7 @@ export default async function MagazineDetailPage({ params }: PageProps) {
 
           <AuthorProfile
             authorDoctor={authorDoctor}
+            authorHospital={authorHospital}
             authorName={magazine.authorName}
             authorTitle={magazine.authorTitle}
             otherArticles={authorOtherArticles}

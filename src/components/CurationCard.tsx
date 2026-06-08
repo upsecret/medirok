@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { Route } from "next";
 import type { Hospital } from "@/types";
-import { departments } from "@/lib/data";
+import { getDepartmentBySlug } from "@/lib/hospitals-data";
 import { DepartmentIcon } from "./DepartmentIcon";
 
 interface CurationCardProps {
@@ -11,8 +11,8 @@ interface CurationCardProps {
   size?: "lg" | "sm";
 }
 
-export function CurationCard({ hospital, size = "lg" }: CurationCardProps) {
-  const dept = departments.find((d) => d.slug === hospital.departmentSlug);
+export async function CurationCard({ hospital, size = "lg" }: CurationCardProps) {
+  const dept = await getDepartmentBySlug(hospital.departmentSlug);
   const isLarge = size === "lg";
 
   return (

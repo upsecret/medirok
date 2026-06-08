@@ -1,6 +1,11 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getHospitalBySlug, getDepartmentBySlug, formatKRW, hospitals } from "@/lib/data";
+import { formatKRW } from "@/lib/data";
+import {
+  getHospitalBySlug,
+  getDepartmentBySlug,
+  getAllHospitals,
+} from "@/lib/hospitals-data";
 import { getMagazinesByDoctorSlugs } from "@/lib/magazines-data";
 import { MedirokCertBox } from "@/components/MedirokCertBox";
 import { HospitalCard } from "@/components/HospitalCard";
@@ -12,7 +17,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
-  const h = getHospitalBySlug(slug);
+  const h = await getHospitalBySlug(slug);
   if (!h) return {};
   return {
     title: `${h.nameKr} · 메디록 인증 의원`,
@@ -22,10 +27,10 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function HospitalDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const hospital = getHospitalBySlug(slug);
+  const hospital = await getHospitalBySlug(slug);
   if (!hospital) notFound();
-  const dept = getDepartmentBySlug(hospital.departmentSlug);
-  const similar = hospitals.filter(
+  const dept = await getDepartmentBySlug(hospital.departmentSlug);
+  const similar = (await getAllHospitals()).filter(
     (h) => h.departmentSlug === hospital.departmentSlug && h.slug !== hospital.slug
   );
 

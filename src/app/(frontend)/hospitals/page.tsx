@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { departments } from "@/lib/data";
+import { getAllDepartments } from "@/lib/hospitals-data";
 import { DepartmentIcon } from "@/components/DepartmentIcon";
 
 export const metadata = {
@@ -7,7 +7,8 @@ export const metadata = {
   description: "메디록 4단계 인증 의원을 진료과·지역별로 직접 비교하세요.",
 };
 
-export default function HospitalsIndex() {
+export default async function HospitalsIndex() {
+  const departments = await getAllDepartments();
   return (
     <section className="bg-[var(--color-surface-bg)] py-8">
       <div className="container-page">

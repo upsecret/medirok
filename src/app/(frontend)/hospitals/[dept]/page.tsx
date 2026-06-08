@@ -5,8 +5,8 @@ import { HospitalCard } from "@/components/HospitalCard";
 import {
   getDepartmentBySlug,
   getHospitalsByDeptAndRegion,
-  regions,
-} from "@/lib/data";
+  getRegionsByParent,
+} from "@/lib/hospitals-data";
 
 interface PageProps {
   params: Promise<{ dept: string }>;
@@ -14,7 +14,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { dept } = await params;
-  const department = getDepartmentBySlug(dept);
+  const department = await getDepartmentBySlug(dept);
   if (!department) return {};
   return {
     title: `${department.nameKr} 메디록 인증 의원`,
@@ -24,13 +24,13 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function DeptListPage({ params }: PageProps) {
   const { dept } = await params;
-  const department = getDepartmentBySlug(dept);
+  const department = await getDepartmentBySlug(dept);
   if (!department) notFound();
 
-  const allHospitals = getHospitalsByDeptAndRegion(dept);
+  const allHospitals = await getHospitalsByDeptAndRegion(dept);
   const curated = allHospitals.filter((h) => h.tier === "PREMIUM" && h.curationNote);
   const standard = allHospitals;
-  const regionList = regions.filter((r) => r.parentSlug === "seoul");
+  const regionList = await getRegionsByParent("seoul");
 
   return (
     <>

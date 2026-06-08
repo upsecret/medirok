@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { departments } from "@/lib/data";
+import { getAllDepartments } from "@/lib/hospitals-data";
 import { DepartmentIcon } from "./DepartmentIcon";
 
-export function DepartmentGrid() {
+export async function DepartmentGrid() {
+  const departments = await getAllDepartments();
   return (
     <section className="bg-[var(--color-surface-bg)] py-5 border-y border-[var(--color-surface-border)]">
       <div className="container-page">

@@ -1,18 +1,54 @@
+// 의원 — 단일 통합 컬렉션
+// 프론트엔드 flat `Hospital` 타입(src/types)을 그대로 미러링.
+// 의사·가격·리뷰·인증·진료시간을 Hospital 문서에 임베드. department/region은 slug 텍스트.
+// /admin 단일 관리.
+
 import type { CollectionConfig } from "payload";
+
+const DEPT_SLUGS =
+  "dental, orthopedics, ophthalmology, obstetrics, dermatology, internal-medicine, checkup, cardiology, urology";
 
 export const Hospitals: CollectionConfig = {
   slug: "hospitals",
   admin: {
     useAsTitle: "nameKr",
-    group: "의원·의사",
-    defaultColumns: ["nameKr", "tier", "department", "region", "rating"],
+    group: "의원",
+    defaultColumns: ["nameKr", "tier", "departmentSlug", "regionSlug", "rating"],
   },
   access: { read: () => true },
+  hooks: {
+    beforeChange: [
+      ({ data }) => {
+        if (data?.slug) data.slug = String(data.slug).trim().toLowerCase();
+        // doctorCount 자동 동기화 (미입력 시)
+        if (Array.isArray(data?.doctors)) {
+          if (data.doctorCount == null) data.doctorCount = data.doctors.length;
+        }
+        return data;
+      },
+    ],
+  },
   fields: [
-    { name: "slug", type: "text", required: true, unique: true },
+    { name: "slug", type: "text", required: true, unique: true, index: true },
     { name: "nameKr", type: "text", required: true },
-    { name: "nameEn", type: "text" },
     { name: "shortDescription", type: "text" },
+    {
+      name: "departmentSlug",
+      type: "text",
+      required: true,
+      index: true,
+      admin: { description: `진료과 slug — ${DEPT_SLUGS}` },
+    },
+    {
+      name: "regionSlug",
+      type: "text",
+      required: true,
+      index: true,
+      admin: { description: "지역 slug (예: gangnam, seocho)" },
+    },
+    { name: "addressLine", type: "text", required: true },
+    { name: "nearestStation", type: "text" },
+    { name: "walkingMinutes", type: "number" },
     {
       name: "tier",
       type: "select",
@@ -20,95 +56,109 @@ export const Hospitals: CollectionConfig = {
       defaultValue: "STANDARD",
       options: [
         { label: "STANDARD (일반 인증)", value: "STANDARD" },
-        { label: "PREMIUM (큐레이션 + 유료 파트너)", value: "PREMIUM" },
-        { label: "HERITAGE (장기 + 우수)", value: "HERITAGE" },
+        { label: "PREMIUM (큐레이션)", value: "PREMIUM" },
+        { label: "HERITAGE (장기·우수)", value: "HERITAGE" },
       ],
-      admin: { description: "★ TIER 1(큐레이션) vs TIER 2(일반) 결정" },
     },
-    {
-      name: "department",
-      type: "relationship",
-      relationTo: "departments",
-      required: true,
-    },
-    {
-      name: "region",
-      type: "relationship",
-      relationTo: "regions",
-      required: true,
-    },
-    { name: "addressLine", type: "text", required: true },
-    { name: "nearestStation", type: "text" },
-    { name: "walkingMinutes", type: "number" },
     { name: "phone", type: "text" },
     { name: "yearEstablished", type: "number" },
-
+    // 통계 (flat — 프론트가 h.rating 등으로 직접 접근)
+    { name: "rating", type: "number", min: 0, max: 5, required: true, defaultValue: 0 },
+    { name: "reviewCount", type: "number", required: true, defaultValue: 0 },
+    { name: "doctorCount", type: "number", required: true, defaultValue: 0 },
+    { name: "monthlyVisitors", type: "number" },
+    {
+      name: "tags",
+      type: "text",
+      hasMany: true,
+      admin: { description: "태그 (예: 임플란트, 보철)" },
+    },
     // 메디록 4단계 인증
     {
       name: "certification",
       type: "group",
       label: "메디록 4단계 인증",
       fields: [
-        { name: "stage1Detail", type: "text", label: "01 진료이력" },
-        { name: "stage2Detail", type: "text", label: "02 실방문 후기" },
-        { name: "stage3Detail", type: "text", label: "03 의료진" },
-        { name: "stage4Detail", type: "text", label: "04 시설·장비" },
-        { name: "certifiedAt", type: "date" },
+        { name: "stage1History", type: "checkbox", label: "01 진료이력 통과" },
+        { name: "stage1Detail", type: "text" },
+        { name: "stage2Reviews", type: "checkbox", label: "02 실방문 후기 통과" },
+        { name: "stage2Detail", type: "text" },
+        { name: "stage3Credentials", type: "checkbox", label: "03 의료진 통과" },
+        { name: "stage3Detail", type: "text" },
+        { name: "stage4Facility", type: "checkbox", label: "04 시설·장비 통과" },
+        { name: "stage4Detail", type: "text" },
+        { name: "certifiedAt", type: "text", admin: { description: "예: 2026-05" } },
       ],
     },
-
-    // 큐레이터 노트 (PREMIUM만)
+    // 큐레이터 노트 (PREMIUM 전용)
     {
       name: "curationNote",
       type: "group",
       label: "큐레이터 노트 (PREMIUM 전용)",
       admin: { condition: (data) => data?.tier === "PREMIUM" },
       fields: [
-        { name: "text", type: "textarea", maxLength: 200 },
+        { name: "text", type: "textarea", maxLength: 300 },
         { name: "curatorName", type: "text" },
         { name: "curatorTitle", type: "text" },
       ],
     },
-
-    // 시술 가격 (의원별)
+    // 의료진 (임베드)
+    {
+      name: "doctors",
+      type: "array",
+      label: "의료진",
+      fields: [
+        { name: "slug", type: "text", required: true },
+        { name: "nameKr", type: "text", required: true },
+        { name: "nameHanja", type: "text", admin: { description: "한자 1자 (아바타용)" } },
+        { name: "title", type: "text", admin: { description: "대표원장 / 부원장 등" } },
+        { name: "yearsExperience", type: "number" },
+        { name: "specialty", type: "text" },
+        { name: "credentials", type: "text", hasMany: true },
+      ],
+    },
+    // 시술별 가격 (임베드)
     {
       name: "prices",
       type: "array",
       label: "시술별 가격",
       fields: [
-        {
-          name: "treatment",
-          type: "relationship",
-          relationTo: "treatments",
-          required: true,
-        },
+        { name: "treatmentName", type: "text", required: true },
+        { name: "treatmentNote", type: "text" },
         { name: "normalLow", type: "number", required: true },
         { name: "normalHigh", type: "number", required: true },
         { name: "eventLow", type: "number" },
         { name: "eventHigh", type: "number" },
-        { name: "note", type: "text" },
+        { name: "insuranceNote", type: "text" },
       ],
     },
-
-    // 통계 (캐시)
+    // 리뷰 (임베드)
     {
-      name: "stats",
+      name: "reviews",
+      type: "array",
+      label: "리뷰",
+      fields: [
+        { name: "id", type: "text" },
+        { name: "rating", type: "number", min: 0, max: 5 },
+        { name: "content", type: "textarea" },
+        { name: "reviewerName", type: "text" },
+        { name: "visitedAt", type: "text" },
+        { name: "treatmentName", type: "text" },
+        { name: "ageGroup", type: "text" },
+        { name: "isReceiptVerified", type: "checkbox" },
+        { name: "isPhoneVerified", type: "checkbox" },
+      ],
+    },
+    // 진료시간
+    {
+      name: "hours",
       type: "group",
       fields: [
-        { name: "rating", type: "number", min: 0, max: 5 },
-        { name: "reviewCount", type: "number", defaultValue: 0 },
-        { name: "doctorCount", type: "number", defaultValue: 0 },
-        { name: "monthlyVisitors", type: "number", defaultValue: 0 },
+        { name: "weekday", type: "text" },
+        { name: "saturday", type: "text" },
+        { name: "sunday", type: "text" },
+        { name: "lunch", type: "text" },
       ],
-    },
-
-    { name: "tags", type: "array", fields: [{ name: "tag", type: "text" }] },
-    { name: "isActive", type: "checkbox", defaultValue: true },
-    {
-      name: "isPartner",
-      type: "checkbox",
-      defaultValue: false,
-      admin: { description: "SEO/AEO 영업 계약 의원" },
     },
   ],
 };

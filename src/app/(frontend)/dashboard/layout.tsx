@@ -9,7 +9,7 @@ export const metadata = {
 
 const NAV: { href: string; label: string; hanja?: string; external?: boolean }[] = [
   { href: "/dashboard", label: "대시보드", hanja: "錄" },
-  { href: "/dashboard/hospitals", label: "의원 관리" },
+  { href: "/admin/collections/hospitals", label: "의원 관리", external: true },
   { href: "/admin/collections/magazines", label: "매거진 관리", external: true },
 ];
 

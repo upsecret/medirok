@@ -4,13 +4,14 @@
 
 import Link from "next/link";
 import type { Route } from "next";
-import type { Doctor } from "@/types";
+import type { Doctor, Hospital } from "@/types";
 import type { Magazine } from "@/lib/magazines";
-import { getHospitalByDoctorSlug } from "@/lib/data";
 
 interface AuthorProfileProps {
   /** 의사 저자가 있는 경우 (이때 의원 링크 + 다른 글 자동 표시) */
   authorDoctor?: Doctor;
+  /** 의사 저자의 소속 의원 (부모에서 조회해 전달, 의원 cross-link용) */
+  authorHospital?: Hospital;
   /** 큐레이션팀/외부 전문가 등 비-의사 저자 */
   authorName?: string;
   authorTitle?: string;
@@ -20,13 +21,14 @@ interface AuthorProfileProps {
 
 export function AuthorProfile({
   authorDoctor,
+  authorHospital,
   authorName,
   authorTitle,
   otherArticles = [],
 }: AuthorProfileProps) {
   // 케이스 1: 의사 저자 — 의원 cross-link + 다른 글
   if (authorDoctor) {
-    const hospital = getHospitalByDoctorSlug(authorDoctor.slug);
+    const hospital = authorHospital;
 
     return (
       <section

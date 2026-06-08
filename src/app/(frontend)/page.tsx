@@ -3,11 +3,19 @@ import type { Route } from "next";
 import { CurationCard } from "@/components/CurationCard";
 import { HospitalCard } from "@/components/HospitalCard";
 import { DepartmentGrid } from "@/components/DepartmentGrid";
-import { hospitals, articles, getCurationHospitals } from "@/lib/data";
+import { getAllHospitals, getCurationHospitals } from "@/lib/hospitals-data";
+import { getAllMagazines } from "@/lib/magazines-data";
 
-export default function HomePage() {
-  const curated = getCurationHospitals(3);
-  const standardHospitals = hospitals.filter((h) => h.departmentSlug === "dental").slice(0, 5);
+export default async function HomePage() {
+  const [curated, allHospitals, magazines] = await Promise.all([
+    getCurationHospitals(3),
+    getAllHospitals(),
+    getAllMagazines(),
+  ]);
+  const standardHospitals = allHospitals
+    .filter((h) => h.departmentSlug === "dental")
+    .slice(0, 5);
+  const recentMagazines = magazines.slice(0, 3);
   const featuredCuration = curated[0];
   const sideCurations = curated.slice(1, 3);
 
@@ -146,22 +154,22 @@ export default function HomePage() {
             메디록 매거진
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {articles.map((a) => (
+            {recentMagazines.map((m) => (
               <Link
-                key={a.slug}
-                href={`/magazine/${a.slug}` as Route}
+                key={m.slug}
+                href={`/magazine/${m.slug}` as Route}
                 className="block bg-white rounded-md p-3 border border-[var(--color-surface-border)]"
               >
                 <p className="text-[10px] text-[var(--color-accent-600)] tracking-wide">
-                  {a.category}
+                  {m.category}
                 </p>
                 <p className="text-sm font-medium text-[var(--color-text-primary)] mt-1.5 leading-snug">
-                  {a.title}
+                  {m.seoTitle}
                 </p>
                 <p className="text-xs text-[var(--color-text-muted)] mt-2 line-clamp-2 leading-relaxed">
-                  {a.excerpt}
+                  {m.metaDescription}
                 </p>
-                <p className="text-[10px] text-[var(--color-text-muted)] mt-2">{a.publishedAt}</p>
+                <p className="text-[10px] text-[var(--color-text-muted)] mt-2">{m.publishedAt}</p>
               </Link>
             ))}
           </div>

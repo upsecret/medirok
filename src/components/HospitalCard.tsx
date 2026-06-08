@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import type { Hospital } from "@/types";
-import { departments, formatKRW } from "@/lib/data";
+import { formatKRW } from "@/lib/data";
+import { getDepartmentBySlug } from "@/lib/hospitals-data";
 import { DepartmentIcon } from "./DepartmentIcon";
 
 interface HospitalCardProps {
@@ -10,8 +11,8 @@ interface HospitalCardProps {
   showPrice?: boolean;
 }
 
-export function HospitalCard({ hospital, showPrice = true }: HospitalCardProps) {
-  const dept = departments.find((d) => d.slug === hospital.departmentSlug);
+export async function HospitalCard({ hospital, showPrice = true }: HospitalCardProps) {
+  const dept = await getDepartmentBySlug(hospital.departmentSlug);
   const isPremium = hospital.tier === "PREMIUM";
   const mainPrice = hospital.prices[0];
 

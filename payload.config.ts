@@ -10,10 +10,8 @@ import { buildConfig } from "payload";
 
 import { Magazines } from "@/payload/collections/Magazines";
 import { Hospitals } from "@/payload/collections/Hospitals";
-import { Doctors } from "@/payload/collections/Doctors";
 import { Departments } from "@/payload/collections/Departments";
 import { Regions } from "@/payload/collections/Regions";
-import { Treatments } from "@/payload/collections/Treatments";
 import { Media } from "@/payload/collections/Media";
 import { Users } from "@/payload/collections/Users";
 
@@ -29,12 +27,10 @@ export default buildConfig({
   collections: [
     // 매거진 (단일 통합 컬렉션)
     Magazines,
-    // 의료 마스터 데이터
+    // 의원 + 마스터 데이터
     Hospitals,
-    Doctors,
     Departments,
     Regions,
-    Treatments,
     // 미디어 + 사용자(관리자)
     Media,
     Users,

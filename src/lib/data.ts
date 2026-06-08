@@ -1,10 +1,10 @@
-// 메디록 MVP 샘플 데이터
-// Phase 1: 강남구 임플란트 치과 시드 데이터
-// 실제 운영 시 Prisma DB로 마이그레이션
+// 메디록 시드 데이터 + 순수 포매터
+// 콘텐츠는 Payload CMS(hospitals/departments/regions 컬렉션)에서 관리.
+// 아래 seed* 배열은 최초 1회 DB 주입용이며, 런타임 조회는 src/lib/hospitals-data.ts 사용.
 
-import type { Department, Region, Hospital, Article } from "@/types";
+import type { Department, Region, Hospital } from "@/types";
 
-export const departments: Department[] = [
+export const seedDepartments: Department[] = [
   {
     slug: "dental",
     nameKr: "치과",
@@ -88,7 +88,7 @@ export const departments: Department[] = [
   },
 ];
 
-export const regions: Region[] = [
+export const seedRegions: Region[] = [
   { slug: "seoul", nameKr: "서울", nameEn: "Seoul" },
   { slug: "gangnam", nameKr: "강남구", nameEn: "Gangnam-gu", parentSlug: "seoul" },
   { slug: "seocho", nameKr: "서초구", nameEn: "Seocho-gu", parentSlug: "seoul" },
@@ -96,7 +96,7 @@ export const regions: Region[] = [
   { slug: "yongsan", nameKr: "용산구", nameEn: "Yongsan-gu", parentSlug: "seoul" },
 ];
 
-export const hospitals: Hospital[] = [
+export const seedHospitals: Hospital[] = [
   {
     slug: "hangyeol-dental",
     nameKr: "강남 한결치과의원",
@@ -376,77 +376,10 @@ export const hospitals: Hospital[] = [
   },
 ];
 
-export const articles: Article[] = [
-  {
-    slug: "senior-implant-vs-denture",
-    title: "시니어 임플란트 vs 틀니, 무엇이 나을까",
-    excerpt: "65세 이상 시니어의 의치 선택 기준을 메디록 전문 큐레이터가 정리했습니다.",
-    category: "치과",
-    publishedAt: "2026-05-20",
-  },
-  {
-    slug: "implant-price-explained",
-    title: "임플란트 평균 가격, 어떻게 결정될까",
-    excerpt: "국산·수입 임플란트 브랜드별 가격 차이와 정상가/이벤트가의 의미.",
-    category: "가격 가이드",
-    publishedAt: "2026-05-14",
-  },
-  {
-    slug: "gangnam-vs-seocho-prices",
-    title: "강남 vs 서초 치과, 가격 차이는?",
-    excerpt: "지역별 임플란트·보철 평균 가격을 비교 분석합니다.",
-    category: "지역 비교",
-    publishedAt: "2026-05-08",
-  },
-];
-
 // ─────────────────────────────────────────────
-// 조회 헬퍼
+// 순수 포매터 (DB 무관, 유지)
+// 런타임 조회 헬퍼는 src/lib/hospitals-data.ts (Payload 백엔드)로 이전됨.
 // ─────────────────────────────────────────────
-
-export function getDepartmentBySlug(slug: string) {
-  return departments.find((d) => d.slug === slug);
-}
-
-export function getRegionBySlug(slug: string) {
-  return regions.find((r) => r.slug === slug);
-}
-
-export function getHospitalBySlug(slug: string) {
-  return hospitals.find((h) => h.slug === slug);
-}
-
-export function getHospitalsByDeptAndRegion(deptSlug: string, regionSlug?: string) {
-  return hospitals.filter((h) => {
-    if (h.departmentSlug !== deptSlug) return false;
-    if (regionSlug && h.regionSlug !== regionSlug) return false;
-    return true;
-  });
-}
-
-export function getCurationHospitals(limit = 3) {
-  return hospitals
-    .filter((h) => h.tier === "PREMIUM" && h.curationNote)
-    .slice(0, limit);
-}
-
-// 의사 ↔ 의원 양방향 조회
-export function getDoctorBySlug(slug: string) {
-  for (const h of hospitals) {
-    const doc = h.doctors.find((d) => d.slug === slug);
-    if (doc) return doc;
-  }
-  return undefined;
-}
-
-export function getHospitalByDoctorSlug(slug: string) {
-  return hospitals.find((h) => h.doctors.some((d) => d.slug === slug));
-}
-
-export function getDoctorsByHospitalSlug(slug: string) {
-  const h = getHospitalBySlug(slug);
-  return h?.doctors ?? [];
-}
 
 export function formatKRW(amount: number): string {
   if (amount >= 10000) {

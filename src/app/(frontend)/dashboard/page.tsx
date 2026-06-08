@@ -1,11 +1,11 @@
 import Link from "next/link";
 import type { Route } from "next";
-import { loadHospitals } from "@/lib/storage";
+import { getAllHospitals } from "@/lib/hospitals-data";
 import { getAllMagazines } from "@/lib/magazines-data";
 
 export default async function DashboardHomePage() {
   const [hospitals, magazines] = await Promise.all([
-    loadHospitals(),
+    getAllHospitals(),
     getAllMagazines(),
   ]);
 
@@ -30,11 +30,18 @@ export default async function DashboardHomePage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-        <ActionCard
-          href={"/dashboard/hospitals/new" as Route}
-          title="의원 추가"
-          description="신규 메디록 인증 의원을 등록합니다. 영업한 의원의 정보를 입력하세요."
-        />
+        <a
+          href="/admin/collections/hospitals/create"
+          className="block bg-white border border-[var(--color-surface-border)] rounded-lg p-5 hover:border-[var(--color-accent-400)]"
+        >
+          <p className="text-base font-medium">의원 추가</p>
+          <p className="text-xs text-[var(--color-text-muted)] mt-2 leading-relaxed">
+            Payload CMS(/admin)에서 메디록 인증 의원을 등록·관리합니다.
+          </p>
+          <p className="mt-3 text-xs text-[var(--color-accent-700)]">
+            /admin 에서 추가 →
+          </p>
+        </a>
         <a
           href="/admin/collections/magazines/create"
           className="block bg-white border border-[var(--color-surface-border)] rounded-lg p-5 hover:border-[var(--color-accent-400)]"
@@ -107,28 +114,5 @@ function StatCard({
         )}
       </p>
     </div>
-  );
-}
-
-function ActionCard({
-  href,
-  title,
-  description,
-}: {
-  href: Route;
-  title: string;
-  description: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="block bg-white border border-[var(--color-surface-border)] rounded-lg p-5 hover:border-[var(--color-accent-400)]"
-    >
-      <p className="text-base font-medium">{title}</p>
-      <p className="text-xs text-[var(--color-text-muted)] mt-2 leading-relaxed">
-        {description}
-      </p>
-      <p className="mt-3 text-xs text-[var(--color-accent-700)]">시작하기 →</p>
-    </Link>
   );
 }
