@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import { CurationCard } from "@/components/CurationCard";
 import { HospitalCard } from "@/components/HospitalCard";
-import { DepartmentGrid } from "@/components/DepartmentGrid";
+import { RegionQuickNav } from "@/components/RegionQuickNav";
 import { getAllHospitals, getCurationHospitals } from "@/lib/hospitals-data";
 import { getAllMagazines } from "@/lib/magazines-data";
 
@@ -50,7 +50,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <DepartmentGrid />
+      <RegionQuickNav />
 
       <section className="bg-white py-7 border-b border-[var(--color-surface-border)]">
         <div className="container-page">
@@ -118,10 +118,10 @@ export default async function HomePage() {
           </div>
           <div className="mt-4 text-center">
             <Link
-              href="/hospitals/dental"
+              href="/hospitals/seoul/gangnam/dental"
               className="inline-block btn-outline text-xs"
             >
-              치과 의원 309개 더 보기 →
+              강남구 치과 더 보기 →
             </Link>
           </div>
         </div>

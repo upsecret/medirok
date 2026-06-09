@@ -5,6 +5,7 @@ import {
   getHospitalBySlug,
   getDepartmentBySlug,
   getAllHospitals,
+  getRegionPath,
 } from "@/lib/hospitals-data";
 import { getMagazinesByDoctorSlugs } from "@/lib/magazines-data";
 import { MedirokCertBox } from "@/components/MedirokCertBox";
@@ -30,6 +31,9 @@ export default async function HospitalDetailPage({ params }: PageProps) {
   const hospital = await getHospitalBySlug(slug);
   if (!hospital) notFound();
   const dept = await getDepartmentBySlug(hospital.departmentSlug);
+  const regionPath = await getRegionPath(hospital.regionSlug);
+  const sidoR = regionPath[0];
+  const guR = regionPath[1];
   const similar = (await getAllHospitals()).filter(
     (h) => h.departmentSlug === hospital.departmentSlug && h.slug !== hospital.slug
   );
@@ -42,7 +46,29 @@ export default async function HospitalDetailPage({ params }: PageProps) {
     <>
       <nav className="bg-white border-b border-[var(--color-surface-border)] py-2">
         <div className="container-page text-xs text-[var(--color-text-muted)]">
-          홈 › 의원찾기 › {dept?.nameKr} › {hospital.nameKr}
+          홈 › <Link href="/hospitals">병원찾기</Link>
+          {sidoR && (
+            <>
+              {" › "}
+              <Link href={`/hospitals/${sidoR.slug}`}>{sidoR.nameKr}</Link>
+            </>
+          )}
+          {sidoR && guR && (
+            <>
+              {" › "}
+              <Link href={`/hospitals/${sidoR.slug}/${guR.slug}`}>{guR.nameKr}</Link>
+            </>
+          )}
+          {sidoR && guR && dept && (
+            <>
+              {" › "}
+              <Link href={`/hospitals/${sidoR.slug}/${guR.slug}/${dept.slug}`}>
+                {dept.nameKr}
+              </Link>
+            </>
+          )}
+          {" › "}
+          {hospital.nameKr}
         </div>
       </nav>
 

@@ -23,10 +23,13 @@ export interface Department {
   priority: number;
 }
 
+export type RegionLevel = "sido" | "sigungu" | "dong";
+
 export interface Region {
   slug: string;
   nameKr: string;
   nameEn?: string;
+  level?: RegionLevel;
   parentSlug?: string;
 }
 
@@ -86,6 +89,8 @@ export interface Hospital {
   shortDescription?: string;
   departmentSlug: DepartmentSlug;
   regionSlug: string;
+  /** 동(읍/면/동) slug — 선택. 병원 목록의 동 필터용 */
+  dongSlug?: string;
   addressLine: string;
   nearestStation?: string;
   walkingMinutes?: number;

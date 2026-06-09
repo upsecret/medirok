@@ -14,10 +14,21 @@ export const Regions: CollectionConfig = {
     { name: "nameKr", type: "text", required: true },
     { name: "nameEn", type: "text" },
     {
+      name: "level",
+      type: "select",
+      index: true,
+      options: [
+        { label: "시/도", value: "sido" },
+        { label: "시/군/구", value: "sigungu" },
+        { label: "읍/면/동", value: "dong" },
+      ],
+      admin: { description: "지역 depth (시도 → 시군구 → 동)" },
+    },
+    {
       name: "parentSlug",
       type: "text",
       index: true,
-      admin: { description: "상위 지역 slug (예: seoul). 시/도면 비움." },
+      admin: { description: "상위 지역 slug (예: 강남구→seoul, 역삼동→gangnam). 시/도면 비움." },
     },
   ],
 };

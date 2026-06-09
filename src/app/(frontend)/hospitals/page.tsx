@@ -1,43 +1,48 @@
 import Link from "next/link";
-import { getAllDepartments } from "@/lib/hospitals-data";
-import { DepartmentIcon } from "@/components/DepartmentIcon";
+import { getRegionsByLevel } from "@/lib/hospitals-data";
 
 export const metadata = {
-  title: "의원 찾기",
-  description: "메디록 4단계 인증 의원을 진료과·지역별로 직접 비교하세요.",
+  title: "병원찾기",
+  description: "메디록 4단계 인증 병원을 지역·진료과별로 찾아보세요.",
 };
 
 export default async function HospitalsIndex() {
-  const departments = await getAllDepartments();
+  const sidos = await getRegionsByLevel("sido");
+
   return (
-    <section className="bg-[var(--color-surface-bg)] py-8">
-      <div className="container-page">
-        <h1>내가 직접 고르는 메디록 의원</h1>
-        <p className="text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed">
-          메디록 4단계 인증 의원을 진료과·지역별로 직접 비교하세요.
-        </p>
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-3">
-          {departments.map((d) => (
-            <Link
-              key={d.slug}
-              href={`/hospitals/${d.slug}`}
-              className="bg-white p-5 rounded-md border border-[var(--color-surface-border)]"
-            >
-              <div className="flex items-center gap-3">
-                <DepartmentIcon
-                  slug={d.slug}
-                  size={32}
-                  className="text-[var(--color-primary-600)] shrink-0"
-                />
-                <div>
-                  <p className="font-medium">{d.nameKr}</p>
-                  <p className="text-xs text-[var(--color-text-muted)] mt-1">{d.description}</p>
-                </div>
-              </div>
-            </Link>
-          ))}
+    <>
+      <nav className="bg-white border-b border-[var(--color-surface-border)] py-2">
+        <div className="container-page text-xs text-[var(--color-text-muted)]">
+          홈 › 병원찾기
         </div>
-      </div>
-    </section>
+      </nav>
+
+      <section className="bg-[var(--color-surface-bg)] py-8">
+        <div className="container-page">
+          <h1>지역으로 병원 찾기</h1>
+          <p className="text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed">
+            먼저 지역을 선택하세요. 시·군·구를 고르면 해당 지역의 전체 진료과를
+            볼 수 있습니다.
+          </p>
+
+          <p className="text-[10px] tracking-[0.08em] text-[var(--color-text-muted)] uppercase mt-6 mb-2.5">
+            시 / 도
+          </p>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+            {sidos.map((s) => (
+              <Link
+                key={s.slug}
+                href={`/hospitals/${s.slug}`}
+                className="bg-white rounded-md py-4 text-center border border-[var(--color-surface-border)] hover:border-[var(--color-accent-400)] transition"
+              >
+                <p className="text-sm font-medium text-[var(--color-text-primary)]">
+                  {s.nameKr}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

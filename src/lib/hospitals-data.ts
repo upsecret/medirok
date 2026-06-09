@@ -10,6 +10,7 @@ import type {
   Doctor,
   Department,
   Region,
+  RegionLevel,
   PriceRange,
   Review,
   HospitalTier,
@@ -123,6 +124,7 @@ function mapHospital(doc: Raw): Hospital {
     shortDescription: optStr(doc.shortDescription),
     departmentSlug: str(doc.departmentSlug) as DepartmentSlug,
     regionSlug: str(doc.regionSlug),
+    dongSlug: optStr(doc.dongSlug),
     addressLine: str(doc.addressLine),
     nearestStation: optStr(doc.nearestStation),
     walkingMinutes: optNum(doc.walkingMinutes),
@@ -160,6 +162,7 @@ function mapRegion(r: Raw): Region {
     slug: str(r.slug),
     nameKr: str(r.nameKr),
     nameEn: optStr(r.nameEn),
+    level: (optStr(r.level) as RegionLevel | undefined) ?? undefined,
     parentSlug: optStr(r.parentSlug),
   };
 }
@@ -258,4 +261,29 @@ export async function getRegionBySlug(slug: string): Promise<Region | undefined>
 export async function getRegionsByParent(parentSlug: string): Promise<Region[]> {
   const all = await getAllRegions();
   return all.filter((r) => r.parentSlug === parentSlug);
+}
+
+/** depth별 지역 목록 (예: 시도 목록 = getRegionsByLevel("sido")) */
+export async function getRegionsByLevel(level: RegionLevel): Promise<Region[]> {
+  const all = await getAllRegions();
+  return all.filter((r) => r.level === level);
+}
+
+/** 직계 하위 지역 (시도→구, 구→동). getRegionsByParent 별칭 */
+export async function getChildRegions(parentSlug: string): Promise<Region[]> {
+  return getRegionsByParent(parentSlug);
+}
+
+/** parentSlug를 거슬러 올라간 breadcrumb 경로 [시도, 구, 동] */
+export async function getRegionPath(slug: string): Promise<Region[]> {
+  const all = await getAllRegions();
+  const bySlug = new Map(all.map((r) => [r.slug, r]));
+  const path: Region[] = [];
+  let cur = bySlug.get(slug);
+  let guard = 0;
+  while (cur && guard++ < 5) {
+    path.unshift(cur);
+    cur = cur.parentSlug ? bySlug.get(cur.parentSlug) : undefined;
+  }
+  return path;
 }

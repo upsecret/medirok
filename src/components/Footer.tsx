@@ -18,7 +18,7 @@ export function Footer() {
           <div>
             <p className="text-white font-medium text-xs mb-2">서비스</p>
             <ul className="space-y-1.5 text-xs">
-              <li><Link href="/hospitals">의원찾기</Link></li>
+              <li><Link href="/hospitals">병원찾기</Link></li>
               <li><Link href={"/magazine" as Route}>매거진</Link></li>
               <li><Link href="/verification"><span className="hanja">醫錄</span> 인증제</Link></li>
             </ul>
