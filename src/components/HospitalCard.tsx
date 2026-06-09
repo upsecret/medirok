@@ -32,12 +32,13 @@ export async function HospitalCard({ hospital, showPrice = true }: HospitalCardP
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-            {isPremium && <span className="badge-premium">PREMIUM</span>}
-            {hospital.certification?.stage4Facility && (
-              <span className="badge-certified">메디록 4단계</span>
-            )}
-          </div>
+          {(isPremium || hospital.certification?.stage4Facility) && (
+            <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+              <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded bg-[var(--color-primary-600)] text-white">
+                <span className="hanja">醫錄</span> 인증
+              </span>
+            </div>
+          )}
           <h3 className="text-sm font-medium text-[var(--color-text-primary)]">
             {hospital.nameKr}
           </h3>

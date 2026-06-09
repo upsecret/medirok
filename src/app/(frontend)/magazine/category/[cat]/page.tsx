@@ -5,9 +5,8 @@ import type { MagazineType } from "@/lib/magazines";
 import { getMagazinesByType } from "@/lib/magazines-data";
 import { MagazineCard } from "@/components/MagazineCard";
 
-const CAT_LABELS: Record<MagazineType, string> = {
+const CAT_LABELS: Partial<Record<MagazineType, string>> = {
   article: "시술 가이드",
-  qna: "Q&A",
   regional: "지역 가이드",
   interview: "의원 인터뷰",
   case: "케이스 스토리",

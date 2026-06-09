@@ -6,20 +6,19 @@ import { MagazineCard } from "@/components/MagazineCard";
 export const metadata = {
   title: "메디록 매거진 · 메디록",
   description:
-    "메디록 큐레이션 의원이 직접 답하는 시니어 의료 가이드. 시술 가이드·Q&A·지역 비교·의원 인터뷰·실제 케이스.",
+    "메디록 큐레이션 의원이 직접 답하는 시니어 의료 가이드. 시술 가이드·지역 비교·의원 인터뷰·실제 케이스.",
 };
 
 const TYPE_TABS = [
   { type: "all", label: "전체" },
   { type: "article", label: "시술 가이드" },
-  { type: "qna", label: "Q&A" },
   { type: "regional", label: "지역 가이드" },
   { type: "interview", label: "의원 인터뷰" },
   { type: "case", label: "케이스" },
 ] as const;
 
 export default async function MagazineListPage() {
-  const all = await getAllMagazines();
+  const all = (await getAllMagazines()).filter((m) => m.type !== "qna");
   const recent = [...all]
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
     .slice(0, 3);

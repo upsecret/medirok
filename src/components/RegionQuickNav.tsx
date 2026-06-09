@@ -3,7 +3,9 @@ import { getRegionsByLevel } from "@/lib/hospitals-data";
 
 // 홈 — 지역(시/도)으로 병원 찾기 진입
 export async function RegionQuickNav() {
-  const sidos = await getRegionsByLevel("sido");
+  const sidos = (await getRegionsByLevel("sido"))
+    .slice()
+    .sort((a, b) => a.nameKr.localeCompare(b.nameKr, "ko"));
 
   return (
     <section className="bg-[var(--color-surface-bg)] py-5 border-y border-[var(--color-surface-border)]">
