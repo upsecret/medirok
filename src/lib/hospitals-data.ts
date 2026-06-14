@@ -21,6 +21,20 @@ import type {
 
 type Raw = Record<string, unknown>;
 
+/**
+ * Next.js 동적 라우트 파라미터(params)는 한국어 등 비ASCII 세그먼트를
+ * URL 인코딩된 채로 전달한다(예: "예온치과병원" → "%EC%98%88...").
+ * slug는 디코드된 한국어로 저장되므로, 비교/링크 생성 전에 한 번 디코드한다.
+ * 이미 디코드된 문자열에 적용해도(퍼센트 없음) 안전한 멱등 연산.
+ */
+export function decodeParam(v: string): string {
+  try {
+    return decodeURIComponent(v);
+  } catch {
+    return v;
+  }
+}
+
 const str = (v: unknown): string => (typeof v === "string" ? v : v == null ? "" : String(v));
 const optStr = (v: unknown): string | undefined => {
   const s = str(v).trim();
@@ -123,10 +137,12 @@ function mapHospital(doc: Raw): Hospital {
     nameKr: str(doc.nameKr),
     shortDescription: optStr(doc.shortDescription),
     departmentSlug: str(doc.departmentSlug) as DepartmentSlug,
+    sidoSlug: optStr(doc.sidoSlug),
     regionSlug: str(doc.regionSlug),
     dongSlug: optStr(doc.dongSlug),
     addressLine: str(doc.addressLine),
     nearestStation: optStr(doc.nearestStation),
+    nearestStationName: optStr(doc.nearestStationName),
     walkingMinutes: optNum(doc.walkingMinutes),
     rating: num(doc.rating),
     reviewCount: num(doc.reviewCount),
@@ -189,12 +205,15 @@ export async function getHospitalBySlug(slug: string): Promise<Hospital | undefi
 
 export async function getHospitalsByDeptAndRegion(
   deptSlug: string,
-  regionSlug?: string
+  regionSlug?: string,
+  sidoSlug?: string
 ): Promise<Hospital[]> {
   const all = await getAllHospitals();
   return all.filter((h) => {
     if (h.departmentSlug !== deptSlug) return false;
     if (regionSlug && h.regionSlug !== regionSlug) return false;
+    // 구 이름이 도시 간 중복될 수 있어 시/도까지 일치해야 함(있을 때만)
+    if (sidoSlug && h.sidoSlug && h.sidoSlug !== sidoSlug) return false;
     return true;
   });
 }
@@ -243,6 +262,30 @@ export async function getDepartmentBySlug(slug: string): Promise<Department | un
   return all.find((d) => d.slug === slug);
 }
 
+/**
+ * 진료과 URL 세그먼트(한국어 nameKr, 예: "치과") → Department.
+ * 내부 slug(영문 "dental")는 그대로 유지하고 URL만 한국어로 노출하기 위한 매핑.
+ * 구(舊) 영문 slug로 들어와도(리다이렉트 전 캐시 등) 해석되도록 fallback 포함.
+ */
+export async function getDepartmentByUrlName(
+  urlName: string
+): Promise<Department | undefined> {
+  const all = await getAllDepartments();
+  const decoded = (() => {
+    try {
+      return decodeURIComponent(urlName);
+    } catch {
+      return urlName;
+    }
+  })();
+  return all.find((d) => d.nameKr === decoded) ?? all.find((d) => d.slug === decoded);
+}
+
+/** 진료과의 URL 세그먼트(한국어) — 링크 생성용 */
+export function deptUrlName(dept: Department): string {
+  return dept.nameKr;
+}
+
 export const getAllRegions = cache(async (): Promise<Region[]> => {
   const payload = await getPayloadClient();
   const res = await payload.find({
@@ -256,6 +299,28 @@ export const getAllRegions = cache(async (): Promise<Region[]> => {
 export async function getRegionBySlug(slug: string): Promise<Region | undefined> {
   const all = await getAllRegions();
   return all.find((r) => r.slug === slug);
+}
+
+/** 시/도 region (slug로 조회 — 시/도명은 전국 고유) */
+export async function getSidoRegion(sidoSlug: string): Promise<Region | undefined> {
+  const all = await getAllRegions();
+  return all.find((r) => r.level === "sido" && r.slug === sidoSlug);
+}
+
+/**
+ * 시군구(구) region을 상위 시/도 스코프로 조회.
+ * '서구'처럼 도시 간 중복되는 구 이름을 정확히 해석하기 위해 parentSlug(시/도)까지 일치시킴.
+ */
+export async function getSigunguRegion(
+  sidoSlug: string,
+  guSlug: string
+): Promise<Region | undefined> {
+  const all = await getAllRegions();
+  return (
+    all.find(
+      (r) => r.level === "sigungu" && r.slug === guSlug && r.parentSlug === sidoSlug
+    ) ?? all.find((r) => r.level === "sigungu" && r.slug === guSlug)
+  );
 }
 
 export async function getRegionsByParent(parentSlug: string): Promise<Region[]> {

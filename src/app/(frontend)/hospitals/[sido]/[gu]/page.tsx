@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  getRegionBySlug,
-  getRegionPath,
+  getSigunguRegion,
+  getSidoRegion,
   getAllDepartments,
+  deptUrlName,
+  decodeParam,
 } from "@/lib/hospitals-data";
 import { DepartmentIcon } from "@/components/DepartmentIcon";
 
@@ -12,8 +14,10 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const { gu } = await params;
-  const region = await getRegionBySlug(gu);
+  const { sido: rawSido, gu: rawGu } = await params;
+  const sido = decodeParam(rawSido);
+  const gu = decodeParam(rawGu);
+  const region = await getSigunguRegion(sido, gu);
   if (!region) return {};
   return {
     title: `${region.nameKr} 진료과별 병원찾기`,
@@ -22,15 +26,17 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default async function GuPage({ params }: PageProps) {
-  const { sido, gu } = await params;
-  const region = await getRegionBySlug(gu);
+  const { sido: rawSido, gu: rawGu } = await params;
+  const sido = decodeParam(rawSido);
+  const gu = decodeParam(rawGu);
+  const region = await getSigunguRegion(sido, gu);
   if (!region || region.level !== "sigungu") notFound();
 
-  const [departments, path] = await Promise.all([
+  const [departments, sidoRegion] = await Promise.all([
     getAllDepartments(),
-    getRegionPath(gu),
+    getSidoRegion(sido),
   ]);
-  const sidoName = path[0]?.nameKr ?? sido;
+  const sidoName = sidoRegion?.nameKr ?? sido;
 
   return (
     <>
@@ -53,7 +59,7 @@ export default async function GuPage({ params }: PageProps) {
             {departments.map((dept) => (
               <Link
                 key={dept.slug}
-                href={`/hospitals/${sido}/${gu}/${dept.slug}`}
+                href={`/hospitals/${sido}/${gu}/${deptUrlName(dept)}`}
                 className="bg-white rounded-md p-3 text-center transition border border-[var(--color-surface-border)] hover:border-[var(--color-accent-400)]"
               >
                 <DepartmentIcon

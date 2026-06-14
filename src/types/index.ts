@@ -88,11 +88,15 @@ export interface Hospital {
   nameKr: string;
   shortDescription?: string;
   departmentSlug: DepartmentSlug;
+  /** 시/도 slug (예: 인천). URL·지역 필터의 상위 스코프 — 구 이름 충돌 방지용 */
+  sidoSlug?: string;
   regionSlug: string;
   /** 동(읍/면/동) slug — 선택. 병원 목록의 동 필터용 */
   dongSlug?: string;
   addressLine: string;
   nearestStation?: string;
+  /** 가장 가까운 지하철역명(역주변 필터용, 예: "아라역") — stations.ts의 역 slug와 매칭 */
+  nearestStationName?: string;
   walkingMinutes?: number;
   rating: number;
   reviewCount: number;

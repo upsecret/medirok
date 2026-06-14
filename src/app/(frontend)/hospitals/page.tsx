@@ -17,11 +17,13 @@ interface PageProps {
     dong?: string;
     dept?: string;
     sort?: string;
+    line?: string;
+    station?: string;
   }>;
 }
 
 export default async function HospitalsPage({ searchParams }: PageProps) {
-  const { sido, region, dong, dept, sort } = await searchParams;
+  const { sido, region, dong, dept, sort, line, station } = await searchParams;
 
   const [regions, departments, hospitals] = await Promise.all([
     getAllRegions(),
@@ -46,6 +48,8 @@ export default async function HospitalsPage({ searchParams }: PageProps) {
         initialDong={dong}
         initialDept={dept}
         initialSort={sort}
+        initialLine={line}
+        initialStation={station}
       />
     </>
   );

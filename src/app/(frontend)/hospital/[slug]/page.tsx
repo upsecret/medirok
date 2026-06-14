@@ -5,7 +5,10 @@ import {
   getHospitalBySlug,
   getDepartmentBySlug,
   getAllHospitals,
-  getRegionPath,
+  getSidoRegion,
+  getSigunguRegion,
+  deptUrlName,
+  decodeParam,
 } from "@/lib/hospitals-data";
 import { getMagazinesByDoctorSlugs } from "@/lib/magazines-data";
 import { MedirokCertBox } from "@/components/MedirokCertBox";
@@ -17,7 +20,7 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const { slug } = await params;
+  const slug = decodeParam((await params).slug);
   const h = await getHospitalBySlug(slug);
   if (!h) return {};
   return {
@@ -27,13 +30,16 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default async function HospitalDetailPage({ params }: PageProps) {
-  const { slug } = await params;
+  const slug = decodeParam((await params).slug);
   const hospital = await getHospitalBySlug(slug);
   if (!hospital) notFound();
   const dept = await getDepartmentBySlug(hospital.departmentSlug);
-  const regionPath = await getRegionPath(hospital.regionSlug);
-  const sidoR = regionPath[0];
-  const guR = regionPath[1];
+  // 시/도까지 스코프해 구 이름 중복(예: 여러 도시의 '서구')도 정확히 해석
+  const sidoSlug = hospital.sidoSlug ?? "";
+  const [sidoR, guR] = await Promise.all([
+    sidoSlug ? getSidoRegion(sidoSlug) : Promise.resolve(undefined),
+    getSigunguRegion(sidoSlug, hospital.regionSlug),
+  ]);
   const similar = (await getAllHospitals()).filter(
     (h) => h.departmentSlug === hospital.departmentSlug && h.slug !== hospital.slug
   );
@@ -62,7 +68,7 @@ export default async function HospitalDetailPage({ params }: PageProps) {
           {sidoR && guR && dept && (
             <>
               {" › "}
-              <Link href={`/hospitals/${sidoR.slug}/${guR.slug}/${dept.slug}`}>
+              <Link href={`/hospitals/${sidoR.slug}/${guR.slug}/${deptUrlName(dept)}`}>
                 {dept.nameKr}
               </Link>
             </>
@@ -229,6 +235,11 @@ export default async function HospitalDetailPage({ params }: PageProps) {
                   </div>
                   <p className="text-xs font-medium">{d.nameKr}</p>
                   <p className="text-[10px] text-[var(--color-text-muted)] mt-0.5">{d.title}</p>
+                  {d.specialty && (
+                    <p className="text-[10px] text-[var(--color-accent-600)] font-medium mt-0.5 leading-tight">
+                      {d.specialty}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>

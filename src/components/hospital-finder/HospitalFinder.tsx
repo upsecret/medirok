@@ -8,6 +8,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Route } from "next";
 import type { Hospital, Region, Department } from "@/types";
+import {
+  SUBWAY_REGIONS,
+  LINE_BY_SLUG,
+  linesByRegion,
+  type SubwayLine,
+} from "@/lib/stations";
 import { HospitalListRow } from "./HospitalListRow";
 import { HospitalQuickView } from "./HospitalQuickView";
 
@@ -36,6 +42,8 @@ interface Props {
   initialDong?: string;
   initialDept?: string;
   initialSort?: string;
+  initialLine?: string;
+  initialStation?: string;
 }
 
 export function HospitalFinder({
@@ -47,13 +55,27 @@ export function HospitalFinder({
   initialDong,
   initialDept,
   initialSort,
+  initialLine,
+  initialStation,
 }: Props) {
   const router = useRouter();
+
+  // dept URL 파라미터는 한국어(nameKr, 예: "치과")로 노출하되 내부 상태/필터는 slug(dental) 유지.
+  // URL에서 들어온 값이 한국어든 slug든 slug로 정규화.
+  const normalizeDept = (v?: string): string | undefined => {
+    if (!v) return undefined;
+    if (departments.some((d) => d.slug === v)) return v;
+    const byName = departments.find((d) => d.nameKr === v);
+    return byName ? byName.slug : v;
+  };
 
   const [sido, setSido] = useState<string | undefined>(initialSido);
   const [region, setRegion] = useState<string | undefined>(initialRegion);
   const [dong, setDong] = useState<string | undefined>(initialDong);
-  const [dept, setDept] = useState<string | undefined>(initialDept);
+  // 역주변 필터 (지역 필터와 상호배타): line=노선 slug, station=역 slug(=역명)
+  const [line, setLine] = useState<string | undefined>(initialLine);
+  const [station, setStation] = useState<string | undefined>(initialStation);
+  const [dept, setDept] = useState<string | undefined>(() => normalizeDept(initialDept));
   const [sort, setSort] = useState<SortKey>(
     SORT_OPTIONS.find((s) => s.key === initialSort)?.key ?? "recommended"
   );
@@ -91,18 +113,22 @@ export function HospitalFinder({
     if (sido) params.set("sido", sido);
     if (region) params.set("region", region);
     if (dong) params.set("dong", dong);
-    if (dept) params.set("dept", dept);
+    if (line) params.set("line", line);
+    if (station) params.set("station", station);
+    if (dept) params.set("dept", deptMap.get(dept) ?? dept); // URL엔 한국어 진료과명
     if (sort !== "recommended") params.set("sort", sort);
     const qs = params.toString();
     const url = (qs ? `/hospitals?${qs}` : "/hospitals") as Route;
     router.replace(url, { scroll: false });
-  }, [sido, region, dong, dept, sort, router]);
+  }, [sido, region, dong, line, station, dept, sort, router]);
 
   // ── 필터 + 정렬 ──────────────────────────
   const results = useMemo(() => {
     let list = hospitals;
-    // 가장 구체적인 지역 단위 우선: 동 > 구 > 시도
-    if (dong) list = list.filter((h) => h.dongSlug === dong);
+    // 역주변 필터(우선) — 지역 필터와 상호배타
+    if (station) {
+      list = list.filter((h) => h.nearestStationName === station);
+    } else if (dong) list = list.filter((h) => h.dongSlug === dong);
     else if (region) list = list.filter((h) => h.regionSlug === region);
     else if (sido)
       list = list.filter((h) => guToSido.get(h.regionSlug) === sido);
@@ -125,10 +151,11 @@ export function HospitalFinder({
       }
     });
     return sorted;
-  }, [hospitals, sido, region, dong, dept, guToSido, sort]);
+  }, [hospitals, sido, region, dong, station, dept, guToSido, sort]);
 
   // ── 칩 라벨 ──────────────────────────────
   const regionLabel =
+    station || // 역주변 선택 시 역명 표시
     (dong && regionMap.get(dong)?.nameKr) ||
     (region && regionMap.get(region)?.nameKr) ||
     (sido && regionMap.get(sido)?.nameKr) ||
@@ -141,13 +168,26 @@ export function HospitalFinder({
       hospitals.find((h) => h.slug === quickView)
     : undefined;
 
-  const hasRegion = !!(sido || region || dong);
+  const hasRegion = !!(sido || region || dong || station);
   const hasFilter = hasRegion || !!dept;
 
+  // 지역별 선택 → 역주변 해제(상호배타)
   function applyRegion(sel: RegionSelection) {
     setSido(sel.sido);
     setRegion(sel.region);
     setDong(sel.dong);
+    setLine(undefined);
+    setStation(undefined);
+    setOpen(null);
+  }
+
+  // 역주변 선택 → 지역별 해제(상호배타)
+  function applyStation(lineSlug: string, stationSlug: string) {
+    setLine(lineSlug);
+    setStation(stationSlug);
+    setSido(undefined);
+    setRegion(undefined);
+    setDong(undefined);
     setOpen(null);
   }
 
@@ -155,6 +195,8 @@ export function HospitalFinder({
     setSido(undefined);
     setRegion(undefined);
     setDong(undefined);
+    setLine(undefined);
+    setStation(undefined);
     setDept(undefined);
   }
 
@@ -213,15 +255,18 @@ export function HospitalFinder({
         </div>
       </section>
 
-      {/* 지역 모달 — 단계별 드릴다운 */}
+      {/* 지역 모달 — 지역별 / 역주변 탭 */}
       {open === "region" && (
-        <RegionModal
+        <LocationModal
           regions={regions}
           sido={sido}
           region={region}
           dong={dong}
+          line={line}
+          station={station}
           onClose={() => setOpen(null)}
           onApply={applyRegion}
+          onApplyStation={applyStation}
         />
       )}
 
@@ -294,22 +339,31 @@ export function HospitalFinder({
   );
 }
 
-// ── 지역 단계별 드릴다운 모달 ──────────────────
-function RegionModal({
+// ── 위치 모달 — 지역별 / 역주변 탭 ──────────────────
+function LocationModal({
   regions,
   sido,
   region,
   dong,
+  line,
+  station,
   onClose,
   onApply,
+  onApplyStation,
 }: {
   regions: Region[];
   sido?: string;
   region?: string;
   dong?: string;
+  line?: string;
+  station?: string;
   onClose: () => void;
   onApply: (sel: RegionSelection) => void;
+  onApplyStation: (lineSlug: string, stationSlug: string) => void;
 }) {
+  const [tab, setTab] = useState<"region" | "station">(
+    station ? "station" : "region"
+  );
   const sidos = regions
     .filter((r) => r.level === "sido")
     .sort((a, b) => a.nameKr.localeCompare(b.nameKr, "ko"));
@@ -353,6 +407,22 @@ function RegionModal({
 
   return (
     <Modal title="지역 선택" onClose={onClose}>
+      {/* 탭: 지역별 / 역주변 */}
+      <div className="flex border-b border-[var(--color-surface-border)] mb-3 -mt-1">
+        <TabBtn active={tab === "region"} onClick={() => setTab("region")}>
+          지역별
+        </TabBtn>
+        <TabBtn active={tab === "station"} onClick={() => setTab("station")}>
+          역주변
+        </TabBtn>
+      </div>
+
+      {tab === "station" && (
+        <StationPicker line={line} station={station} onApply={onApplyStation} />
+      )}
+
+      {tab === "region" && (
+        <>
       {/* 경로 / 뒤로가기 */}
       <div className="flex items-center gap-2 mb-3 text-2xl">
         {step !== "sido" && (
@@ -477,11 +547,145 @@ function RegionModal({
             </>
           ))}
       </div>
+        </>
+      )}
     </Modal>
   );
 }
 
+// ── 역주변 — 노선 → 역 드릴다운 ──────────────────
+function StationPicker({
+  line,
+  station,
+  onApply,
+}: {
+  line?: string;
+  station?: string;
+  onApply: (lineSlug: string, stationSlug: string) => void;
+}) {
+  const presetLine = line ? LINE_BY_SLUG[line] : undefined;
+  const [selRegion, setSelRegion] = useState<string | null>(
+    presetLine?.region ?? null
+  );
+  const [selLine, setSelLine] = useState<SubwayLine | null>(presetLine ?? null);
+
+  const step: "region" | "line" | "station" = !selRegion
+    ? "region"
+    : !selLine
+      ? "line"
+      : "station";
+
+  return (
+    <>
+      {/* 경로 / 뒤로가기: 전국 › 권역 › 노선 */}
+      <div className="flex items-center gap-2 mb-3 text-base flex-wrap">
+        {step !== "region" && (
+          <button
+            type="button"
+            aria-label="뒤로"
+            onClick={() =>
+              step === "station" ? setSelLine(null) : setSelRegion(null)
+            }
+            className="text-[var(--color-text-secondary)] text-3xl leading-none px-1 -ml-1"
+          >
+            ‹
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => {
+            setSelRegion(null);
+            setSelLine(null);
+          }}
+          className={
+            step === "region"
+              ? "font-medium text-[var(--color-text-primary)]"
+              : "text-[var(--color-text-muted)]"
+          }
+        >
+          전국
+        </button>
+        {selRegion && (
+          <>
+            <span className="text-[var(--color-text-muted)]">›</span>
+            <button
+              type="button"
+              onClick={() => setSelLine(null)}
+              className={
+                step === "line"
+                  ? "font-medium text-[var(--color-text-primary)]"
+                  : "text-[var(--color-text-muted)]"
+              }
+            >
+              {selRegion}
+            </button>
+          </>
+        )}
+        {selLine && (
+          <>
+            <span className="text-[var(--color-text-muted)]">›</span>
+            <span className="font-medium text-[var(--color-text-primary)]">
+              {selLine.lineName}
+            </span>
+          </>
+        )}
+      </div>
+
+      <div className="h-[55vh] overflow-y-auto pr-1 grid grid-cols-2 gap-2 content-start">
+        {step === "region" &&
+          SUBWAY_REGIONS.map((r) => (
+            <RegionRow key={r} chevron onClick={() => setSelRegion(r)}>
+              {r}
+            </RegionRow>
+          ))}
+
+        {step === "line" &&
+          linesByRegion(selRegion as string).map((l) => (
+            <RegionRow key={l.lineSlug} chevron onClick={() => setSelLine(l)}>
+              {l.lineName}
+            </RegionRow>
+          ))}
+
+        {step === "station" &&
+          selLine!.stations.map((s) => (
+            <RegionRow
+              key={s.slug}
+              active={station === s.slug}
+              onClick={() => onApply(selLine!.lineSlug, s.slug)}
+            >
+              {s.name}
+            </RegionRow>
+          ))}
+      </div>
+    </>
+  );
+}
+
 // ── 공용 프리미티브 ────────────────────────────
+function TabBtn({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex-1 py-2.5 text-sm font-medium border-b-2 -mb-px transition ${
+        active
+          ? "border-[var(--color-primary-600)] text-[var(--color-text-primary)]"
+          : "border-transparent text-[var(--color-text-muted)]"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
 function Chip({
   label,
   active,

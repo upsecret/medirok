@@ -2,8 +2,10 @@ import type { MetadataRoute } from "next";
 import {
   getAllHospitals,
   getAllRegions,
+  getAllDepartments,
 } from "@/lib/hospitals-data";
 import { getAllMagazines } from "@/lib/magazines-data";
+import { SUBWAY_LINES } from "@/lib/stations";
 
 // metadataBase(layout.tsx)와 동일한 정식 도메인 — sitemap URL은 항상 절대 경로.
 const SITE_URL = "https://medirok.com";
@@ -14,11 +16,14 @@ const MAGAZINE_CATEGORIES = ["article", "regional", "interview", "case"];
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [hospitals, regions, magazines] = await Promise.all([
+  const [hospitals, regions, departments, magazines] = await Promise.all([
     getAllHospitals(),
     getAllRegions(),
+    getAllDepartments(),
     getAllMagazines(),
   ]);
+  // 진료과 slug(영문) → URL 세그먼트(한국어 nameKr)
+  const deptNameBySlug = new Map(departments.map((d) => [d.slug, d.nameKr]));
 
   const url = (path: string) => `${SITE_URL}${path}`;
   const now = new Date();
@@ -84,13 +89,36 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const deptEntries: MetadataRoute.Sitemap = [];
   for (const h of hospitals) {
     const gu = regionBySlug.get(h.regionSlug);
-    const sido = gu?.parentSlug;
-    if (!gu || !sido || !h.departmentSlug) continue;
-    const key = `${sido}/${gu.slug}/${h.departmentSlug}`;
+    const sido = h.sidoSlug ?? gu?.parentSlug;
+    const deptName = deptNameBySlug.get(h.departmentSlug);
+    if (!gu || !sido || !deptName) continue;
+    const key = `${sido}/${gu.slug}/${deptName}`;
     if (deptCombos.has(key)) continue;
     deptCombos.add(key);
     deptEntries.push({
       url: url(`/hospitals/${key}`),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    });
+  }
+
+  // 역주변 페이지: /hospitals/역/[line]/[station] — 실제 병원이 있는 역만
+  const stationLineSlug = new Map<string, string>();
+  for (const l of SUBWAY_LINES) {
+    for (const s of l.stations) {
+      if (!stationLineSlug.has(s.name)) stationLineSlug.set(s.name, l.lineSlug);
+    }
+  }
+  const stationSeen = new Set<string>();
+  const stationEntries: MetadataRoute.Sitemap = [];
+  for (const h of hospitals) {
+    const st = h.nearestStationName;
+    const lineSlug = st ? stationLineSlug.get(st) : undefined;
+    if (!st || !lineSlug || stationSeen.has(st)) continue;
+    stationSeen.add(st);
+    stationEntries.push({
+      url: url(`/hospitals/역/${lineSlug}/${st}`),
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.7,
@@ -105,5 +133,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...sidoEntries,
     ...guEntries,
     ...deptEntries,
+    ...stationEntries,
   ];
 }

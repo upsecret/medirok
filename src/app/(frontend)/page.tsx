@@ -118,7 +118,7 @@ export default async function HomePage() {
           </div>
           <div className="mt-4 text-center">
             <Link
-              href="/hospitals/seoul/gangnam/dental"
+              href="/hospitals/서울/강남구/치과"
               className="inline-block btn-outline text-xs"
             >
               강남구 치과 더 보기 →

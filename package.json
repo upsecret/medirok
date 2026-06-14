@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "payload": "payload",
     "payload:seed": "tsx scripts/seed.ts",
+    "seed:yeon": "node --env-file=.env.local --import tsx/esm scripts/seed-yeon.ts",
     "payload:generate-types": "payload generate:types"
   },
   "dependencies": {

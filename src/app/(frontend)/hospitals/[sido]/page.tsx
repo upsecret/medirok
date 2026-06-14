@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getRegionBySlug, getChildRegions } from "@/lib/hospitals-data";
+import { getRegionBySlug, getChildRegions, decodeParam } from "@/lib/hospitals-data";
 
 interface PageProps {
   params: Promise<{ sido: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const { sido } = await params;
+  const sido = decodeParam((await params).sido);
   const region = await getRegionBySlug(sido);
   if (!region) return {};
   return {
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default async function SidoPage({ params }: PageProps) {
-  const { sido } = await params;
+  const sido = decodeParam((await params).sido);
   const region = await getRegionBySlug(sido);
   if (!region || region.level !== "sido") notFound();
 

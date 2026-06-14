@@ -4,11 +4,12 @@ import type { Route } from "next";
 import { CurationCard } from "@/components/CurationCard";
 import { HospitalCard } from "@/components/HospitalCard";
 import {
-  getDepartmentBySlug,
-  getRegionBySlug,
-  getRegionPath,
+  getDepartmentByUrlName,
+  getSigunguRegion,
+  getSidoRegion,
   getChildRegions,
   getHospitalsByDeptAndRegion,
+  decodeParam,
 } from "@/lib/hospitals-data";
 
 interface PageProps {
@@ -17,10 +18,13 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const { gu, dept } = await params;
+  const { sido: rawSido, gu: rawGu, dept: rawDept } = await params;
+  const sido = decodeParam(rawSido);
+  const gu = decodeParam(rawGu);
+  const dept = decodeParam(rawDept);
   const [department, region] = await Promise.all([
-    getDepartmentBySlug(dept),
-    getRegionBySlug(gu),
+    getDepartmentByUrlName(dept),
+    getSigunguRegion(sido, gu),
   ]);
   if (!department || !region) return {};
   return {
@@ -30,19 +34,22 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default async function HospitalListPage({ params, searchParams }: PageProps) {
-  const { sido, gu, dept } = await params;
+  const { sido: rawSido, gu: rawGu, dept: rawDept } = await params;
+  const sido = decodeParam(rawSido);
+  const gu = decodeParam(rawGu);
+  const dept = decodeParam(rawDept);
   const { dong } = await searchParams;
 
-  const [department, region, path, dongs] = await Promise.all([
-    getDepartmentBySlug(dept),
-    getRegionBySlug(gu),
-    getRegionPath(gu),
+  const [department, region, sidoRegion, dongs] = await Promise.all([
+    getDepartmentByUrlName(dept),
+    getSigunguRegion(sido, gu),
+    getSidoRegion(sido),
     getChildRegions(gu),
   ]);
   if (!department || !region || region.level !== "sigungu") notFound();
 
-  const sidoName = path[0]?.nameKr ?? sido;
-  let hospitals = await getHospitalsByDeptAndRegion(dept, gu);
+  const sidoName = sidoRegion?.nameKr ?? sido;
+  let hospitals = await getHospitalsByDeptAndRegion(department.slug, gu, sido);
 
   const activeDong = dong && dongs.some((d) => d.slug === dong) ? dong : undefined;
   if (activeDong) hospitals = hospitals.filter((h) => h.dongSlug === activeDong);
