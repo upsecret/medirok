@@ -4,6 +4,8 @@ import { HospitalCard } from "@/components/HospitalCard";
 import { getAllHospitals } from "@/lib/hospitals-data";
 import { findStation } from "@/lib/stations";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ line: string; station: string }>;
 }

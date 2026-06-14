@@ -87,7 +87,7 @@ async function main() {
     // 메디록 자체 검증(영수증/전화) 후기가 아니므로 각 리뷰는 isReceiptVerified/isPhoneVerified=false.
     rating: 5.0,
     reviewCount: 114,
-    doctorCount: 11,
+    doctorCount: 13,
     tags: [
       "임플란트",
       "네비게이션 임플란트",
@@ -118,6 +118,38 @@ async function main() {
     // 의료진 — gd365.ye-on.com/introduction 공식 소개 페이지 기준(2026-06).
     // title=직위(원장), specialty=대표 진료분야(전문의 여부 표기), credentials=공식 약력 전체.
     doctors: [
+      {
+        slug: "jang-seonho",
+        nameKr: "장선호",
+        nameHanja: "張",
+        title: "병원장",
+        specialty: "보철·임플란트·디지털치의학",
+        credentials: [
+          "연세대학교 졸업",
+          "경희대학교 치의학전문대학원 졸업",
+          "세계구강악안면초음파수술학회(WAUPS) Fellowship",
+          "2015 WCUPS Oral Presentation Best Award (CAD/CAM·Digital Dentistry)",
+          "Megazen Implant 국제심포지움 학술연자·Clinical Faculty",
+          "대한치과보철·보존·심미·예방치과학회 정회원",
+          "前 예온치과 구월365점 원장",
+        ],
+      },
+      {
+        slug: "nam-gyeongsu",
+        nameKr: "남경수",
+        nameHanja: "南",
+        title: "원장",
+        specialty: "치아교정",
+        credentials: [
+          "서울대학교 치과대학 졸업",
+          "서울대학교 치과대학 치과교정학 석사·박사수료",
+          "서울대학교 치과병원 교정과 레지던트·임상강사",
+          "보건복지부 인증 치과교정과 전문의",
+          "세계교정의사연맹(WFO) 펠로우",
+          "미국치과교정학회(AAO) 회원",
+          "前 엔치과 대표원장",
+        ],
+      },
       {
         slug: "lee-yumi",
         nameKr: "이유미",

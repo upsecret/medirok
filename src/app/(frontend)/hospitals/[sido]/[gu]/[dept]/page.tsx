@@ -12,6 +12,8 @@ import {
   decodeParam,
 } from "@/lib/hospitals-data";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ sido: string; gu: string; dept: string }>;
   searchParams: Promise<{ dong?: string }>;

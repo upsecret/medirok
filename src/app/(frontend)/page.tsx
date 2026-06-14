@@ -6,6 +6,9 @@ import { RegionQuickNav } from "@/components/RegionQuickNav";
 import { getAllHospitals, getCurationHospitals } from "@/lib/hospitals-data";
 import { getAllMagazines } from "@/lib/magazines-data";
 
+// DB(의원·큐레이션)를 매 요청 시 반영 — 정적 캐시로 인한 옛 데이터 노출 방지
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const [curated, allHospitals, magazines] = await Promise.all([
     getCurationHospitals(3),

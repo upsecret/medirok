@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getRegionBySlug, getChildRegions, decodeParam } from "@/lib/hospitals-data";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ sido: string }>;
 }

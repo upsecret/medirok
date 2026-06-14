@@ -9,6 +9,8 @@ import {
 } from "@/lib/hospitals-data";
 import { DepartmentIcon } from "@/components/DepartmentIcon";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ sido: string; gu: string }>;
 }
