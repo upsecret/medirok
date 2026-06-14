@@ -176,8 +176,32 @@ export default async function HospitalDetailPage({ params }: PageProps) {
         <div className="container-page">
           <div className="flex justify-between items-baseline mb-3">
             <h2 className="text-base font-medium">진료 / 가격</h2>
-            <span className="text-xs text-[var(--color-text-muted)]">전체 보기 →</span>
+            {hospital.prices.length > 0 && (
+              <span className="text-xs text-[var(--color-text-muted)]">전체 보기 →</span>
+            )}
           </div>
+          {hospital.prices.length === 0 ? (
+            <div className="bg-[var(--color-surface-bg)] border border-[var(--color-surface-border)] rounded-md p-5 text-center">
+              <p className="text-sm text-[var(--color-text-secondary)]">
+                공개된 진료 가격 정보가 아직 없습니다.
+              </p>
+              {hospital.phone ? (
+                <a
+                  href={`tel:${hospital.phone.replace(/[^0-9+]/g, "")}`}
+                  className="inline-block mt-3 bg-[var(--color-primary-600)] text-white text-sm font-medium px-5 py-2.5 rounded-md"
+                >
+                  📞 진료문의하기
+                </a>
+              ) : (
+                <Link
+                  href="/estimate"
+                  className="inline-block mt-3 bg-[var(--color-primary-600)] text-white text-sm font-medium px-5 py-2.5 rounded-md"
+                >
+                  진료문의하기
+                </Link>
+              )}
+            </div>
+          ) : (
           <div className="space-y-3">
             {hospital.prices.map((p, i) => (
               <div
@@ -217,6 +241,7 @@ export default async function HospitalDetailPage({ params }: PageProps) {
               </div>
             ))}
           </div>
+          )}
         </div>
       </section>
 

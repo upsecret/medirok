@@ -41,7 +41,9 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-8 pt-5 border-t border-[var(--color-primary-500)] text-[10px] text-[var(--color-accent-300)] opacity-70">
-          (주) 메디록 · 사업자: 000-00-00000 · 서울특별시
+          주식회사 루코르다 · 사업자등록번호 481-87-02246 · 경기도 용인시 기흥구
+          <br />
+          대표전화 070-8064-0972
           <br />
           Copyright 2026. Medirok Inc. All rights reserved.
         </div>

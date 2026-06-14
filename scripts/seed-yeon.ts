@@ -315,46 +315,9 @@ async function main() {
         ],
       },
     ],
-    prices: [
-      {
-        treatmentName: "임플란트(지르코니아)",
-        treatmentNote: "1차 수술 기준",
-        normalLow: 1070000,
-        normalHigh: 1070000,
-      },
-      {
-        treatmentName: "크라운(지르코니아)",
-        normalLow: 500000,
-        normalHigh: 500000,
-      },
-      {
-        treatmentName: "크라운(올세라믹)",
-        normalLow: 600000,
-        normalHigh: 600000,
-      },
-      {
-        treatmentName: "크라운(골드)",
-        normalLow: 700000,
-        normalHigh: 700000,
-      },
-      {
-        treatmentName: "인레이(세라믹·CAD/CAM)",
-        normalLow: 330000,
-        normalHigh: 330000,
-      },
-      {
-        treatmentName: "레진 충전",
-        treatmentNote: "1면 기준",
-        normalLow: 80000,
-        normalHigh: 150000,
-      },
-      {
-        treatmentName: "스케일링(전악)",
-        normalLow: 50000,
-        normalHigh: 50000,
-        insuranceNote: "연 1회 건강보험 적용",
-      },
-    ],
+    // 비급여 진료가는 공식 확인 전이라 미입력 — 빈 배열이면 상세 페이지에서
+    // "진료문의하기"로 노출(추정가 미조작 원칙).
+    prices: [],
     // 구글맵 리뷰 발췌 (출처 표기, 메디록 미검증)
     reviews: [
       {
