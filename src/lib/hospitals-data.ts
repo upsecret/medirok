@@ -195,7 +195,7 @@ export const getAllHospitals = cache(async (): Promise<Hospital[]> => {
     sort: "createdAt", // 시드 입력 순서 유지
     depth: 0,
   });
-  return (res.docs as Raw[]).map(mapHospital);
+  return (res.docs as unknown as Raw[]).map(mapHospital);
 });
 
 export async function getHospitalBySlug(slug: string): Promise<Hospital | undefined> {
@@ -254,7 +254,7 @@ export const getAllDepartments = cache(async (): Promise<Department[]> => {
     sort: "priority",
     depth: 0,
   });
-  return (res.docs as Raw[]).map(mapDepartment);
+  return (res.docs as unknown as Raw[]).map(mapDepartment);
 });
 
 export async function getDepartmentBySlug(slug: string): Promise<Department | undefined> {
@@ -293,7 +293,7 @@ export const getAllRegions = cache(async (): Promise<Region[]> => {
     limit: 500,
     depth: 0,
   });
-  return (res.docs as Raw[]).map(mapRegion);
+  return (res.docs as unknown as Raw[]).map(mapRegion);
 });
 
 export async function getRegionBySlug(slug: string): Promise<Region | undefined> {

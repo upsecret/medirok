@@ -72,7 +72,7 @@ async function findAll(): Promise<Magazine[]> {
     sort: "-publishedAt",
     depth: 0,
   });
-  return (res.docs as Raw[]).map(mapDoc);
+  return (res.docs as unknown as Raw[]).map(mapDoc);
 }
 
 export async function getAllMagazines(): Promise<Magazine[]> {
@@ -89,7 +89,7 @@ export async function getMagazineBySlug(
     limit: 1,
     depth: 0,
   });
-  const doc = (res.docs as Raw[])[0];
+  const doc = (res.docs as unknown as Raw[])[0];
   return doc ? mapDoc(doc) : undefined;
 }
 
