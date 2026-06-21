@@ -11,6 +11,7 @@ import { FaqBlock } from "@/components/FaqBlock";
 import { PriceTable } from "@/components/PriceTable";
 import { HospitalCard } from "@/components/HospitalCard";
 import { MagazineCard } from "@/components/MagazineCard";
+import { Markdown } from "@/components/Markdown";
 import { MedicalDisclaimer } from "@/components/MedicalDisclaimer";
 import { AuthorProfile } from "@/components/AuthorProfile";
 import { JsonLd } from "@/components/JsonLd";
@@ -166,44 +167,7 @@ export default async function MagazineDetailPage({ params }: PageProps) {
             authorTitle={magazine.authorTitle}
           />
 
-          <div className="prose-medirok max-w-none text-[var(--color-text-primary)]">
-            {magazine.body.split("\n").map((line, i) => {
-              if (line.startsWith("## ")) {
-                return (
-                  <h2 key={i} className="text-xl font-medium mt-7 mb-3">
-                    {line.replace("## ", "")}
-                  </h2>
-                );
-              }
-              if (line.startsWith("**Q. ")) {
-                return (
-                  <p key={i} className="font-medium text-base mt-5 mb-2">
-                    {line.replace(/\*\*/g, "")}
-                  </p>
-                );
-              }
-              if (line.startsWith("- ")) {
-                return (
-                  <li key={i} className="ml-5 text-sm leading-relaxed">
-                    {line.replace("- ", "")}
-                  </li>
-                );
-              }
-              if (line.startsWith("| ")) {
-                return (
-                  <p key={i} className="text-xs font-mono text-[var(--color-text-secondary)] my-1">
-                    {line}
-                  </p>
-                );
-              }
-              if (line.trim() === "") return null;
-              return (
-                <p key={i} className="text-base leading-relaxed my-3">
-                  {line}
-                </p>
-              );
-            })}
-          </div>
+          <Markdown source={magazine.body} />
 
           {magazine.priceTable && magazine.priceTable.length > 0 && (
             <PriceTable rows={magazine.priceTable} />
