@@ -14,8 +14,12 @@ import { getMagazinesByDoctorSlugs } from "@/lib/magazines-data";
 import { MedirokCertBox } from "@/components/MedirokCertBox";
 import { HospitalCard } from "@/components/HospitalCard";
 import { MagazineCard } from "@/components/MagazineCard";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbSchema, medicalOrgSchema } from "@/lib/schema-generator";
+import { SITE_URL, fullRegionName, hospitalUrl } from "@/lib/local-seo";
 
-export const dynamic = "force-dynamic";
+// 병원 상세 — 30분 ISR 캐시. 어드민 변경 즉시 반영 필요 시 revalidatePath 권장.
+export const revalidate = 1800;
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -25,9 +29,22 @@ export async function generateMetadata({ params }: PageProps) {
   const slug = decodeParam((await params).slug);
   const h = await getHospitalBySlug(slug);
   if (!h) return {};
+  const dept = await getDepartmentBySlug(h.departmentSlug);
+  const deptLabel = dept ? ` ${dept.nameKr}` : "";
+  const canonical = `/hospital/${slug}`;
+  const desc = `${h.nameKr}${deptLabel} 평점·가격·후기·시술 정보. ${h.addressLine}. ${
+    h.certification?.stage1Detail ?? "메디록 4단계 인증 의원."
+  }`;
   return {
-    title: `${h.nameKr} · 메디록 인증 의원`,
-    description: `${h.nameKr} 평점·가격·후기·시술 정보. ${h.certification?.stage1Detail ?? ""}`,
+    title: `${h.nameKr} · 메디록 인증${deptLabel} 의원`,
+    description: desc,
+    alternates: { canonical },
+    openGraph: {
+      title: `${h.nameKr} · 메디록 인증 의원`,
+      description: desc,
+      url: canonical,
+      type: "website",
+    },
   };
 }
 
@@ -50,8 +67,39 @@ export default async function HospitalDetailPage({ params }: PageProps) {
   const doctorSlugs = hospital.doctors.map((d) => d.slug);
   const hospitalMagazines = await getMagazinesByDoctorSlugs(doctorSlugs);
 
+  // ── JSON-LD (로컬 SEO/AEO) ──
+  const crumbs = [
+    { name: "홈", url: SITE_URL },
+    { name: "병원찾기", url: `${SITE_URL}/hospitals` },
+  ];
+  if (sidoR) crumbs.push({ name: sidoR.nameKr, url: `${SITE_URL}/hospitals/${sidoR.slug}` });
+  if (sidoR && guR)
+    crumbs.push({
+      name: guR.nameKr,
+      url: `${SITE_URL}/hospitals/${sidoR.slug}/${guR.slug}`,
+    });
+  crumbs.push({ name: hospital.nameKr, url: hospitalUrl(hospital.slug) });
+
+  const schemas: Record<string, unknown>[] = [
+    breadcrumbSchema(crumbs),
+    medicalOrgSchema({
+      name: hospital.nameKr,
+      url: hospitalUrl(hospital.slug),
+      address:
+        sidoR && guR
+          ? `${fullRegionName(sidoR.nameKr, guR.nameKr)} ${hospital.addressLine}`
+          : hospital.addressLine,
+      phone: hospital.phone,
+      rating: hospital.rating > 0 ? hospital.rating : undefined,
+      reviewCount: hospital.reviewCount > 0 ? hospital.reviewCount : undefined,
+      medicalSpecialty: dept?.nameKr,
+    }),
+  ];
+
   return (
     <>
+      <JsonLd data={schemas} />
+
       <nav className="bg-white border-b border-[var(--color-surface-border)] py-2">
         <div className="container-page text-xs text-[var(--color-text-muted)]">
           홈 › <Link href="/hospitals">병원찾기</Link>

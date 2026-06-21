@@ -1,0 +1,144 @@
+/**
+ * 매거진 — 검단신도시 치과 지역 가이드 등록 시드 (멱등 upsert)
+ *
+ * 실행:
+ *   npm run seed:magazine-geomdan
+ *   (= node --env-file=.env.local --import tsx/esm scripts/seed-magazine-geomdan.ts)
+ *
+ * - magazines 컬렉션에 slug 기준 upsert (존재하면 update, 없으면 create)
+ * - 여러 번 실행해도 안전
+ *
+ * 출처/근거: docs/매거진-검단치과-지역가이드.md
+ *   = gd365.ye-on.com 공식 + scripts/seed-yeon.ts 검증 데이터 (수치 미조작)
+ */
+
+import { getPayload } from "payload";
+import config from "@payload-config";
+
+type AnyData = Record<string, unknown>;
+
+async function upsertMagazine(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+  slug: string,
+  data: AnyData,
+) {
+  const existing = await payload.find({
+    collection: "magazines",
+    where: { slug: { equals: slug } },
+    limit: 1,
+  });
+  if (existing.docs.length > 0) {
+    const id = existing.docs[0].id;
+    await payload.update({ collection: "magazines", id, data });
+    console.log(`  ✓ update  magazines/${slug}`);
+  } else {
+    await payload.create({ collection: "magazines", data });
+    console.log(`  ✓ create  magazines/${slug}`);
+  }
+}
+
+const body = `## 검단신도시에서 치과 고를 때 체크포인트
+
+검단신도시는 신도시 특성상 신규 치과가 빠르게 늘고 있어, 규모와 전문성으로 거르는 것이 중요합니다. 메디록이 권장하는 비교 기준 4가지:
+
+| 체크포인트 | 왜 중요한가 |
+|---|---|
+| 병원급 규모·분야별 전문의 | 임플란트·교정·소아·보철을 각 분야 전문의가 전담하면 복합 케이스에 유리 |
+| 자체 기공소(Dental Lab) | 보철물 원내 제작 시 제작 기간 단축·품질 관리 용이 |
+| 디지털 장비 | 네비게이션 임플란트·가상 교정 진단으로 정밀도↑·기간↓ |
+| 야간·주말 진료 + 역세권 | 맞벌이·가족 단위 접근성, 지하철 도보권 여부 |
+
+## 검단 메디록 인증 의원 — 예온치과병원
+
+검단신도시에서 메디록 4단계 인증(진료이력·실방문 후기·의료진 자격·시설장비)을 통과한 대표 의원입니다.
+
+- **규모**: 약 900평 병원급 치과
+- **의료진**: 치과교정과·구강악안면외과·소아치과·치과보철과·통합치의학과 등 보건복지부 인증 전문의가 분야별 상주
+- **기공소**: 원내 Ye-On Dental Lab에서 보철물 직접 제작
+- **장비**: 네비게이션(컴퓨터 분석) 임플란트, 디지털 교정 진단 장비
+- **가족 진료**: 별도 소아진료센터 + 야간(화·목 ~20:30)·주말 진료
+- **접근성**: 인천 2호선 아라역 6번 출구 도보 1분 (인천 서구 이음4로 6, 5층)
+- **외국인 진료**: 영어·일본어·중국어·베트남어·러시아어 등 다국어 안내
+- **공식 홈페이지**: https://gd365.ye-on.com
+- **메디록 프로필**: https://www.medirok.com/hospital/예온치과병원
+
+## 진료별로 보는 검단 치과
+
+- **임플란트** — 신경·골 위치를 컴퓨터로 분석하는 네비게이션 임플란트, 골 이식 동반 케이스는 구강악안면외과 전문의 상주 여부 확인
+- **치아교정** — 가상 교정 진단으로 기간을 단축하는 디지털 교정, 성장기 아동은 소아치과·교정과 협진 여부 확인
+- **소아치과** — 전용 소아진료센터·전담 전문의 여부, 진료 동선 분리
+- **보철·심미** — 자체 기공소 운영 시 라미네이트·크라운 제작 속도와 수정 대응이 빠름
+
+## 접근성 — 아라역 권역
+
+검단신도시·당하동 일대는 인천 2호선 아라역을 중심으로 생활권이 형성돼 있습니다. 역세권 도보권 치과는 야간·주말 진료와 함께 가족 단위 방문에 유리합니다.`;
+
+async function main() {
+  const payload = await getPayload({ config });
+
+  console.log("• 매거진(magazines) upsert — 검단신도시 치과 지역 가이드");
+  await upsertMagazine(payload, "guide-geomdan-dental-2026", {
+    slug: "guide-geomdan-dental-2026",
+    type: "regional",
+    seoTitle:
+      "검단신도시 치과 가이드 (2026) — 인천 서구 임플란트·교정·소아치과 고르는 법",
+    metaDescription:
+      "인천 서구 검단신도시에서 치과를 고를 때 보는 기준과 메디록 인증 의원을 정리했습니다. 병원급 규모·분야별 전문의·자체 기공소·야간/주말 진료·역세권 접근성으로 비교하세요.",
+    shortAnswer:
+      "검단신도시(인천 서구)에서 치과를 고를 때는 ①병원급 규모와 분야별 전문의 상주 여부, ②자체 기공소·디지털 장비, ③야간·주말 진료, ④역세권 접근성을 함께 봅니다. 대표적인 메디록 4단계 인증 의원은 예온치과병원으로, 900평 병원급 규모에 교정·구강악안면외과·소아치과·보철 전문의가 상주하고 인천 2호선 아라역 도보 1분 거리입니다. (메디록, 2026.06)",
+    body,
+    targetKeywords: [
+      "검단 치과",
+      "검단신도시 치과",
+      "인천 서구 치과",
+      "검단 임플란트",
+      "검단 치아교정",
+      "검단 소아치과",
+      "아라역 치과",
+      "검단 야간 치과",
+    ],
+    faqBlocks: [
+      {
+        question: "검단신도시에서 치과는 어떤 기준으로 고르나요?",
+        answer:
+          "병원급 규모와 분야별 전문의 상주, 자체 기공소·디지털 장비, 야간·주말 진료, 역세권 접근성을 함께 비교하세요. 메디록 4단계 인증(진료이력·후기·의료진·시설) 통과 여부도 확인 포인트입니다.",
+      },
+      {
+        question: "검단에서 야간·주말 진료하는 치과가 있나요?",
+        answer:
+          "예온치과병원은 화·목요일 저녁 8시 30분까지, 토·일요일 오후 5시까지 진료합니다(점심 13:00–14:30).",
+      },
+      {
+        question: "검단 임플란트는 어디서 하나요?",
+        answer:
+          "검단신도시의 메디록 인증 예온치과병원은 컴퓨터 분석 기반 네비게이션 임플란트와 자체 기공소를 운영하며, 골 이식 케이스를 위한 구강악안면외과 전문의가 상주합니다.",
+      },
+      {
+        question: "아라역 근처 치과는 어디인가요?",
+        answer:
+          "인천 2호선 아라역 6번 출구 도보 1분 거리에 예온치과병원(인천 서구 이음4로 6, 5층)이 있습니다.",
+      },
+      {
+        question: "검단에 소아치과 전문 진료가 있나요?",
+        answer:
+          "예온치과병원은 별도 소아진료센터와 소아치과 전문의를 두고 아동 전용 시설·진료 동선을 운영합니다.",
+      },
+    ],
+    linkedHospitalSlugs: ["예온치과병원"],
+    linkedDepartmentSlug: "dental",
+    linkedRegionSlug: "서구",
+    linkedTreatmentSlug: "implant",
+    authorName: "메디록 큐레이션팀",
+    disclaimerType: "general",
+    publishedAt: "2026-06-21",
+    category: "지역 가이드",
+  });
+
+  console.log("\n✅ 검단신도시 치과 지역 가이드 매거진 등록 완료");
+  process.exit(0);
+}
+
+main().catch((err) => {
+  console.error("❌ 시드 실패:", err);
+  process.exit(1);
+});

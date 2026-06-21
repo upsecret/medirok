@@ -3,6 +3,9 @@ import type { Route } from "next";
 import { getAllMagazines } from "@/lib/magazines-data";
 import { MagazineCard } from "@/components/MagazineCard";
 
+// DB(매거진)를 매 요청 시 반영 — 정적 캐시로 인한 옛 데이터 노출 방지
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "메디록 매거진 · 메디록",
   description:

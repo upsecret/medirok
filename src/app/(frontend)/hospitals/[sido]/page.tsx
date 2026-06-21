@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getRegionBySlug, getChildRegions, decodeParam } from "@/lib/hospitals-data";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbSchema } from "@/lib/schema-generator";
+import { SITE_URL } from "@/lib/local-seo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 1800;
 
 interface PageProps {
   params: Promise<{ sido: string }>;
@@ -15,6 +18,7 @@ export async function generateMetadata({ params }: PageProps) {
   return {
     title: `${region.nameKr} 병원찾기`,
     description: `${region.nameKr} 메디록 4단계 인증 병원을 시·군·구별로 찾아보세요.`,
+    alternates: { canonical: `/hospitals/${sido}` },
   };
 }
 
@@ -25,8 +29,16 @@ export default async function SidoPage({ params }: PageProps) {
 
   const gus = await getChildRegions(sido);
 
+  const crumbs = breadcrumbSchema([
+    { name: "홈", url: SITE_URL },
+    { name: "병원찾기", url: `${SITE_URL}/hospitals` },
+    { name: region.nameKr, url: `${SITE_URL}/hospitals/${sido}` },
+  ]);
+
   return (
     <>
+      <JsonLd data={crumbs} />
+
       <nav className="bg-white border-b border-[var(--color-surface-border)] py-2">
         <div className="container-page text-xs text-[var(--color-text-muted)]">
           홈 › <Link href="/hospitals">병원찾기</Link> › {region.nameKr}

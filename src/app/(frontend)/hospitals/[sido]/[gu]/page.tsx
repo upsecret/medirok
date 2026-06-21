@@ -8,8 +8,11 @@ import {
   decodeParam,
 } from "@/lib/hospitals-data";
 import { DepartmentIcon } from "@/components/DepartmentIcon";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbSchema } from "@/lib/schema-generator";
+import { SITE_URL, fullRegionName } from "@/lib/local-seo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 1800;
 
 interface PageProps {
   params: Promise<{ sido: string; gu: string }>;
@@ -19,11 +22,16 @@ export async function generateMetadata({ params }: PageProps) {
   const { sido: rawSido, gu: rawGu } = await params;
   const sido = decodeParam(rawSido);
   const gu = decodeParam(rawGu);
-  const region = await getSigunguRegion(sido, gu);
+  const [region, sidoRegion] = await Promise.all([
+    getSigunguRegion(sido, gu),
+    getSidoRegion(sido),
+  ]);
   if (!region) return {};
+  const regionFull = fullRegionName(sidoRegion?.nameKr ?? sido, region.nameKr);
   return {
-    title: `${region.nameKr} 진료과별 병원찾기`,
-    description: `${region.nameKr} 메디록 4단계 인증 병원을 진료과별로 찾아보세요.`,
+    title: `${regionFull} 진료과별 병원찾기`,
+    description: `${regionFull} 메디록 4단계 인증 병원을 진료과별로 찾아보세요.`,
+    alternates: { canonical: `/hospitals/${sido}/${gu}` },
   };
 }
 
@@ -40,8 +48,17 @@ export default async function GuPage({ params }: PageProps) {
   ]);
   const sidoName = sidoRegion?.nameKr ?? sido;
 
+  const crumbs = breadcrumbSchema([
+    { name: "홈", url: SITE_URL },
+    { name: "병원찾기", url: `${SITE_URL}/hospitals` },
+    { name: sidoName, url: `${SITE_URL}/hospitals/${sido}` },
+    { name: region.nameKr, url: `${SITE_URL}/hospitals/${sido}/${gu}` },
+  ]);
+
   return (
     <>
+      <JsonLd data={crumbs} />
+
       <nav className="bg-white border-b border-[var(--color-surface-border)] py-2">
         <div className="container-page text-xs text-[var(--color-text-muted)]">
           홈 › <Link href="/hospitals">병원찾기</Link> ›{" "}
@@ -51,10 +68,10 @@ export default async function GuPage({ params }: PageProps) {
 
       <section className="bg-[var(--color-surface-bg)] py-8">
         <div className="container-page">
-          <h1>{region.nameKr} 진료과 선택</h1>
+          <h1>{sidoName} {region.nameKr} 진료과 선택</h1>
           <p className="text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed">
-            진료과를 선택하면 {region.nameKr}의 메디록 인증 병원을 비교할 수
-            있습니다.
+            진료과를 선택하면 {sidoName} {region.nameKr}의 메디록 인증 병원을
+            비교할 수 있습니다.
           </p>
 
           <div className="mt-6 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-9 gap-2">

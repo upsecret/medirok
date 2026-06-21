@@ -3,35 +3,78 @@ import Link from "next/link";
 import type { Route } from "next";
 import { CurationCard } from "@/components/CurationCard";
 import { HospitalCard } from "@/components/HospitalCard";
+import { JsonLd } from "@/components/JsonLd";
+import {
+  breadcrumbSchema,
+  itemListSchema,
+  faqPageSchema,
+} from "@/lib/schema-generator";
+import {
+  SITE_URL,
+  fullRegionName,
+  hospitalUrl,
+  regionDeptUrl,
+  regionDeptIntro,
+  regionDeptFaqs,
+} from "@/lib/local-seo";
 import {
   getDepartmentByUrlName,
   getSigunguRegion,
   getSidoRegion,
   getChildRegions,
   getHospitalsByDeptAndRegion,
+  getAllDepartments,
+  deptUrlName,
   decodeParam,
 } from "@/lib/hospitals-data";
 
-export const dynamic = "force-dynamic";
+// SEO 리스트 페이지 — 30분 ISR 캐시(크롤 효율·LCP 개선).
+// 어드민 변경 즉시 반영이 필요하면 Payload afterChange 훅에서 revalidatePath 호출 권장.
+export const revalidate = 1800;
 
 interface PageProps {
   params: Promise<{ sido: string; gu: string; dept: string }>;
   searchParams: Promise<{ dong?: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps) {
+export async function generateMetadata({ params, searchParams }: PageProps) {
   const { sido: rawSido, gu: rawGu, dept: rawDept } = await params;
   const sido = decodeParam(rawSido);
   const gu = decodeParam(rawGu);
   const dept = decodeParam(rawDept);
-  const [department, region] = await Promise.all([
+  const { dong } = await searchParams;
+
+  const [department, region, sidoRegion] = await Promise.all([
     getDepartmentByUrlName(dept),
     getSigunguRegion(sido, gu),
+    getSidoRegion(sido),
   ]);
   if (!department || !region) return {};
+
+  const sidoName = sidoRegion?.nameKr ?? sido;
+  const regionFull = fullRegionName(sidoName, region.nameKr);
+  const hospitals = await getHospitalsByDeptAndRegion(department.slug, gu, sido);
+  const count = hospitals.length;
+  const canonical = regionDeptUrl(sido, gu, dept);
+
+  // 동(洞) 필터(?dong=)는 본문이 거의 동일 → canonical을 전체 페이지로 고정 + noindex.
+  // 등록 병원이 없는 빈약 페이지도 색인 품질 보호 차원에서 noindex.
+  const isThinOrFiltered = Boolean(dong) || count === 0;
+
+  const countLabel = count > 0 ? ` ${count}곳` : "";
   return {
-    title: `${region.nameKr} ${department.nameKr} 메디록 인증 병원`,
-    description: `${region.nameKr} ${department.nameKr} 메디록 4단계 인증 병원. 평점·가격·후기를 비교하세요.`,
+    title: `${regionFull} ${department.nameKr} 추천 | 메디록 인증 병원${countLabel}`,
+    description: `${regionFull} ${department.nameKr} 메디록 4단계 인증 병원${countLabel}. 정상가·이벤트가와 실방문 후기, 야간·주말 진료를 비교하고 가까운 ${department.nameKr}을(를) 찾으세요.`,
+    alternates: { canonical },
+    openGraph: {
+      title: `${regionFull} ${department.nameKr} 추천 | 메디록`,
+      description: `${regionFull} 메디록 4단계 인증 ${department.nameKr}${countLabel}을(를) 비교하세요.`,
+      url: canonical,
+      type: "website",
+    },
+    robots: isThinOrFiltered
+      ? { index: false, follow: true }
+      : { index: true, follow: true },
   };
 }
 
@@ -42,16 +85,24 @@ export default async function HospitalListPage({ params, searchParams }: PagePro
   const dept = decodeParam(rawDept);
   const { dong } = await searchParams;
 
-  const [department, region, sidoRegion, dongs] = await Promise.all([
-    getDepartmentByUrlName(dept),
-    getSigunguRegion(sido, gu),
-    getSidoRegion(sido),
-    getChildRegions(gu),
-  ]);
+  const [department, region, sidoRegion, dongs, allDepartments, siblingGus] =
+    await Promise.all([
+      getDepartmentByUrlName(dept),
+      getSigunguRegion(sido, gu),
+      getSidoRegion(sido),
+      getChildRegions(gu),
+      getAllDepartments(),
+      getChildRegions(sido),
+    ]);
   if (!department || !region || region.level !== "sigungu") notFound();
 
   const sidoName = sidoRegion?.nameKr ?? sido;
+  const regionFull = fullRegionName(sidoName, region.nameKr);
   let hospitals = await getHospitalsByDeptAndRegion(department.slug, gu, sido);
+
+  // 인트로 카피·FAQ는 동 필터와 무관하게 지역 전체 기준으로 산출(일관성).
+  const introCopy = regionDeptIntro(sidoName, region.nameKr, department.nameKr, hospitals.length);
+  const faqs = regionDeptFaqs(sidoName, region.nameKr, department.nameKr, hospitals);
 
   const activeDong = dong && dongs.some((d) => d.slug === dong) ? dong : undefined;
   if (activeDong) hospitals = hospitals.filter((h) => h.dongSlug === activeDong);
@@ -59,9 +110,41 @@ export default async function HospitalListPage({ params, searchParams }: PagePro
   const curated = hospitals.filter((h) => h.tier === "PREMIUM" && h.curationNote);
   const standard = hospitals;
   const base = `/hospitals/${sido}/${gu}/${dept}`;
+  const pageUrl = regionDeptUrl(sido, gu, dept);
+
+  // 같은 진료과의 인근 구(시·도 내) — 내부링크
+  const nearbyGus = siblingGus.filter((g) => g.slug !== gu).slice(0, 6);
+  // 같은 구의 다른 진료과 — 내부링크
+  const otherDepts = allDepartments.filter((d) => d.slug !== department.slug).slice(0, 8);
+
+  // ── JSON-LD (AEO/GEO) ──
+  const schemas: Record<string, unknown>[] = [
+    breadcrumbSchema([
+      { name: "홈", url: SITE_URL },
+      { name: "병원찾기", url: `${SITE_URL}/hospitals` },
+      { name: sidoName, url: `${SITE_URL}/hospitals/${sido}` },
+      { name: region.nameKr, url: `${SITE_URL}/hospitals/${sido}/${gu}` },
+      { name: department.nameKr, url: pageUrl },
+    ]),
+  ];
+  if (standard.length > 0) {
+    schemas.push(
+      itemListSchema({
+        name: `${regionFull} ${department.nameKr} 메디록 인증 병원`,
+        items: standard.map((h) => ({
+          name: h.nameKr,
+          url: hospitalUrl(h.slug),
+          description: h.shortDescription,
+        })),
+      })
+    );
+  }
+  if (faqs.length > 0) schemas.push(faqPageSchema(faqs));
 
   return (
     <>
+      <JsonLd data={schemas} />
+
       <nav className="bg-white border-b border-[var(--color-surface-border)] py-2">
         <div className="container-page text-xs text-[var(--color-text-muted)]">
           홈 › <Link href="/hospitals">병원찾기</Link> ›{" "}
@@ -74,12 +157,15 @@ export default async function HospitalListPage({ params, searchParams }: PagePro
       <section className="bg-[var(--color-surface-bg)] py-6">
         <div className="container-page">
           <span className="inline-block text-[10px] tracking-[0.05em] bg-[var(--color-accent-100)] text-[var(--color-accent-600)] px-2.5 py-1 rounded font-medium mb-2.5">
-            {region.nameKr} · <span className="hanja">{department.hanja}</span>{" "}
+            {regionFull} · <span className="hanja">{department.hanja}</span>{" "}
             {department.nameKr}
           </span>
           <h1>
-            {region.nameKr} {department.nameKr}
+            {regionFull} {department.nameKr}
           </h1>
+          <p className="text-sm text-[var(--color-text-secondary)] mt-2.5 leading-relaxed max-w-2xl">
+            {introCopy}
+          </p>
 
           {dongs.length > 0 && (
             <div className="mt-4 flex gap-2 flex-wrap">
@@ -119,7 +205,7 @@ export default async function HospitalListPage({ params, searchParams }: PagePro
               TIER 01 · MEDIROK CURATION
             </p>
             <h2 className="editorial mb-4">
-              {region.nameKr} {department.nameKr} 메디록 큐레이션
+              {regionFull} {department.nameKr} 메디록 큐레이션
             </h2>
             <div className="space-y-3">
               {curated.map((h) => (
@@ -158,26 +244,64 @@ export default async function HospitalListPage({ params, searchParams }: PagePro
       <section className="bg-[var(--color-surface-bg)] py-6 border-t border-[var(--color-surface-border)]">
         <div className="container-page">
           <h2 className="text-base font-medium mb-3">자주 묻는 질문</h2>
-          <details className="bg-white rounded-md p-4 border border-[var(--color-surface-border)] mb-2">
-            <summary className="text-sm font-medium cursor-pointer">
-              Q. {region.nameKr} {department.nameKr} 평균 가격은 얼마인가요?
-            </summary>
-            <p className="text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed">
-              메디록 인증 병원은 의원별로 정상가·이벤트가가 공개됩니다. 각 병원
-              카드에서 확인하세요.
-            </p>
-          </details>
-          <details className="bg-white rounded-md p-4 border border-[var(--color-surface-border)] mb-2">
-            <summary className="text-sm font-medium cursor-pointer">
-              Q. 메디록 인증이 뭔가요?
-            </summary>
-            <p className="text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed">
-              메디록이 진료이력·실방문 후기·의료진 자격·시설장비 4단계를 직접
-              검증한 병원에만 부여하는 인증입니다.
-            </p>
-          </details>
+          {faqs.map((f, i) => (
+            <details
+              key={i}
+              className="bg-white rounded-md p-4 border border-[var(--color-surface-border)] mb-2"
+            >
+              <summary className="text-sm font-medium cursor-pointer">
+                Q. {f.question}
+              </summary>
+              <p className="text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed">
+                {f.answer}
+              </p>
+            </details>
+          ))}
         </div>
       </section>
+
+      {(nearbyGus.length > 0 || otherDepts.length > 0) && (
+        <section className="bg-white py-6 border-t border-[var(--color-surface-border)]">
+          <div className="container-page space-y-5">
+            {nearbyGus.length > 0 && (
+              <div>
+                <h2 className="text-sm font-medium mb-2.5">
+                  {sidoName} 다른 지역 {department.nameKr}
+                </h2>
+                <div className="flex gap-2 flex-wrap">
+                  {nearbyGus.map((g) => (
+                    <Link
+                      key={g.slug}
+                      href={`/hospitals/${sido}/${g.slug}/${dept}` as Route}
+                      className="text-xs px-3 py-1.5 rounded-full border bg-white border-[var(--color-surface-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-accent-400)]"
+                    >
+                      {g.nameKr} {department.nameKr}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+            {otherDepts.length > 0 && (
+              <div>
+                <h2 className="text-sm font-medium mb-2.5">
+                  {regionFull} 다른 진료과
+                </h2>
+                <div className="flex gap-2 flex-wrap">
+                  {otherDepts.map((d) => (
+                    <Link
+                      key={d.slug}
+                      href={`/hospitals/${sido}/${gu}/${deptUrlName(d)}` as Route}
+                      className="text-xs px-3 py-1.5 rounded-full border bg-white border-[var(--color-surface-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-accent-400)]"
+                    >
+                      {region.nameKr} {d.nameKr}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
     </>
   );
 }

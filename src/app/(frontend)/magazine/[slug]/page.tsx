@@ -21,6 +21,9 @@ import {
   breadcrumbSchema,
 } from "@/lib/schema-generator";
 
+// DB(매거진)를 매 요청 시 반영 — 정적 캐시로 인한 옛 데이터 노출 방지
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
