@@ -1,6 +1,7 @@
-// 메디록 시드 데이터 + 순수 포매터
+// [레거시] 메디록 초기 시드 데이터 (구 src/lib/data.ts)
 // 콘텐츠는 Payload CMS(hospitals/departments/regions 컬렉션)에서 관리.
-// 아래 seed* 배열은 최초 1회 DB 주입용이며, 런타임 조회는 src/lib/hospitals-data.ts 사용.
+// 아래 seed* 배열은 최초 1회 DB 주입용 아카이브 — 런타임 코드에서 import 금지.
+// 포매터(formatKRW)는 src/lib/format.ts로 이동.
 
 import type { Department, Region, Hospital } from "@/types";
 
@@ -427,17 +428,3 @@ export const seedHospitals: Hospital[] = [
     reviews: [],
   },
 ];
-
-// ─────────────────────────────────────────────
-// 순수 포매터 (DB 무관, 유지)
-// 런타임 조회 헬퍼는 src/lib/hospitals-data.ts (Payload 백엔드)로 이전됨.
-// ─────────────────────────────────────────────
-
-export function formatKRW(amount: number): string {
-  if (amount >= 10000) {
-    const man = amount / 10000;
-    if (man === Math.floor(man)) return `${man.toLocaleString()}만원`;
-    return `${man.toLocaleString()}만`;
-  }
-  return `${amount.toLocaleString()}원`;
-}

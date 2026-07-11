@@ -1,6 +1,8 @@
 // JSON-LD Schema.org 자동 생성기 — AEO 핵심
 // 매거진/Q&A/의원 페이지에 적절한 schema 자동 주입
 
+import { SITE_URL } from "@/lib/site";
+
 interface BaseArticleProps {
   type: "Article" | "MedicalWebPage";
   title: string;
@@ -32,7 +34,7 @@ export function articleSchema(props: BaseArticleProps) {
     publisher: {
       "@type": "Organization",
       name: "메디록",
-      logo: { "@type": "ImageObject", url: "https://medirok.com/logo.png" },
+      logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png` },
     },
     mainEntityOfPage: { "@type": "WebPage", "@id": props.url },
   };

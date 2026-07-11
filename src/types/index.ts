@@ -126,3 +126,31 @@ export interface Article {
   category: string;
   publishedAt: string;
 }
+
+// ── 매거진 (구 src/lib/magazines.ts에서 이동) ──
+
+export type MagazineType = "article" | "qna" | "regional" | "interview" | "case";
+
+export interface Magazine {
+  slug: string;
+  type: MagazineType;
+  seoTitle: string;
+  metaDescription: string;
+  shortAnswer: string;
+  body: string; // Markdown
+  targetKeywords: string[];
+  faqBlocks?: { question: string; answer: string }[];
+  priceTable?: { treatment: string; priceRange: string; note?: string }[];
+  linkedHospitalSlugs?: string[];
+  linkedDepartmentSlug?: string;
+  linkedRegionSlug?: string;
+  linkedTreatmentSlug?: string;
+  /** 저자 = 메디록 인증 의원의 의사. 설정 시 author 프로필 박스 + 의원 cross-link 자동 노출 */
+  authorDoctorSlug?: string;
+  /** authorDoctorSlug가 없을 때 사용 (메디록 큐레이션팀, 외부 전문가 등) */
+  authorName?: string;
+  authorTitle?: string;
+  disclaimerType: "general" | "case" | "price" | "qna";
+  publishedAt: string;
+  category: string;
+}

@@ -90,28 +90,45 @@ export const Magazines: CollectionConfig = {
         { name: "note", type: "text" },
       ],
     },
+    // ── 관계 (slug→FK 전환 완료: 레거시 slug 텍스트 필드는 M5에서 제거) ──
     {
-      name: "linkedHospitalSlugs",
-      type: "text",
+      name: "linkedHospitals",
+      type: "relationship",
+      relationTo: "hospitals",
       hasMany: true,
-      admin: { description: "연결할 병원 slug (정적 병원 데이터 기준)" },
+      admin: { description: "연결할 병원" },
     },
-    { name: "linkedDepartmentSlug", type: "text" },
-    { name: "linkedRegionSlug", type: "text" },
-    { name: "linkedTreatmentSlug", type: "text" },
     {
-      name: "authorDoctorSlug",
-      type: "text",
+      name: "linkedDepartment",
+      type: "relationship",
+      relationTo: "departments",
+      admin: { description: "연결 진료과" },
+    },
+    {
+      name: "linkedRegion",
+      type: "relationship",
+      relationTo: "regions",
+      admin: { description: "연결 지역" },
+    },
+    {
+      name: "authorDoctor",
+      type: "relationship",
+      relationTo: "doctors",
+      index: true,
       admin: {
-        description:
-          "의사 저자 slug. 설정 시 저자 프로필 박스 + 의원 cross-link 자동 노출.",
+        description: "의사 저자. 설정 시 저자 프로필 + 의원 cross-link 자동 노출.",
       },
+    },
+    {
+      name: "linkedTreatmentSlug",
+      type: "text",
+      admin: { description: "연결 시술 slug (시술 컬렉션 도입 전까지 텍스트 유지)" },
     },
     {
       name: "authorName",
       type: "text",
       admin: {
-        description: "authorDoctorSlug 미설정 시 사용 (큐레이션팀/외부 전문가).",
+        description: "authorDoctor 미설정 시 사용 (큐레이션팀/외부 전문가).",
       },
     },
     { name: "authorTitle", type: "text" },

@@ -8,10 +8,19 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:report": "playwright show-report",
+    "e2e:db:up": "docker compose -f docker-compose.e2e.yml up -d --wait",
+    "e2e:db:down": "docker compose -f docker-compose.e2e.yml down -v",
+    "e2e:seed": "node --env-file=.env.e2e --import tsx/esm scripts/seed-e2e.ts",
+    "test:e2e:local": "npm run e2e:db:up && npm run e2e:seed && node --env-file=.env.e2e node_modules/@playwright/test/cli.js test",
     "payload": "payload",
     "payload:seed": "tsx scripts/seed.ts",
     "seed:yeon": "node --env-file=.env.local --import tsx/esm scripts/seed-yeon.ts",
     "seed:magazine-geomdan": "node --env-file=.env.local --import tsx/esm scripts/seed-magazine-geomdan.ts",
+    "seed:magazine-cheongdam": "node --env-file=.env.local --import tsx/esm scripts/seed-magazine-cheongdam.ts",
     "seed:dod": "node --env-file=.env.local --import tsx/esm scripts/seed-dod.ts",
     "payload:generate-types": "payload generate:types"
   },
@@ -29,6 +38,7 @@
     "sharp": "^0.33.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4.3.0",
     "@types/node": "^22.0.0",
     "@types/react": "^19.2.16",

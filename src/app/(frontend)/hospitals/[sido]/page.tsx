@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getRegionBySlug, getChildRegions, decodeParam } from "@/lib/hospitals-data";
-import { JsonLd } from "@/components/JsonLd";
-import { breadcrumbSchema } from "@/lib/schema-generator";
-import { SITE_URL } from "@/lib/local-seo";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 export const revalidate = 1800;
 
@@ -29,21 +27,15 @@ export default async function SidoPage({ params }: PageProps) {
 
   const gus = await getChildRegions(sido);
 
-  const crumbs = breadcrumbSchema([
-    { name: "홈", url: SITE_URL },
-    { name: "병원찾기", url: `${SITE_URL}/hospitals` },
-    { name: region.nameKr, url: `${SITE_URL}/hospitals/${sido}` },
-  ]);
-
   return (
     <>
-      <JsonLd data={crumbs} />
-
-      <nav className="bg-white border-b border-[var(--color-surface-border)] py-2">
-        <div className="container-page text-xs text-[var(--color-text-muted)]">
-          홈 › <Link href="/hospitals">병원찾기</Link> › {region.nameKr}
-        </div>
-      </nav>
+      <Breadcrumbs
+        items={[
+          { name: "홈", path: "/" },
+          { name: "병원찾기", path: "/hospitals", link: true },
+          { name: region.nameKr, path: `/hospitals/${sido}` },
+        ]}
+      />
 
       <section className="bg-[var(--color-surface-bg)] py-8">
         <div className="container-page">

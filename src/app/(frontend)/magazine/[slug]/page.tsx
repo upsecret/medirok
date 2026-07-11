@@ -1,10 +1,15 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getAllMagazines, getMagazineBySlug } from "@/lib/magazines-data";
+import {
+  getAllMagazines,
+  getMagazineBySlug,
+  getAuthorOtherArticles,
+  getRelatedMagazines,
+} from "@/lib/magazines-data";
 import {
   getDoctorBySlug,
   getHospitalByDoctorSlug,
-  getAllHospitals,
+  getHospitalsBySlugs,
 } from "@/lib/hospitals-data";
 import { ShortAnswerBlock } from "@/components/ShortAnswerBlock";
 import { FaqBlock } from "@/components/FaqBlock";
@@ -21,6 +26,7 @@ import {
   qnaPageSchema,
   breadcrumbSchema,
 } from "@/lib/schema-generator";
+import { SITE_URL } from "@/lib/site";
 
 // DB(매거진)를 매 요청 시 반영 — 정적 캐시로 인한 옛 데이터 노출 방지
 export const dynamic = "force-dynamic";
@@ -38,54 +44,45 @@ export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
   const m = await getMagazineBySlug(slug);
   if (!m) return {};
+  const canonical = `/magazine/${m.slug}`;
   return {
     title: m.seoTitle,
     description: m.metaDescription,
-    openGraph: { title: m.seoTitle, description: m.metaDescription, type: "article" },
+    alternates: { canonical },
+    openGraph: {
+      title: m.seoTitle,
+      description: m.metaDescription,
+      type: "article",
+      url: canonical,
+    },
   };
 }
 
 export default async function MagazineDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const [magazines, hospitals] = await Promise.all([getAllMagazines(), getAllHospitals()]);
-  const magazine = magazines.find((m) => m.slug === slug);
+  const magazine = await getMagazineBySlug(slug);
   if (!magazine) notFound();
-
-  const linkedHospitals = magazine.linkedHospitalSlugs
-    ? hospitals.filter((h) => magazine.linkedHospitalSlugs!.includes(h.slug))
-    : [];
 
   const authorDoctor = magazine.authorDoctorSlug
     ? await getDoctorBySlug(magazine.authorDoctorSlug)
     : undefined;
 
-  const authorHospital = authorDoctor
-    ? await getHospitalByDoctorSlug(authorDoctor.slug)
-    : undefined;
+  const [linkedHospitals, relatedMagazines, authorHospital, authorOtherArticles] =
+    await Promise.all([
+      getHospitalsBySlugs(magazine.linkedHospitalSlugs ?? []),
+      getRelatedMagazines(magazine),
+      authorDoctor ? getHospitalByDoctorSlug(authorDoctor.slug) : undefined,
+      // 저자 의사가 쓴 다른 글 (AuthorProfile에 전달)
+      authorDoctor ? getAuthorOtherArticles(authorDoctor.slug, magazine.slug) : [],
+    ]);
 
-  // 저자 의사가 쓴 다른 글 (AuthorProfile에 전달)
-  const authorOtherArticles = authorDoctor
-    ? magazines.filter(
-        (m) => m.authorDoctorSlug === authorDoctor.slug && m.slug !== magazine.slug
-      )
-    : [];
-
-  const relatedMagazines = magazines
-    .filter(
-      (m) =>
-        m.slug !== magazine.slug &&
-        (m.linkedDepartmentSlug === magazine.linkedDepartmentSlug ||
-          m.linkedTreatmentSlug === magazine.linkedTreatmentSlug)
-    )
-    .slice(0, 3);
-
-  const url = `https://medirok.com/magazine/${magazine.slug}`;
+  const url = `${SITE_URL}/magazine/${magazine.slug}`;
 
   // Schema 자동 생성
   const schemas: Record<string, unknown>[] = [
     breadcrumbSchema([
-      { name: "홈", url: "https://medirok.com" },
-      { name: "매거진", url: "https://medirok.com/magazine" },
+      { name: "홈", url: SITE_URL },
+      { name: "매거진", url: `${SITE_URL}/magazine` },
       { name: magazine.seoTitle, url },
     ]),
   ];

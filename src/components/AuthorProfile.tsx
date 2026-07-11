@@ -4,8 +4,7 @@
 
 import Link from "next/link";
 import type { Route } from "next";
-import type { Doctor, Hospital } from "@/types";
-import type { Magazine } from "@/lib/magazines";
+import type { Doctor, Hospital, Magazine } from "@/types";
 
 interface AuthorProfileProps {
   /** 의사 저자가 있는 경우 (이때 의원 링크 + 다른 글 자동 표시) */

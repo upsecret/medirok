@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     magazines: Magazine;
     hospitals: Hospital;
+    doctors: Doctor;
     departments: Department;
     regions: Region;
     media: Media;
@@ -82,6 +83,7 @@ export interface Config {
   collectionsSelect: {
     magazines: MagazinesSelect<false> | MagazinesSelect<true>;
     hospitals: HospitalsSelect<false> | HospitalsSelect<true>;
+    doctors: DoctorsSelect<false> | DoctorsSelect<true>;
     departments: DepartmentsSelect<false> | DepartmentsSelect<true>;
     regions: RegionsSelect<false> | RegionsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -163,18 +165,27 @@ export interface Magazine {
       }[]
     | null;
   /**
-   * 연결할 병원 slug (정적 병원 데이터 기준)
+   * 연결할 병원
    */
-  linkedHospitalSlugs?: string[] | null;
-  linkedDepartmentSlug?: string | null;
-  linkedRegionSlug?: string | null;
+  linkedHospitals?: (number | Hospital)[] | null;
+  /**
+   * 연결 진료과
+   */
+  linkedDepartment?: (number | null) | Department;
+  /**
+   * 연결 지역
+   */
+  linkedRegion?: (number | null) | Region;
+  /**
+   * 의사 저자. 설정 시 저자 프로필 + 의원 cross-link 자동 노출.
+   */
+  authorDoctor?: (number | null) | Doctor;
+  /**
+   * 연결 시술 slug (시술 컬렉션 도입 전까지 텍스트 유지)
+   */
   linkedTreatmentSlug?: string | null;
   /**
-   * 의사 저자 slug. 설정 시 저자 프로필 박스 + 의원 cross-link 자동 노출.
-   */
-  authorDoctorSlug?: string | null;
-  /**
-   * authorDoctorSlug 미설정 시 사용 (큐레이션팀/외부 전문가).
+   * authorDoctor 미설정 시 사용 (큐레이션팀/외부 전문가).
    */
   authorName?: string | null;
   authorTitle?: string | null;
@@ -200,21 +211,13 @@ export interface Hospital {
   nameKr: string;
   shortDescription?: string | null;
   /**
-   * 진료과 slug — dental, orthopedics, ophthalmology, obstetrics, dermatology, internal-medicine, checkup, cardiology, urology
+   * 진료과 참조
    */
-  departmentSlug: string;
+  department: number | Department;
   /**
-   * 시/도 slug (예: 인천). 구 이름 충돌 방지용 상위 스코프.
+   * 최하위 지역 참조 (동이 있으면 동, 없으면 시군구). 상위 지역은 region.parent 체인으로 해석
    */
-  sidoSlug?: string | null;
-  /**
-   * 시군구(구) slug (예: 강남구, 서구)
-   */
-  regionSlug: string;
-  /**
-   * 동 slug (선택, 예: 역삼동). 병원 목록 동 필터용.
-   */
-  dongSlug?: string | null;
+  region: number | Region;
   addressLine: string;
   nearestStation?: string | null;
   /**
@@ -252,24 +255,6 @@ export interface Hospital {
     curatorName?: string | null;
     curatorTitle?: string | null;
   };
-  doctors?:
-    | {
-        slug: string;
-        nameKr: string;
-        /**
-         * 한자 1자 (아바타용)
-         */
-        nameHanja?: string | null;
-        /**
-         * 대표원장 / 부원장 등
-         */
-        title?: string | null;
-        yearsExperience?: number | null;
-        specialty?: string | null;
-        credentials?: string[] | null;
-        id?: string | null;
-      }[]
-    | null;
   prices?:
     | {
         treatmentName: string;
@@ -340,9 +325,35 @@ export interface Region {
    */
   level?: ('sido' | 'sigungu' | 'dong') | null;
   /**
-   * 상위 지역 slug (예: 강남구→seoul, 역삼동→gangnam). 시/도면 비움.
+   * 상위 지역 참조. 시/도면 비움.
    */
-  parentSlug?: string | null;
+  parent?: (number | null) | Region;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "doctors".
+ */
+export interface Doctor {
+  id: number;
+  slug: string;
+  nameKr: string;
+  /**
+   * 한자 1자 (아바타용)
+   */
+  nameHanja?: string | null;
+  /**
+   * 대표원장 / 부원장 등
+   */
+  title?: string | null;
+  yearsExperience?: number | null;
+  specialty?: string | null;
+  credentials?: string[] | null;
+  /**
+   * 소속 의원
+   */
+  hospital?: (number | null) | Hospital;
   updatedAt: string;
   createdAt: string;
 }
@@ -452,6 +463,10 @@ export interface PayloadLockedDocument {
         value: number | Hospital;
       } | null)
     | ({
+        relationTo: 'doctors';
+        value: number | Doctor;
+      } | null)
+    | ({
         relationTo: 'departments';
         value: number | Department;
       } | null)
@@ -536,11 +551,11 @@ export interface MagazinesSelect<T extends boolean = true> {
         note?: T;
         id?: T;
       };
-  linkedHospitalSlugs?: T;
-  linkedDepartmentSlug?: T;
-  linkedRegionSlug?: T;
+  linkedHospitals?: T;
+  linkedDepartment?: T;
+  linkedRegion?: T;
+  authorDoctor?: T;
   linkedTreatmentSlug?: T;
-  authorDoctorSlug?: T;
   authorName?: T;
   authorTitle?: T;
   disclaimerType?: T;
@@ -557,10 +572,8 @@ export interface HospitalsSelect<T extends boolean = true> {
   slug?: T;
   nameKr?: T;
   shortDescription?: T;
-  departmentSlug?: T;
-  sidoSlug?: T;
-  regionSlug?: T;
-  dongSlug?: T;
+  department?: T;
+  region?: T;
   addressLine?: T;
   nearestStation?: T;
   nearestStationName?: T;
@@ -592,18 +605,6 @@ export interface HospitalsSelect<T extends boolean = true> {
         text?: T;
         curatorName?: T;
         curatorTitle?: T;
-      };
-  doctors?:
-    | T
-    | {
-        slug?: T;
-        nameKr?: T;
-        nameHanja?: T;
-        title?: T;
-        yearsExperience?: T;
-        specialty?: T;
-        credentials?: T;
-        id?: T;
       };
   prices?:
     | T
@@ -643,6 +644,22 @@ export interface HospitalsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "doctors_select".
+ */
+export interface DoctorsSelect<T extends boolean = true> {
+  slug?: T;
+  nameKr?: T;
+  nameHanja?: T;
+  title?: T;
+  yearsExperience?: T;
+  specialty?: T;
+  credentials?: T;
+  hospital?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "departments_select".
  */
 export interface DepartmentsSelect<T extends boolean = true> {
@@ -665,7 +682,7 @@ export interface RegionsSelect<T extends boolean = true> {
   nameKr?: T;
   nameEn?: T;
   level?: T;
-  parentSlug?: T;
+  parent?: T;
   updatedAt?: T;
   createdAt?: T;
 }

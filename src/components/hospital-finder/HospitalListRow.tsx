@@ -3,7 +3,7 @@
 // GooDoc 스타일 세로 리스팅 행 — 클릭 시 퀵뷰 모달 오픈
 
 import type { Hospital } from "@/types";
-import { formatKRW } from "@/lib/data";
+import { formatKRW } from "@/lib/format";
 import { DepartmentIcon } from "@/components/DepartmentIcon";
 
 interface Props {

@@ -1,32 +1,9 @@
-// 메디록 매거진 타입 + 시드 데이터
+// [레거시] 메디록 매거진 초기 시드 데이터 (구 src/lib/magazines.ts)
 // 콘텐츠는 Payload CMS(magazines 컬렉션)에서 관리. 이 파일의 seedMagazines는
-// 최초 1회 DB 주입용 시드이며, 런타임 조회는 src/lib/magazines-data.ts를 사용.
+// 최초 1회 DB 주입용 아카이브 — 런타임 코드에서 import 금지.
+// Magazine/MagazineType 타입은 src/types로 이동.
 
-export type MagazineType = "article" | "qna" | "regional" | "interview" | "case";
-
-export interface Magazine {
-  slug: string;
-  type: MagazineType;
-  seoTitle: string;
-  metaDescription: string;
-  shortAnswer: string;
-  body: string; // Markdown
-  targetKeywords: string[];
-  faqBlocks?: { question: string; answer: string }[];
-  priceTable?: { treatment: string; priceRange: string; note?: string }[];
-  linkedHospitalSlugs?: string[];
-  linkedDepartmentSlug?: string;
-  linkedRegionSlug?: string;
-  linkedTreatmentSlug?: string;
-  /** 저자 = 메디록 인증 의원의 의사. 설정 시 author 프로필 박스 + 의원 cross-link 자동 노출 */
-  authorDoctorSlug?: string;
-  /** authorDoctorSlug가 없을 때 사용 (메디록 큐레이션팀, 외부 전문가 등) */
-  authorName?: string;
-  authorTitle?: string;
-  disclaimerType: "general" | "case" | "price" | "qna";
-  publishedAt: string;
-  category: string;
-}
+import type { Magazine } from "@/types";
 
 export const seedMagazines: Magazine[] = [
   // ─────────────────────────────────────────────

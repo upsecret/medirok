@@ -3,10 +3,11 @@
 // 본문 렌더와 FAQPage JSON-LD가 항상 동일한 내용을 쓰도록 보장한다.
 
 import type { Hospital } from "@/types";
-import { formatKRW } from "@/lib/data";
+import { formatKRW } from "@/lib/format";
+import { SITE_URL } from "@/lib/site";
 
-/** sitemap.ts·metadataBase와 동일한 정식 도메인 (절대 URL용) */
-export const SITE_URL = "https://medirok.com";
+/** @deprecated 새 코드는 @/lib/site에서 직접 import */
+export { SITE_URL };
 
 /** 시·도까지 포함한 전체 지역명 (예: "인천 서구") */
 export function fullRegionName(sidoName: string, guName: string): string {

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Route } from "next";
-import type { Magazine } from "@/lib/magazines";
+import type { Magazine } from "@/types";
 
 const TYPE_LABELS: Record<Magazine["type"], string> = {
   article: "시술 가이드",

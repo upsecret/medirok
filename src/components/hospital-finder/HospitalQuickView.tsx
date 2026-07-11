@@ -5,7 +5,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import type { Hospital } from "@/types";
-import { formatKRW } from "@/lib/data";
+import { formatKRW } from "@/lib/format";
 import { DepartmentIcon } from "@/components/DepartmentIcon";
 
 interface Props {

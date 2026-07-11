@@ -1,10 +1,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { formatKRW } from "@/lib/data";
 import {
   getHospitalBySlug,
   getDepartmentBySlug,
-  getAllHospitals,
+  getSimilarHospitals,
   getSidoRegion,
   getSigunguRegion,
   deptUrlName,
@@ -15,8 +14,13 @@ import { MedirokCertBox } from "@/components/MedirokCertBox";
 import { HospitalCard } from "@/components/HospitalCard";
 import { MagazineCard } from "@/components/MagazineCard";
 import { JsonLd } from "@/components/JsonLd";
-import { breadcrumbSchema, medicalOrgSchema } from "@/lib/schema-generator";
-import { SITE_URL, fullRegionName, hospitalUrl } from "@/lib/local-seo";
+import { PriceSection } from "@/components/hospital-detail/PriceSection";
+import { DoctorsSection } from "@/components/hospital-detail/DoctorsSection";
+import { ReviewsSection } from "@/components/hospital-detail/ReviewsSection";
+import { LocationHoursSection } from "@/components/hospital-detail/LocationHoursSection";
+import { Breadcrumbs, type Crumb } from "@/components/Breadcrumbs";
+import { medicalOrgSchema } from "@/lib/schema-generator";
+import { fullRegionName, hospitalUrl } from "@/lib/local-seo";
 
 // 병원 상세 — 30분 ISR 캐시. 어드민 변경 즉시 반영 필요 시 revalidatePath 권장.
 export const revalidate = 1800;
@@ -59,29 +63,45 @@ export default async function HospitalDetailPage({ params }: PageProps) {
     sidoSlug ? getSidoRegion(sidoSlug) : Promise.resolve(undefined),
     getSigunguRegion(sidoSlug, hospital.regionSlug),
   ]);
-  const similar = (await getAllHospitals()).filter(
-    (h) => h.departmentSlug === hospital.departmentSlug && h.slug !== hospital.slug
-  );
+  const similar = await getSimilarHospitals(hospital.departmentSlug, hospital.slug);
 
   // 이 의원에 소속된 의사들이 쓴 매거진
   const doctorSlugs = hospital.doctors.map((d) => d.slug);
   const hospitalMagazines = await getMagazinesByDoctorSlugs(doctorSlugs);
 
-  // ── JSON-LD (로컬 SEO/AEO) ──
-  const crumbs = [
-    { name: "홈", url: SITE_URL },
-    { name: "병원찾기", url: `${SITE_URL}/hospitals` },
+  // ── 브레드크럼 — nav + BreadcrumbList JSON-LD는 <Breadcrumbs>가 렌더 ──
+  const navItems: Crumb[] = [
+    { name: "홈", path: "/" },
+    { name: "병원찾기", path: "/hospitals", link: true },
+    ...(sidoR
+      ? [{ name: sidoR.nameKr, path: `/hospitals/${sidoR.slug}`, link: true }]
+      : []),
+    ...(sidoR && guR
+      ? [{ name: guR.nameKr, path: `/hospitals/${sidoR.slug}/${guR.slug}`, link: true }]
+      : []),
+    ...(sidoR && guR && dept
+      ? [
+          {
+            name: dept.nameKr,
+            path: `/hospitals/${sidoR.slug}/${guR.slug}/${deptUrlName(dept)}`,
+            link: true,
+          },
+        ]
+      : []),
+    { name: hospital.nameKr, path: `/hospital/${hospital.slug}` },
   ];
-  if (sidoR) crumbs.push({ name: sidoR.nameKr, url: `${SITE_URL}/hospitals/${sidoR.slug}` });
-  if (sidoR && guR)
-    crumbs.push({
-      name: guR.nameKr,
-      url: `${SITE_URL}/hospitals/${sidoR.slug}/${guR.slug}`,
-    });
-  crumbs.push({ name: hospital.nameKr, url: hospitalUrl(hospital.slug) });
+  // 스키마에는 진료과 항목 제외 (기존 동작 유지: 홈›병원찾기›시도›구›병원명)
+  const schemaItems = [
+    { name: "홈", path: "/" },
+    { name: "병원찾기", path: "/hospitals" },
+    ...(sidoR ? [{ name: sidoR.nameKr, path: `/hospitals/${sidoR.slug}` }] : []),
+    ...(sidoR && guR
+      ? [{ name: guR.nameKr, path: `/hospitals/${sidoR.slug}/${guR.slug}` }]
+      : []),
+    { name: hospital.nameKr, path: `/hospital/${hospital.slug}` },
+  ];
 
   const schemas: Record<string, unknown>[] = [
-    breadcrumbSchema(crumbs),
     medicalOrgSchema({
       name: hospital.nameKr,
       url: hospitalUrl(hospital.slug),
@@ -100,33 +120,7 @@ export default async function HospitalDetailPage({ params }: PageProps) {
     <>
       <JsonLd data={schemas} />
 
-      <nav className="bg-white border-b border-[var(--color-surface-border)] py-2">
-        <div className="container-page text-xs text-[var(--color-text-muted)]">
-          홈 › <Link href="/hospitals">병원찾기</Link>
-          {sidoR && (
-            <>
-              {" › "}
-              <Link href={`/hospitals/${sidoR.slug}`}>{sidoR.nameKr}</Link>
-            </>
-          )}
-          {sidoR && guR && (
-            <>
-              {" › "}
-              <Link href={`/hospitals/${sidoR.slug}/${guR.slug}`}>{guR.nameKr}</Link>
-            </>
-          )}
-          {sidoR && guR && dept && (
-            <>
-              {" › "}
-              <Link href={`/hospitals/${sidoR.slug}/${guR.slug}/${deptUrlName(dept)}`}>
-                {dept.nameKr}
-              </Link>
-            </>
-          )}
-          {" › "}
-          {hospital.nameKr}
-        </div>
-      </nav>
+      <Breadcrumbs items={navItems} schemaItems={schemaItems} />
 
       <div className="bg-[var(--color-surface-border)] h-44 md:h-56 flex items-center justify-center relative">
         <span className="text-xs text-[var(--color-text-muted)]">의원 사진 (1 / 8)</span>
@@ -220,183 +214,13 @@ export default async function HospitalDetailPage({ params }: PageProps) {
         </section>
       )}
 
-      <section className="py-5 bg-white border-b border-[var(--color-surface-border)]">
-        <div className="container-page">
-          <div className="flex justify-between items-baseline mb-3">
-            <h2 className="text-base font-medium">진료 / 가격</h2>
-            {hospital.prices.length > 0 && (
-              <span className="text-xs text-[var(--color-text-muted)]">전체 보기 →</span>
-            )}
-          </div>
-          {hospital.prices.length === 0 ? (
-            <div className="bg-[var(--color-surface-bg)] border border-[var(--color-surface-border)] rounded-md p-5 text-center">
-              <p className="text-sm text-[var(--color-text-secondary)]">
-                공개된 진료 가격 정보가 아직 없습니다.
-              </p>
-              {hospital.phone ? (
-                <a
-                  href={`tel:${hospital.phone.replace(/[^0-9+]/g, "")}`}
-                  className="inline-block mt-3 bg-[var(--color-primary-600)] text-white text-sm font-medium px-5 py-2.5 rounded-md"
-                >
-                  📞 진료문의하기
-                </a>
-              ) : (
-                <Link
-                  href="/estimate"
-                  className="inline-block mt-3 bg-[var(--color-primary-600)] text-white text-sm font-medium px-5 py-2.5 rounded-md"
-                >
-                  진료문의하기
-                </Link>
-              )}
-            </div>
-          ) : (
-          <div className="space-y-3">
-            {hospital.prices.map((p, i) => (
-              <div
-                key={i}
-                className="bg-[var(--color-surface-bg)] border border-[var(--color-surface-border)] rounded-md p-3"
-              >
-                <p className="text-sm font-medium">
-                  {p.treatmentName}
-                  {p.treatmentNote && (
-                    <span className="text-xs text-[var(--color-text-muted)] ml-2 font-normal">
-                      {p.treatmentNote}
-                    </span>
-                  )}
-                </p>
-                <div className="mt-2 space-y-1.5 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-[var(--color-text-muted)]">정상가</span>
-                    <span>
-                      {formatKRW(p.normalLow)} ~ {formatKRW(p.normalHigh)}
-                    </span>
-                  </div>
-                  {p.eventLow && p.eventHigh && (
-                    <div className="flex justify-between pt-1.5 border-t border-[var(--color-surface-divider)]">
-                      <span className="text-[var(--color-danger)] font-medium">이벤트가</span>
-                      <span className="text-[var(--color-danger)] font-medium">
-                        {formatKRW(p.eventLow)} ~ {formatKRW(p.eventHigh)}
-                      </span>
-                    </div>
-                  )}
-                  {p.insuranceNote && (
-                    <div className="flex justify-between pt-1.5 border-t border-[var(--color-surface-divider)]">
-                      <span className="text-[var(--color-text-muted)]">{p.insuranceNote}</span>
-                      <span className="text-[var(--color-text-muted)]">로그인 후 확인</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-          )}
-        </div>
-      </section>
+      <PriceSection hospital={hospital} />
 
-      {hospital.doctors.length > 0 && (
-        <section className="py-5 bg-[var(--color-surface-bg)] border-b border-[var(--color-surface-border)]">
-          <div className="container-page">
-            <h2 className="text-base font-medium mb-3">의료진 ({hospital.doctorCount}명)</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              {hospital.doctors.map((d) => (
-                <div
-                  key={d.slug}
-                  className="bg-white rounded-md border border-[var(--color-surface-border)] p-3 text-center"
-                >
-                  <div className="w-12 h-12 bg-[var(--color-primary-600)] rounded-full mx-auto mb-2 flex items-center justify-center">
-                    <span className="text-[var(--color-accent-400)] text-base font-medium">
-                      {d.nameKr[0]}
-                    </span>
-                  </div>
-                  <p className="text-xs font-medium">{d.nameKr}</p>
-                  <p className="text-[10px] text-[var(--color-text-muted)] mt-0.5">{d.title}</p>
-                  {d.specialty && (
-                    <p className="text-[10px] text-[var(--color-accent-600)] font-medium mt-0.5 leading-tight">
-                      {d.specialty}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      <DoctorsSection hospital={hospital} />
 
-      {hospital.reviews.length > 0 && (
-        <section className="py-5 bg-white border-b border-[var(--color-surface-border)]">
-          <div className="container-page">
-            <div className="flex justify-between items-baseline mb-3">
-              <h2 className="text-base font-medium">실방문 후기 ({hospital.reviewCount})</h2>
-              <span className="text-xs text-[var(--color-text-muted)]">최신순 ▾</span>
-            </div>
-            <div className="space-y-2">
-              {hospital.reviews.map((r) => (
-                <div
-                  key={r.id}
-                  className="bg-[var(--color-surface-bg)] border border-[var(--color-surface-border)] rounded-md p-3"
-                >
-                  <div className="flex justify-between items-start mb-1.5">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">{"★".repeat(r.rating)}</span>
-                      {r.isReceiptVerified && (
-                        <span className="badge-certified text-[9px]">영수증</span>
-                      )}
-                      {r.isPhoneVerified && (
-                        <span className="text-[9px] bg-[var(--color-info)] text-white px-1.5 py-0.5 rounded">
-                          전화
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-[10px] text-[var(--color-text-muted)]">
-                      {r.reviewerName} · {r.visitedAt.slice(5)}
-                    </span>
-                  </div>
-                  <p className="text-sm leading-relaxed">{r.content}</p>
-                  {(r.treatmentName || r.ageGroup) && (
-                    <p className="text-[10px] text-[var(--color-text-muted)] mt-2">
-                      {r.treatmentName} · {r.ageGroup}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      <ReviewsSection hospital={hospital} />
 
-      {hospital.hours && (
-        <section className="py-5 bg-[var(--color-surface-bg)] border-b border-[var(--color-surface-border)]">
-          <div className="container-page">
-            <h2 className="text-base font-medium mb-3">위치 · 진료시간</h2>
-            <div className="bg-[var(--color-surface-border)] h-24 rounded-md flex items-center justify-center mb-3">
-              <span className="text-xs text-[var(--color-text-muted)]">📍 지도</span>
-            </div>
-            <p className="text-sm">{hospital.addressLine}</p>
-            <table className="w-full text-xs mt-3">
-              <tbody>
-                <tr>
-                  <td className="text-[var(--color-text-muted)] py-1">평일</td>
-                  <td className="text-right py-1">{hospital.hours.weekday}</td>
-                </tr>
-                {hospital.hours.saturday && (
-                  <tr>
-                    <td className="text-[var(--color-text-muted)] py-1">토요일</td>
-                    <td className="text-right py-1">{hospital.hours.saturday}</td>
-                  </tr>
-                )}
-                {hospital.hours.sunday && (
-                  <tr>
-                    <td className="text-[var(--color-text-muted)] py-1">일/공휴일</td>
-                    <td className="text-right py-1 text-[var(--color-danger)]">
-                      {hospital.hours.sunday}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
+      <LocationHoursSection hospital={hospital} />
 
       {hospitalMagazines.length > 0 && (
         <section className="py-6 bg-white border-b border-[var(--color-surface-border)]">

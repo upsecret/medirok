@@ -10,6 +10,7 @@ import { buildConfig } from "payload";
 
 import { Magazines } from "@/payload/collections/Magazines";
 import { Hospitals } from "@/payload/collections/Hospitals";
+import { Doctors } from "@/payload/collections/Doctors";
 import { Departments } from "@/payload/collections/Departments";
 import { Regions } from "@/payload/collections/Regions";
 import { Media } from "@/payload/collections/Media";
@@ -29,6 +30,7 @@ export default buildConfig({
     Magazines,
     // 의원 + 마스터 데이터
     Hospitals,
+    Doctors,
     Departments,
     Regions,
     // 미디어 + 사용자(관리자)

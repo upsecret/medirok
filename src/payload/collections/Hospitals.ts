@@ -1,29 +1,22 @@
 // 의원 — 단일 통합 컬렉션
 // 프론트엔드 flat `Hospital` 타입(src/types)을 그대로 미러링.
-// 의사·가격·리뷰·인증·진료시간을 Hospital 문서에 임베드. department/region은 slug 텍스트.
+// 가격·리뷰·인증·진료시간은 임베드, 진료과/지역은 관계(FK), 의사는 doctors 컬렉션.
 // /admin 단일 관리.
 
 import type { CollectionConfig } from "payload";
-
-const DEPT_SLUGS =
-  "dental, orthopedics, ophthalmology, obstetrics, dermatology, internal-medicine, checkup, cardiology, urology";
 
 export const Hospitals: CollectionConfig = {
   slug: "hospitals",
   admin: {
     useAsTitle: "nameKr",
     group: "의원",
-    defaultColumns: ["nameKr", "tier", "departmentSlug", "regionSlug", "rating"],
+    defaultColumns: ["nameKr", "tier", "department", "region", "rating"],
   },
   access: { read: () => true },
   hooks: {
     beforeChange: [
       ({ data }) => {
         if (data?.slug) data.slug = String(data.slug).trim().toLowerCase();
-        // doctorCount 자동 동기화 (미입력 시)
-        if (Array.isArray(data?.doctors)) {
-          if (data.doctorCount == null) data.doctorCount = data.doctors.length;
-        }
         return data;
       },
     ],
@@ -32,31 +25,25 @@ export const Hospitals: CollectionConfig = {
     { name: "slug", type: "text", required: true, unique: true, index: true },
     { name: "nameKr", type: "text", required: true },
     { name: "shortDescription", type: "text" },
+    // ── 관계 (slug→FK 전환 완료: 레거시 slug 텍스트 필드는 M5에서 제거) ──
     {
-      name: "departmentSlug",
-      type: "text",
+      name: "department",
+      type: "relationship",
+      relationTo: "departments",
       required: true,
       index: true,
-      admin: { description: `진료과 slug — ${DEPT_SLUGS}` },
+      admin: { description: "진료과 참조" },
     },
     {
-      name: "sidoSlug",
-      type: "text",
-      index: true,
-      admin: { description: "시/도 slug (예: 인천). 구 이름 충돌 방지용 상위 스코프." },
-    },
-    {
-      name: "regionSlug",
-      type: "text",
+      name: "region",
+      type: "relationship",
+      relationTo: "regions",
       required: true,
       index: true,
-      admin: { description: "시군구(구) slug (예: 강남구, 서구)" },
-    },
-    {
-      name: "dongSlug",
-      type: "text",
-      index: true,
-      admin: { description: "동 slug (선택, 예: 역삼동). 병원 목록 동 필터용." },
+      admin: {
+        description:
+          "최하위 지역 참조 (동이 있으면 동, 없으면 시군구). 상위 지역은 region.parent 체인으로 해석",
+      },
     },
     { name: "addressLine", type: "text", required: true },
     { name: "nearestStation", type: "text" },
@@ -120,21 +107,7 @@ export const Hospitals: CollectionConfig = {
         { name: "curatorTitle", type: "text" },
       ],
     },
-    // 의료진 (임베드)
-    {
-      name: "doctors",
-      type: "array",
-      label: "의료진",
-      fields: [
-        { name: "slug", type: "text", required: true },
-        { name: "nameKr", type: "text", required: true },
-        { name: "nameHanja", type: "text", admin: { description: "한자 1자 (아바타용)" } },
-        { name: "title", type: "text", admin: { description: "대표원장 / 부원장 등" } },
-        { name: "yearsExperience", type: "number" },
-        { name: "specialty", type: "text" },
-        { name: "credentials", type: "text", hasMany: true },
-      ],
-    },
+    // 의료진 — doctors 컬렉션으로 승격됨 (doctors.hospital 관계로 소속 표현)
     // 시술별 가격 (임베드)
     {
       name: "prices",

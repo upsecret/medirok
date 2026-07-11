@@ -1,16 +1,13 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
-import type { Route } from "next";
 import { CurationCard } from "@/components/CurationCard";
 import { HospitalCard } from "@/components/HospitalCard";
 import { JsonLd } from "@/components/JsonLd";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { FaqBlock } from "@/components/FaqBlock";
+import { DongFilterChips } from "@/components/region-dept/DongFilterChips";
+import { RegionCrossLinks } from "@/components/region-dept/RegionCrossLinks";
+import { itemListSchema, faqPageSchema } from "@/lib/schema-generator";
 import {
-  breadcrumbSchema,
-  itemListSchema,
-  faqPageSchema,
-} from "@/lib/schema-generator";
-import {
-  SITE_URL,
   fullRegionName,
   hospitalUrl,
   regionDeptUrl,
@@ -24,7 +21,6 @@ import {
   getChildRegions,
   getHospitalsByDeptAndRegion,
   getAllDepartments,
-  deptUrlName,
   decodeParam,
 } from "@/lib/hospitals-data";
 
@@ -110,23 +106,14 @@ export default async function HospitalListPage({ params, searchParams }: PagePro
   const curated = hospitals.filter((h) => h.tier === "PREMIUM" && h.curationNote);
   const standard = hospitals;
   const base = `/hospitals/${sido}/${gu}/${dept}`;
-  const pageUrl = regionDeptUrl(sido, gu, dept);
 
   // 같은 진료과의 인근 구(시·도 내) — 내부링크
   const nearbyGus = siblingGus.filter((g) => g.slug !== gu).slice(0, 6);
   // 같은 구의 다른 진료과 — 내부링크
   const otherDepts = allDepartments.filter((d) => d.slug !== department.slug).slice(0, 8);
 
-  // ── JSON-LD (AEO/GEO) ──
-  const schemas: Record<string, unknown>[] = [
-    breadcrumbSchema([
-      { name: "홈", url: SITE_URL },
-      { name: "병원찾기", url: `${SITE_URL}/hospitals` },
-      { name: sidoName, url: `${SITE_URL}/hospitals/${sido}` },
-      { name: region.nameKr, url: `${SITE_URL}/hospitals/${sido}/${gu}` },
-      { name: department.nameKr, url: pageUrl },
-    ]),
-  ];
+  // ── JSON-LD (AEO/GEO) — BreadcrumbList는 <Breadcrumbs>가 주입 ──
+  const schemas: Record<string, unknown>[] = [];
   if (standard.length > 0) {
     schemas.push(
       itemListSchema({
@@ -144,15 +131,15 @@ export default async function HospitalListPage({ params, searchParams }: PagePro
   return (
     <>
       <JsonLd data={schemas} />
-
-      <nav className="bg-white border-b border-[var(--color-surface-border)] py-2">
-        <div className="container-page text-xs text-[var(--color-text-muted)]">
-          홈 › <Link href="/hospitals">병원찾기</Link> ›{" "}
-          <Link href={`/hospitals/${sido}`}>{sidoName}</Link> ›{" "}
-          <Link href={`/hospitals/${sido}/${gu}`}>{region.nameKr}</Link> ›{" "}
-          {department.nameKr}
-        </div>
-      </nav>
+      <Breadcrumbs
+        items={[
+          { name: "홈", path: "/" },
+          { name: "병원찾기", path: "/hospitals", link: true },
+          { name: sidoName, path: `/hospitals/${sido}`, link: true },
+          { name: region.nameKr, path: `/hospitals/${sido}/${gu}`, link: true },
+          { name: department.nameKr, path: base },
+        ]}
+      />
 
       <section className="bg-[var(--color-surface-bg)] py-6">
         <div className="container-page">
@@ -167,34 +154,7 @@ export default async function HospitalListPage({ params, searchParams }: PagePro
             {introCopy}
           </p>
 
-          {dongs.length > 0 && (
-            <div className="mt-4 flex gap-2 flex-wrap">
-              <span className="text-xs text-[var(--color-text-muted)] py-1.5">동:</span>
-              <Link
-                href={base as Route}
-                className={`text-xs px-3 py-1.5 rounded-full border ${
-                  !activeDong
-                    ? "bg-[var(--color-primary-600)] text-white border-[var(--color-primary-600)]"
-                    : "bg-white border-[var(--color-surface-border)] text-[var(--color-text-secondary)]"
-                }`}
-              >
-                전체
-              </Link>
-              {dongs.map((d) => (
-                <Link
-                  key={d.slug}
-                  href={`${base}?dong=${d.slug}` as Route}
-                  className={`text-xs px-3 py-1.5 rounded-full border ${
-                    activeDong === d.slug
-                      ? "bg-[var(--color-primary-600)] text-white border-[var(--color-primary-600)]"
-                      : "bg-white border-[var(--color-surface-border)] text-[var(--color-text-secondary)]"
-                  }`}
-                >
-                  {d.nameKr}
-                </Link>
-              ))}
-            </div>
-          )}
+          <DongFilterChips dongs={dongs} base={base} activeDong={activeDong} />
         </div>
       </section>
 
@@ -243,65 +203,21 @@ export default async function HospitalListPage({ params, searchParams }: PagePro
 
       <section className="bg-[var(--color-surface-bg)] py-6 border-t border-[var(--color-surface-border)]">
         <div className="container-page">
-          <h2 className="text-base font-medium mb-3">자주 묻는 질문</h2>
-          {faqs.map((f, i) => (
-            <details
-              key={i}
-              className="bg-white rounded-md p-4 border border-[var(--color-surface-border)] mb-2"
-            >
-              <summary className="text-sm font-medium cursor-pointer">
-                Q. {f.question}
-              </summary>
-              <p className="text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed">
-                {f.answer}
-              </p>
-            </details>
-          ))}
+          <FaqBlock faqs={faqs} defaultOpenFirst={false} className="" />
         </div>
       </section>
 
-      {(nearbyGus.length > 0 || otherDepts.length > 0) && (
-        <section className="bg-white py-6 border-t border-[var(--color-surface-border)]">
-          <div className="container-page space-y-5">
-            {nearbyGus.length > 0 && (
-              <div>
-                <h2 className="text-sm font-medium mb-2.5">
-                  {sidoName} 다른 지역 {department.nameKr}
-                </h2>
-                <div className="flex gap-2 flex-wrap">
-                  {nearbyGus.map((g) => (
-                    <Link
-                      key={g.slug}
-                      href={`/hospitals/${sido}/${g.slug}/${dept}` as Route}
-                      className="text-xs px-3 py-1.5 rounded-full border bg-white border-[var(--color-surface-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-accent-400)]"
-                    >
-                      {g.nameKr} {department.nameKr}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-            {otherDepts.length > 0 && (
-              <div>
-                <h2 className="text-sm font-medium mb-2.5">
-                  {regionFull} 다른 진료과
-                </h2>
-                <div className="flex gap-2 flex-wrap">
-                  {otherDepts.map((d) => (
-                    <Link
-                      key={d.slug}
-                      href={`/hospitals/${sido}/${gu}/${deptUrlName(d)}` as Route}
-                      className="text-xs px-3 py-1.5 rounded-full border bg-white border-[var(--color-surface-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-accent-400)]"
-                    >
-                      {region.nameKr} {d.nameKr}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
+      <RegionCrossLinks
+        nearbyGus={nearbyGus}
+        otherDepts={otherDepts}
+        sido={sido}
+        gu={gu}
+        dept={dept}
+        sidoName={sidoName}
+        regionName={region.nameKr}
+        regionFull={regionFull}
+        deptName={department.nameKr}
+      />
     </>
   );
 }

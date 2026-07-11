@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { HospitalCard } from "@/components/HospitalCard";
-import { getAllHospitals } from "@/lib/hospitals-data";
+import { getAllHospitals, decodeParam } from "@/lib/hospitals-data";
 import { findStation } from "@/lib/stations";
 
 export const dynamic = "force-dynamic";
@@ -10,17 +10,9 @@ interface PageProps {
   params: Promise<{ line: string; station: string }>;
 }
 
-function decode(v: string): string {
-  try {
-    return decodeURIComponent(v);
-  } catch {
-    return v;
-  }
-}
-
 export async function generateMetadata({ params }: PageProps) {
   const { line, station } = await params;
-  const found = findStation(decode(line), decode(station));
+  const found = findStation(decodeParam(line), decodeParam(station));
   if (!found) return {};
   return {
     title: `${found.station.name} 인근 메디록 인증 병원 | ${found.line.lineName}`,
@@ -30,7 +22,7 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function StationHospitalsPage({ params }: PageProps) {
   const { line, station } = await params;
-  const found = findStation(decode(line), decode(station));
+  const found = findStation(decodeParam(line), decodeParam(station));
   if (!found) notFound();
 
   const { line: subwayLine, station: subwayStation } = found;

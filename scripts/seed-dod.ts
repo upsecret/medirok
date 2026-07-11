@@ -18,31 +18,11 @@
  *    유료 파트너 계약 전이라면 "STANDARD"로 변경하고 curationNote를 비우세요.
  */
 
+// slug→FK 전환(M4): 쓰기는 upsertWithRefs가 slug 표기를 관계로 변환
+
 import { getPayload } from "payload";
 import config from "@payload-config";
-
-type AnyData = Record<string, unknown>;
-
-async function upsert(
-  payload: Awaited<ReturnType<typeof getPayload>>,
-  collection: "regions" | "hospitals",
-  slug: string,
-  data: AnyData,
-) {
-  const existing = await payload.find({
-    collection,
-    where: { slug: { equals: slug } },
-    limit: 1,
-  });
-  if (existing.docs.length > 0) {
-    const id = existing.docs[0].id;
-    await payload.update({ collection, id, data });
-    console.log(`  ✓ update  ${collection}/${slug}`);
-  } else {
-    await payload.create({ collection, data });
-    console.log(`  ✓ create  ${collection}/${slug}`);
-  }
-}
+import { upsertWithRefs } from "./upsert-with-refs";
 
 async function main() {
   const payload = await getPayload({ config });
@@ -50,21 +30,21 @@ async function main() {
   console.log("• 지역(regions) upsert");
   // 지역 slug는 한국어(nameKr)와 동일 — URL이 한국어로 노출됨. parentSlug도 상위 nameKr.
   // 서울/강남구는 이미 존재할 수 있으나 보장 차원에서 upsert.
-  await upsert(payload, "regions", "서울", {
+  await upsertWithRefs(payload, "regions", "서울", {
     slug: "서울",
     nameKr: "서울",
     nameEn: "Seoul",
     level: "sido",
     parentSlug: "",
   });
-  await upsert(payload, "regions", "강남구", {
+  await upsertWithRefs(payload, "regions", "강남구", {
     slug: "강남구",
     nameKr: "강남구",
     nameEn: "Gangnam-gu",
     level: "sigungu",
     parentSlug: "서울",
   });
-  await upsert(payload, "regions", "청담동", {
+  await upsertWithRefs(payload, "regions", "청담동", {
     slug: "청담동",
     nameKr: "청담동",
     nameEn: "Cheongdam-dong",
@@ -73,7 +53,7 @@ async function main() {
   });
 
   console.log("• 의원(hospitals) upsert — 디오디피부과의원 청담");
-  await upsert(payload, "hospitals", "디오디피부과의원청담", {
+  await upsertWithRefs(payload, "hospitals", "디오디피부과의원청담", {
     slug: "디오디피부과의원청담",
     nameKr: "디오디피부과의원 청담",
     shortDescription:

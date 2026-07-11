@@ -6,7 +6,7 @@ export const Regions: CollectionConfig = {
   admin: {
     useAsTitle: "nameKr",
     group: "마스터 데이터",
-    defaultColumns: ["nameKr", "slug", "parentSlug"],
+    defaultColumns: ["nameKr", "slug", "parent"],
   },
   access: { read: () => true },
   fields: [
@@ -25,10 +25,11 @@ export const Regions: CollectionConfig = {
       admin: { description: "지역 depth (시도 → 시군구 → 동)" },
     },
     {
-      name: "parentSlug",
-      type: "text",
+      name: "parent",
+      type: "relationship",
+      relationTo: "regions",
       index: true,
-      admin: { description: "상위 지역 slug (예: 강남구→seoul, 역삼동→gangnam). 시/도면 비움." },
+      admin: { description: "상위 지역 참조. 시/도면 비움." },
     },
   ],
 };

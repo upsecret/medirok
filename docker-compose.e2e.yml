@@ -1,0 +1,17 @@
+# e2e 테스트 전용 로컬 Postgres — 프로덕션(Neon) 대신 사용
+# 사용: npm run e2e:db:up → npm run e2e:seed → npm run test:e2e:local
+services:
+  e2e-db:
+    image: postgres:16-alpine
+    container_name: medirok-e2e-db
+    environment:
+      POSTGRES_USER: medirok
+      POSTGRES_PASSWORD: medirok
+      POSTGRES_DB: medirok_e2e
+    ports:
+      - "54329:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medirok -d medirok_e2e"]
+      interval: 2s
+      timeout: 3s
+      retries: 30

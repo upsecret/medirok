@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { Hospital } from "@/types";
-import { formatKRW } from "@/lib/data";
+import { formatKRW } from "@/lib/format";
 import { getDepartmentBySlug } from "@/lib/hospitals-data";
 import { DepartmentIcon } from "./DepartmentIcon";
 

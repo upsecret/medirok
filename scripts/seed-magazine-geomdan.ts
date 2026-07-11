@@ -12,30 +12,11 @@
  *   = gd365.ye-on.com 공식 + scripts/seed-yeon.ts 검증 데이터 (수치 미조작)
  */
 
+// slug→FK 전환(M4): 쓰기는 upsertWithRefs가 slug 표기를 관계로 변환
+
 import { getPayload } from "payload";
 import config from "@payload-config";
-
-type AnyData = Record<string, unknown>;
-
-async function upsertMagazine(
-  payload: Awaited<ReturnType<typeof getPayload>>,
-  slug: string,
-  data: AnyData,
-) {
-  const existing = await payload.find({
-    collection: "magazines",
-    where: { slug: { equals: slug } },
-    limit: 1,
-  });
-  if (existing.docs.length > 0) {
-    const id = existing.docs[0].id;
-    await payload.update({ collection: "magazines", id, data });
-    console.log(`  ✓ update  magazines/${slug}`);
-  } else {
-    await payload.create({ collection: "magazines", data });
-    console.log(`  ✓ create  magazines/${slug}`);
-  }
-}
+import { upsertWithRefs } from "./upsert-with-refs";
 
 const body = `## 검단신도시에서 치과 고를 때 체크포인트
 
@@ -77,7 +58,7 @@ async function main() {
   const payload = await getPayload({ config });
 
   console.log("• 매거진(magazines) upsert — 검단신도시 치과 지역 가이드");
-  await upsertMagazine(payload, "guide-geomdan-dental-2026", {
+  await upsertWithRefs(payload, "magazines", "guide-geomdan-dental-2026", {
     slug: "guide-geomdan-dental-2026",
     type: "regional",
     seoTitle:

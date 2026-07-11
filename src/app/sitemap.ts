@@ -6,9 +6,7 @@ import {
 } from "@/lib/hospitals-data";
 import { getAllMagazines } from "@/lib/magazines-data";
 import { SUBWAY_LINES } from "@/lib/stations";
-
-// metadataBase(layout.tsx)와 동일한 정식 도메인 — sitemap URL은 항상 절대 경로.
-const SITE_URL = "https://medirok.com";
+import { SITE_URL } from "@/lib/site";
 
 // 매거진 카테고리(매거진/category/[cat]) — CAT_LABELS와 동일.
 const MAGAZINE_CATEGORIES = ["article", "regional", "interview", "case"];

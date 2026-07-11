@@ -13,31 +13,11 @@
  * 후기/별점은 실제 0건이므로 0으로 둠(미조작). 인증 단계는 검증 가능한 사실만 기입.
  */
 
+// slug→FK 전환(M4): 쓰기는 upsertWithRefs가 slug 표기를 관계로 변환
+
 import { getPayload } from "payload";
 import config from "@payload-config";
-
-type AnyData = Record<string, unknown>;
-
-async function upsert(
-  payload: Awaited<ReturnType<typeof getPayload>>,
-  collection: "regions" | "hospitals",
-  slug: string,
-  data: AnyData,
-) {
-  const existing = await payload.find({
-    collection,
-    where: { slug: { equals: slug } },
-    limit: 1,
-  });
-  if (existing.docs.length > 0) {
-    const id = existing.docs[0].id;
-    await payload.update({ collection, id, data });
-    console.log(`  ✓ update  ${collection}/${slug}`);
-  } else {
-    await payload.create({ collection, data });
-    console.log(`  ✓ create  ${collection}/${slug}`);
-  }
-}
+import { upsertWithRefs } from "./upsert-with-refs";
 
 async function main() {
   const payload = await getPayload({ config });
@@ -45,7 +25,7 @@ async function main() {
   console.log("• 지역(regions) upsert");
   // 지역 slug는 한국어(nameKr)와 동일 — URL이 한국어로 노출됨. parentSlug도 상위 nameKr.
   // 인천 시/도 — 라이브 DB에 없을 수 있어 보장 차원에서 upsert.
-  await upsert(payload, "regions", "인천", {
+  await upsertWithRefs(payload, "regions", "인천", {
     slug: "인천",
     nameKr: "인천",
     nameEn: "Incheon",
@@ -53,14 +33,14 @@ async function main() {
     parentSlug: "",
   });
   // 서구(시군구) + 당하동(동) 추가.
-  await upsert(payload, "regions", "서구", {
+  await upsertWithRefs(payload, "regions", "서구", {
     slug: "서구",
     nameKr: "서구",
     nameEn: "Seo-gu",
     level: "sigungu",
     parentSlug: "인천",
   });
-  await upsert(payload, "regions", "당하동", {
+  await upsertWithRefs(payload, "regions", "당하동", {
     slug: "당하동",
     nameKr: "당하동",
     nameEn: "Dangha-dong",
@@ -69,7 +49,7 @@ async function main() {
   });
 
   console.log("• 의원(hospitals) upsert — 예온치과병원(검단)");
-  await upsert(payload, "hospitals", "예온치과병원", {
+  await upsertWithRefs(payload, "hospitals", "예온치과병원", {
     slug: "예온치과병원",
     nameKr: "예온치과병원",
     shortDescription: "검단 900평 규모 병원급 치과 · 네비게이션 임플란트 · 자체 기공소",

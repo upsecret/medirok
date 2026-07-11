@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Route } from "next";
-import type { MagazineType } from "@/lib/magazines";
+import type { MagazineType } from "@/types";
 import { getMagazinesByType } from "@/lib/magazines-data";
 import { MagazineCard } from "@/components/MagazineCard";
 
@@ -30,6 +30,7 @@ export async function generateMetadata({ params }: PageProps) {
   return {
     title: `${label} · 메디록 매거진`,
     description: `메디록 메디록 매거진 ${label} 카테고리`,
+    alternates: { canonical: `/magazine/category/${cat}` },
   };
 }
 

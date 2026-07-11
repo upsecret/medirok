@@ -19,5 +19,6 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  // `/dashboard/:path*`만으로는 `/dashboard` 루트가 매칭되지 않음
+  matcher: ["/dashboard", "/dashboard/:path*"],
 };

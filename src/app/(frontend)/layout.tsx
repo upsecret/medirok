@@ -3,6 +3,7 @@ import "./globals.css";
 import { Header } from "@/components/Header";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import { Footer } from "@/components/Footer";
+import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: {
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
   },
   description:
     "메디록이 직접 살펴본 의원만. 산부인과·피부과·치과·정형·안과·내과·검진. 자격·평점·가격·후기를 기록으로 비교하세요.",
-  metadataBase: new URL("https://medirok.com"),
+  metadataBase: new URL(SITE_URL),
   openGraph: {
     type: "website",
     locale: "ko_KR",

@@ -8,9 +8,8 @@ import {
   decodeParam,
 } from "@/lib/hospitals-data";
 import { DepartmentIcon } from "@/components/DepartmentIcon";
-import { JsonLd } from "@/components/JsonLd";
-import { breadcrumbSchema } from "@/lib/schema-generator";
-import { SITE_URL, fullRegionName } from "@/lib/local-seo";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { fullRegionName } from "@/lib/local-seo";
 
 export const revalidate = 1800;
 
@@ -48,23 +47,16 @@ export default async function GuPage({ params }: PageProps) {
   ]);
   const sidoName = sidoRegion?.nameKr ?? sido;
 
-  const crumbs = breadcrumbSchema([
-    { name: "홈", url: SITE_URL },
-    { name: "병원찾기", url: `${SITE_URL}/hospitals` },
-    { name: sidoName, url: `${SITE_URL}/hospitals/${sido}` },
-    { name: region.nameKr, url: `${SITE_URL}/hospitals/${sido}/${gu}` },
-  ]);
-
   return (
     <>
-      <JsonLd data={crumbs} />
-
-      <nav className="bg-white border-b border-[var(--color-surface-border)] py-2">
-        <div className="container-page text-xs text-[var(--color-text-muted)]">
-          홈 › <Link href="/hospitals">병원찾기</Link> ›{" "}
-          <Link href={`/hospitals/${sido}`}>{sidoName}</Link> › {region.nameKr}
-        </div>
-      </nav>
+      <Breadcrumbs
+        items={[
+          { name: "홈", path: "/" },
+          { name: "병원찾기", path: "/hospitals", link: true },
+          { name: sidoName, path: `/hospitals/${sido}`, link: true },
+          { name: region.nameKr, path: `/hospitals/${sido}/${gu}` },
+        ]}
+      />
 
       <section className="bg-[var(--color-surface-bg)] py-8">
         <div className="container-page">

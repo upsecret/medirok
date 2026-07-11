@@ -1,79 +1,27 @@
 // 매거진 런타임 데이터 액세스 — Payload(magazines 컬렉션) 백엔드
 // 서버 컴포넌트/메타데이터/generateStaticParams에서 사용.
-// Payload 도큐먼트를 프론트엔드 flat `Magazine` 형태로 매핑.
+// Payload → flat 매핑은 src/lib/payload-mappers.ts, 이 파일은 조회 함수만.
+// React cache로 요청 단위 중복 쿼리 제거 (hospitals-data와 동일 패턴).
 
+import { cache } from "react";
 import { getPayloadClient } from "@/lib/payload";
-import type { Magazine, MagazineType } from "@/lib/magazines";
+import { mapMagazine, type Raw } from "@/lib/payload-mappers";
+import { getRefSlugMaps } from "@/lib/hospitals-data";
+import type { Magazine, MagazineType } from "@/types";
 
-type Raw = Record<string, unknown>;
-
-function str(v: unknown): string {
-  return typeof v === "string" ? v : v == null ? "" : String(v);
-}
-
-function strArr(v: unknown): string[] | undefined {
-  if (!Array.isArray(v)) return undefined;
-  const arr = v.map(str).filter(Boolean);
-  return arr.length > 0 ? arr : undefined;
-}
-
-function optStr(v: unknown): string | undefined {
-  const s = str(v).trim();
-  return s || undefined;
-}
-
-function dayOnly(v: unknown): string {
-  const s = str(v);
-  return s.length >= 10 ? s.slice(0, 10) : s;
-}
-
-function mapDoc(doc: Raw): Magazine {
-  return {
-    slug: str(doc.slug),
-    type: str(doc.type) as MagazineType,
-    seoTitle: str(doc.seoTitle),
-    metaDescription: str(doc.metaDescription),
-    shortAnswer: str(doc.shortAnswer),
-    body: str(doc.body),
-    targetKeywords: strArr(doc.targetKeywords) ?? [],
-    faqBlocks: Array.isArray(doc.faqBlocks)
-      ? (doc.faqBlocks as Raw[])
-          .map((f) => ({ question: str(f.question), answer: str(f.answer) }))
-          .filter((f) => f.question && f.answer)
-      : undefined,
-    priceTable: Array.isArray(doc.priceTable)
-      ? (doc.priceTable as Raw[])
-          .map((p) => ({
-            treatment: str(p.treatment),
-            priceRange: str(p.priceRange),
-            note: optStr(p.note),
-          }))
-          .filter((p) => p.treatment && p.priceRange)
-      : undefined,
-    linkedHospitalSlugs: strArr(doc.linkedHospitalSlugs),
-    linkedDepartmentSlug: optStr(doc.linkedDepartmentSlug),
-    linkedRegionSlug: optStr(doc.linkedRegionSlug),
-    linkedTreatmentSlug: optStr(doc.linkedTreatmentSlug),
-    authorDoctorSlug: optStr(doc.authorDoctorSlug),
-    authorName: optStr(doc.authorName),
-    authorTitle: optStr(doc.authorTitle),
-    disclaimerType: (str(doc.disclaimerType) ||
-      "general") as Magazine["disclaimerType"],
-    publishedAt: dayOnly(doc.publishedAt),
-    category: str(doc.category),
-  };
-}
-
-async function findAll(): Promise<Magazine[]> {
+const findAll = cache(async (): Promise<Magazine[]> => {
   const payload = await getPayloadClient();
-  const res = await payload.find({
-    collection: "magazines",
-    limit: 1000,
-    sort: "-publishedAt",
-    depth: 0,
-  });
-  return (res.docs as unknown as Raw[]).map(mapDoc);
-}
+  const [res, refs] = await Promise.all([
+    payload.find({
+      collection: "magazines",
+      limit: 1000,
+      sort: "-publishedAt",
+      depth: 0,
+    }),
+    getRefSlugMaps(),
+  ]);
+  return (res.docs as unknown as Raw[]).map((d) => mapMagazine(d, refs));
+});
 
 export async function getAllMagazines(): Promise<Magazine[]> {
   return findAll();
@@ -83,14 +31,17 @@ export async function getMagazineBySlug(
   slug: string
 ): Promise<Magazine | undefined> {
   const payload = await getPayloadClient();
-  const res = await payload.find({
-    collection: "magazines",
-    where: { slug: { equals: slug } },
-    limit: 1,
-    depth: 0,
-  });
+  const [res, refs] = await Promise.all([
+    payload.find({
+      collection: "magazines",
+      where: { slug: { equals: slug } },
+      limit: 1,
+      depth: 0,
+    }),
+    getRefSlugMaps(),
+  ]);
   const doc = (res.docs as unknown as Raw[])[0];
-  return doc ? mapDoc(doc) : undefined;
+  return doc ? mapMagazine(doc, refs) : undefined;
 }
 
 export async function getMagazinesByType(
@@ -114,7 +65,32 @@ export async function getMagazinesByAuthorDoctorSlug(
   return all.filter((m) => m.authorDoctorSlug === doctorSlug);
 }
 
-/** 의원에 소속된 모든 의사가 쓴 매거진. doctorSlugs는 data.ts의 getDoctorsByHospitalSlug 결과 */
+/** 의사 저자가 쓴 다른 글 (현재 글 제외) — 매거진 상세 AuthorProfile용 */
+export async function getAuthorOtherArticles(
+  doctorSlug: string,
+  excludeSlug: string
+): Promise<Magazine[]> {
+  const all = await getMagazinesByAuthorDoctorSlug(doctorSlug);
+  return all.filter((m) => m.slug !== excludeSlug);
+}
+
+/** 같은 진료과 또는 같은 시술을 다룬 관련 매거진 — 매거진 상세 하단용 */
+export async function getRelatedMagazines(
+  magazine: Magazine,
+  limit = 3
+): Promise<Magazine[]> {
+  const all = await findAll();
+  return all
+    .filter(
+      (m) =>
+        m.slug !== magazine.slug &&
+        (m.linkedDepartmentSlug === magazine.linkedDepartmentSlug ||
+          m.linkedTreatmentSlug === magazine.linkedTreatmentSlug)
+    )
+    .slice(0, limit);
+}
+
+/** 의원에 소속된 모든 의사가 쓴 매거진. doctorSlugs는 getDoctorsByHospitalSlug 결과 */
 export async function getMagazinesByDoctorSlugs(
   doctorSlugs: string[]
 ): Promise<Magazine[]> {
