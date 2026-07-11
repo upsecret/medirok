@@ -149,6 +149,26 @@ test.describe("병원 상세", () => {
     const res = await request.get("/hospital/존재하지-않는-병원-slug");
     expect(res.status()).toBe(404);
   });
+
+  // slug→FK 전환: doctors 컬렉션 승격으로 "의원 소속 의사 → 그 의사가 쓴 매거진"
+  // 역방향 cross-link가 가능해졌다 (getMagazinesByDoctorSlugs).
+  test('의료진 cross-link: "의료진이 직접 쓴 글" 섹션이 매거진으로 연결된다', async ({
+    page,
+  }) => {
+    const hSlug = state.crossLinks.hospitalWithAuthoredMagsSlug;
+    test.skip(!hSlug, "소속 의사가 매거진을 쓴 의원이 없습니다");
+    await page.goto(`/hospital/${hSlug}`);
+
+    const section = page.locator("section").filter({
+      has: page.getByRole("heading", { name: /의료진이 직접 쓴 글/ }),
+    });
+    await expect(section).toBeVisible();
+    const cards = section.locator('a[href^="/magazine/"]');
+    expect(await cards.count()).toBeGreaterThanOrEqual(1);
+    const href = await cards.first().getAttribute("href");
+    const res = await page.request.get(href!);
+    expect(res.status()).toBe(200);
+  });
 });
 
 test.describe("역주변 SEO 페이지", () => {

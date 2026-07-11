@@ -131,6 +131,46 @@ test.describe("매거진 상세", () => {
     await expect(note.getByText(/안내/)).toBeVisible();
   });
 
+  // slug→FK 전환: authorDoctor 관계가 실제 의사로 해석되면
+  // 저자 프로필이 의사 이름 + 소속 의원으로의 cross-link를 노출한다.
+  test("의사 저자 cross-link: 저자 프로필이 의사·소속 의원 링크를 노출한다", async ({
+    page,
+  }) => {
+    const cl = state.crossLinks;
+    test.skip(
+      !cl.authorMagazineSlug || !cl.authorHospitalSlug,
+      "authorDoctor→의원 체인이 있는 매거진이 없습니다"
+    );
+    await page.goto(`/magazine/${cl.authorMagazineSlug}`);
+
+    const author = page.locator('section[aria-label="저자 프로필"]');
+    await expect(author).toBeVisible();
+    if (cl.authorDoctorName) {
+      await expect(author.getByText(cl.authorDoctorName, { exact: false }).first()).toBeVisible();
+    }
+    // 저자 의사 → 소속 의원 상세로의 cross-link (FK 관계로만 파생 가능)
+    const hospitalLink = author.locator(`a[href="/hospital/${cl.authorHospitalSlug}"]`);
+    await expect(hospitalLink).toBeVisible();
+    await expect(hospitalLink.getByText("메디록 인증")).toBeVisible();
+  });
+
+  // slug→FK 전환: linkedHospitals(hasMany 관계)가 "관련 메디록 의원" 카드로 노출된다.
+  test('linkedHospitals: "관련 메디록 의원" 카드가 병원 상세로 연결된다', async ({ page }) => {
+    const linkedSlug = state.crossLinks.linkedHospitalsMagazineSlug;
+    test.skip(!linkedSlug, "linkedHospitals 관계가 있는 매거진이 없습니다");
+    await page.goto(`/magazine/${linkedSlug}`);
+
+    const section = page.locator("section").filter({
+      has: page.getByRole("heading", { name: "관련 메디록 의원" }),
+    });
+    await expect(section).toBeVisible();
+    const cards = section.locator('a[href^="/hospital/"]');
+    expect(await cards.count()).toBeGreaterThanOrEqual(1);
+    const href = await cards.first().getAttribute("href");
+    const res = await page.request.get(href!);
+    expect(res.status()).toBe(200);
+  });
+
   test("메타: seoTitle·description·OG 태그가 설정된다", async ({ page }) => {
     test.skip(!slug, "Payload DB에 매거진 데이터가 없습니다");
     await page.goto(`/magazine/${slug}`);

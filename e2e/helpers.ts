@@ -26,6 +26,22 @@ export interface E2EState {
     sidoName: string;
     guName: string;
   } | null;
+  /**
+   * slug→FK 전환으로 생긴 관계 교차링크 픽스처.
+   * 해당 관계 데이터가 있을 때만 채워지고, 없으면 각 필드가 null → 테스트 skip.
+   */
+  crossLinks: {
+    /** authorDoctor가 실제 의사 문서로 해석되는 매거진 slug (저자 프로필 cross-link 테스트) */
+    authorMagazineSlug: string | null;
+    /** 위 매거진 저자 의사의 이름 (렌더 검증용) */
+    authorDoctorName: string | null;
+    /** 위 저자 의사의 소속 의원 slug (저자→의원 링크 href 검증용) */
+    authorHospitalSlug: string | null;
+    /** linkedHospitals 관계가 1건 이상인 매거진 slug ("관련 메디록 의원" 카드 테스트) */
+    linkedHospitalsMagazineSlug: string | null;
+    /** 소속 의사가 매거진을 1편 이상 쓴 의원 slug ("의료진이 직접 쓴 글" 테스트) */
+    hospitalWithAuthoredMagsSlug: string | null;
+  };
 }
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -43,6 +59,13 @@ export function loadState(): E2EState {
       magazineSlug: null,
       magazine: null,
       region: null,
+      crossLinks: {
+        authorMagazineSlug: null,
+        authorDoctorName: null,
+        authorHospitalSlug: null,
+        linkedHospitalsMagazineSlug: null,
+        hospitalWithAuthoredMagsSlug: null,
+      },
     };
   }
 }

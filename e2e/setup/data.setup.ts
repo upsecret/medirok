@@ -28,6 +28,13 @@ setup("시드 데이터 확인 및 픽스처 기록", async ({ request }) => {
     magazineSlug: null,
     magazine: null,
     region: null,
+    crossLinks: {
+      authorMagazineSlug: null,
+      authorDoctorName: null,
+      authorHospitalSlug: null,
+      linkedHospitalsMagazineSlug: null,
+      hospitalWithAuthoredMagsSlug: null,
+    },
   };
 
   // ── 참조 데이터 (관계 id 해석용) ──
@@ -96,13 +103,14 @@ setup("시드 데이터 확인 및 픽스처 기록", async ({ request }) => {
   }
 
   // ── 매거진 ──
-  const mRes = await request.get("/api/magazines?limit=10&depth=0&sort=-publishedAt");
+  const mRes = await request.get("/api/magazines?limit=100&depth=0&sort=-publishedAt");
   expect(mRes.status(), "Payload REST /api/magazines 응답 확인").toBe(200);
   const mBody = (await mRes.json()) as { docs?: Doc[]; totalDocs?: number };
   state.magazineCount = mBody.totalDocs ?? mBody.docs?.length ?? 0;
+  const magazineDocs = mBody.docs ?? [];
 
   // 200을 반환하는 첫 매거진 slug 탐색 (미공개 글 등 방어)
-  for (const doc of mBody.docs ?? []) {
+  for (const doc of magazineDocs) {
     const slug = String(doc.slug ?? "");
     if (!slug) continue;
     const res = await request.get(`/magazine/${encodeURIComponent(slug)}`);
@@ -116,6 +124,46 @@ setup("시드 데이터 확인 및 픽스처 기록", async ({ request }) => {
       };
       break;
     }
+  }
+
+  // ── 관계 교차링크 픽스처 (slug→FK 전환으로 생긴 cross-link) ──
+  // 관계는 depth=0에서 id(단수) / id 배열(hasMany)로 온다.
+  const doctorById = new Map(doctors.map((d) => [relId(d.id) ?? (d.id as number | string), d]));
+  const hospitalById = new Map(docs.map((h) => [relId(h.id) ?? (h.id as number | string), h]));
+
+  // (1) authorDoctor가 실제 의사로 해석되는 매거진 + 그 의사의 소속 의원
+  for (const m of magazineDocs) {
+    const docId = relId(m.authorDoctor);
+    const doctor = docId != null ? doctorById.get(docId) : undefined;
+    if (!doctor) continue;
+    const hospital = hospitalById.get(relId(doctor.hospital) ?? "");
+    state.crossLinks.authorMagazineSlug = String(m.slug ?? "") || null;
+    state.crossLinks.authorDoctorName = String(doctor.nameKr ?? "") || null;
+    state.crossLinks.authorHospitalSlug = hospital ? String(hospital.slug ?? "") || null : null;
+    if (state.crossLinks.authorHospitalSlug) break; // 병원 링크까지 가능한 것을 우선
+  }
+
+  // (2) linkedHospitals(hasMany)가 1건 이상인 매거진
+  const linkedMag = magazineDocs.find(
+    (m) => Array.isArray(m.linkedHospitals) && (m.linkedHospitals as unknown[]).length > 0
+  );
+  if (linkedMag) state.crossLinks.linkedHospitalsMagazineSlug = String(linkedMag.slug ?? "") || null;
+
+  // (3) 소속 의사가 매거진을 1편 이상 쓴 의원
+  const authoredDoctorIds = new Set(
+    magazineDocs.map((m) => relId(m.authorDoctor)).filter((v) => v != null)
+  );
+  const authoredHospitalIds = new Set(
+    doctors
+      .filter((d) => authoredDoctorIds.has(relId(d.id) ?? (d.id as number | string)))
+      .map((d) => relId(d.hospital))
+      .filter((v) => v != null)
+  );
+  const hospitalWithMags = docs.find((h) =>
+    authoredHospitalIds.has(relId(h.id) ?? (h.id as number | string))
+  );
+  if (hospitalWithMags) {
+    state.crossLinks.hospitalWithAuthoredMagsSlug = String(hospitalWithMags.slug ?? "") || null;
   }
 
   if (state.hospitalCount === 0) {
