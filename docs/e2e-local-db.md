@@ -23,7 +23,7 @@ npm run e2e:db:down      # 컨테이너·볼륨 제거 (완전 초기화)
 |---|---|
 | docker-compose.e2e.yml | postgres:16-alpine, 포트 54329, medirok/medirok, DB medirok_e2e |
 | .env.e2e | e2e 전용 환경(비밀값 없음 — 커밋됨). `DATABASE_URL`이 로컬을 가리킴 |
-| scripts/seed-e2e.ts | legacy 시드(진료과 9·지역 47·병원 5·매거진 10)를 **운영 URL 체계(한국어 지역 slug)로 변환**해 upsert. `sidoSlug`는 구(gu)의 상위 지역에서 파생 |
+| scripts/seed-e2e.ts | legacy 시드(진료과 9·지역 47·병원 5·매거진 10)를 **운영 URL 체계(한국어 지역 slug)로 변환** 후 `upsertWithRefs`로 upsert. 사람이 읽는 slug 표기를 쓰기 직전 **관계(FK)로 변환**(구 sidoSlug/regionSlug 평면 필드는 M5에서 제거, region은 최하위 하나 + parent 체인) |
 | e2e/setup/data.setup.ts | 시드 확인 + 픽스처 기록. 의료진·후기·인증·지역 정보가 모두 있는 병원을 우선 선택 |
 
 ## 동작 원리

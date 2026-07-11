@@ -3,9 +3,18 @@
 대상: `/hospitals/[시도]/[구]/[진료과]` (예: `인천 / 서구 / 치과`)
 검토일: 2026-06-20 · 라이브(www.medirok.com) + 코드 동시 진단
 
+> **P0·P1 구현 완료 (2026-07 기준).** 아래 "1. 진단"은 2026-06-20 시점의 과거 스냅샷이며 현재와 다릅니다.
+> - **P0(a) 시·도 풀네임**: `[dept]/page.tsx`가 `fullRegionName(sidoName, region.nameKr)`로 "인천 서구 치과" 생성 — 완료.
+> - **P0(b) canonical / 동필터 noindex**: 완료 (e2e `local-seo.spec.ts`가 회귀 검증).
+> - **P0(c) JSON-LD 주입**: 지역 리스트(BreadcrumbList·ItemList·FAQPage)·병원 상세(MedicalOrganization·AggregateRating·BreadcrumbList) 모두 주입 — 완료. 조립은 `schema-generator.ts` + `Breadcrumbs` 컴포넌트.
+> - **P1(d)(e) 지역 인트로·동적 FAQ**: 구현됨(`region-dept/` 컴포넌트).
+> - **미완/후속**: P2(g~j) 내부링크 확장·geo 좌표·`force-dynamic`→ISR·네이버 스마트플레이스는 진행 중/보류.
+>
+> 이 문서는 **P2 잔여 항목의 참고 자료**로만 유효합니다.
+
 ---
 
-## 1. 진단 (현재 상태)
+## 1. 진단 (2026-06-20 스냅샷 — 아래 값은 현재 해소됨)
 
 `인천/서구/치과` 페이지를 라이브에서 실측한 결과:
 
