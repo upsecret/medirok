@@ -143,7 +143,8 @@ psql "$DATABASE_URL" -c "INSERT INTO payload_migrations (name, batch, created_at
 - P1 결과(리허설·운영 동일): doctors 18, credentials 79, hospitals FK 2/2, regions parent 32, magazines dept 12·region 4, linkedHospitals rels 2.
 - 검증: V1·V2·V3·V6 전부 통과. **V4 저자 4건 / V5 rels 2 vs texts 15는 dangling 레거시 참조** — `han-jinwoo`·`lee-dohyun`·`songhak-park`(의사), `hangyeol-dental`·`songhak-dental`·`myungheon-dental`(병원)이 운영 DB에 원래 존재하지 않음. 구 코드에서도 미렌더였고 신 코드는 authorName fallback으로 동일 동작 → 백필 실패 아님으로 판정.
 - P2 사전 리허설: 신 코드를 복제 DB에 연결해 `next build` + 프로덕션 서버 기동, 주요 페이지(홈/병원 상세 2건/지역/매거진 목록·상세/사이트맵) 전부 200, 의사 관계·저자 fallback·지역 부모 체인 렌더 확인.
-- P3·마이그레이션 베이스라인: P2 안정 기간(1일 이상) 경과 후 실행 예정. 베이스라인 마킹은 P3(레거시 제거) 완료 후가 스키마 스냅샷과 일치.
+- P2 완료: 커밋 `5b7bed6` 배포(dpl_HYSaLcSZbmUWanfeXbifssTCehk6 = www.medirok.com 서빙 확인), 읽기 전용 스모크 e2e **57 passed / 0 failed** (4 skipped은 쓰기·조건부 스킵). 병원 상세 의사 렌더·매거진 저자 fallback·지역 체인 운영 확인.
+- 남은 항목: ① /admin 수동 확인(병원 1건 관계 표시/저장, 매거진 저자·연결 병원) ② P2 안정 1일 이상 경과 후 P3 리허설→본 DB ③ P3 후 마이그레이션 베이스라인 마킹. 리허설용 로컬 컨테이너 `medirok-mig-rehearsal`(포트 54330)은 P3 리허설 재사용을 위해 중지 상태로 보존.
 
 ## 8. 리스크·롤백 매트릭스
 
