@@ -17,11 +17,11 @@
     "e2e:seed": "node --env-file=.env.e2e --import tsx/esm scripts/seed-e2e.ts",
     "test:e2e:local": "npm run e2e:db:up && npm run e2e:seed && node --env-file=.env.e2e node_modules/@playwright/test/cli.js test",
     "payload": "payload",
-    "payload:seed": "tsx scripts/seed.ts",
     "seed:yeon": "node --env-file=.env.local --import tsx/esm scripts/seed-yeon.ts",
     "seed:magazine-geomdan": "node --env-file=.env.local --import tsx/esm scripts/seed-magazine-geomdan.ts",
     "seed:magazine-cheongdam": "node --env-file=.env.local --import tsx/esm scripts/seed-magazine-cheongdam.ts",
     "seed:dod": "node --env-file=.env.local --import tsx/esm scripts/seed-dod.ts",
+    "seed:magazine-dod-interview": "node --env-file=.env.local --import tsx/esm scripts/seed-magazine-dod-interview.ts",
     "payload:generate-types": "payload generate:types"
   },
   "dependencies": {

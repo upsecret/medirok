@@ -45,6 +45,13 @@ export default buildConfig({
       connectionString:
         process.env.DATABASE_URL || process.env.DATABASE_URI || "",
     },
+    // Payload 기본값(dev=on, production=off)을 유지하되, 명시적으로 끌 수 있게 한다.
+    // PAYLOAD_DB_PUSH=false → 스키마를 건드리지 않고 데이터만 쓴다.
+    // 운영 DB 대상 시드는 이 플래그로 실행할 것: 코드에서 이미 제거된 레거시 slug 필드 때문에
+    // push가 미실행 마이그레이션(P3 컬럼 삭제)을 부수효과로 적용하려 든다.
+    push:
+      process.env.PAYLOAD_DB_PUSH !== "false" &&
+      process.env.NODE_ENV !== "production",
   }),
   typescript: {
     outputFile: path.resolve(dirname, "src/payload-types.ts"),

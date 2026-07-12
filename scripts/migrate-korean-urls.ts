@@ -16,13 +16,12 @@
  *    추가하려면 먼저 Regions 컬렉션 slug의 unique 제약을 풀어야 합니다.
  */
 
-import { getPayload } from "payload";
-import config from "@payload-config";
+import { getSeedPayload } from "./seed-payload";
 
 const slugify = (s: string) => s.trim().replace(/\s+/g, "-");
 
 async function main() {
-  const payload = await getPayload({ config });
+  const payload = await getSeedPayload();
 
   // ── 1) regions 로드 + 현재 slug 기준 맵 ──────────────────────────
   const regionsRes = await payload.find({ collection: "regions", limit: 1000, depth: 0 });

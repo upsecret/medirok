@@ -15,12 +15,11 @@
 
 // slug→FK 전환(M4): 쓰기는 upsertWithRefs가 slug 표기를 관계로 변환
 
-import { getPayload } from "payload";
-import config from "@payload-config";
+import { getSeedPayload } from "./seed-payload";
 import { upsertWithRefs } from "./upsert-with-refs";
 
 async function main() {
-  const payload = await getPayload({ config });
+  const payload = await getSeedPayload();
 
   console.log("• 지역(regions) upsert");
   // 지역 slug는 한국어(nameKr)와 동일 — URL이 한국어로 노출됨. parentSlug도 상위 nameKr.

@@ -21,10 +21,10 @@
  */
 
 import { fileURLToPath } from "node:url";
-import { getPayload } from "payload";
-import config from "@payload-config";
+import type { Payload } from "payload";
+import { getSeedPayload } from "./seed-payload";
 
-type P = Awaited<ReturnType<typeof getPayload>>;
+type P = Payload;
 type Doc = Record<string, unknown>;
 
 const str = (v: unknown): string => (typeof v === "string" ? v : "");
@@ -185,7 +185,7 @@ export async function backfillReferences(payload: P): Promise<void> {
 const isDirectRun =
   process.argv[1] && import.meta.url === new URL(`file://${process.argv[1].replace(/\\/g, "/")}`).href;
 if (isDirectRun || process.argv[1]?.endsWith("backfill-references.ts")) {
-  const payload = await getPayload({ config });
+  const payload = await getSeedPayload();
   await backfillReferences(payload);
   process.exit(0);
 }

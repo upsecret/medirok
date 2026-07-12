@@ -5,8 +5,7 @@
  */
 // slug→FK 전환(M4): 쓰기는 upsertWithRefs가 slug 표기를 관계로 변환
 
-import { getPayload } from "payload";
-import config from "@payload-config";
+import { getSeedPayload } from "./seed-payload";
 import { upsertWithRefs } from "./upsert-with-refs";
 
 const body = `## 청담에서 피부과 고를 때 체크포인트
@@ -46,7 +45,7 @@ const body = `## 청담에서 피부과 고를 때 체크포인트
 청담 도산대로는 압구정로데오역(수인분당선)을 중심으로 한 명품거리 상권입니다. 역세권 도보권 + 평일 야간(금 21:00까지)·토요일 진료는 직장인·의료관광 방문에 유리합니다.`;
 
 async function main() {
-  const payload = await getPayload({ config });
+  const payload = await getSeedPayload();
   console.log("• 매거진 upsert — 청담 피부과 지역 가이드");
   await upsertWithRefs(payload, "magazines", "guide-cheongdam-dermatology-2026", {
     slug: "guide-cheongdam-dermatology-2026",
