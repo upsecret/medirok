@@ -144,7 +144,7 @@ psql "$DATABASE_URL" -c "INSERT INTO payload_migrations (name, batch, created_at
 - 검증: V1·V2·V3·V6 전부 통과. **V4 저자 4건 / V5 rels 2 vs texts 15는 dangling 레거시 참조** — `han-jinwoo`·`lee-dohyun`·`songhak-park`(의사), `hangyeol-dental`·`songhak-dental`·`myungheon-dental`(병원)이 운영 DB에 원래 존재하지 않음. 구 코드에서도 미렌더였고 신 코드는 authorName fallback으로 동일 동작 → 백필 실패 아님으로 판정.
 - P2 사전 리허설: 신 코드를 복제 DB에 연결해 `next build` + 프로덕션 서버 기동, 주요 페이지(홈/병원 상세 2건/지역/매거진 목록·상세/사이트맵) 전부 200, 의사 관계·저자 fallback·지역 부모 체인 렌더 확인.
 - P2 완료: 커밋 `5b7bed6` 배포(dpl_HYSaLcSZbmUWanfeXbifssTCehk6 = www.medirok.com 서빙 확인), 읽기 전용 스모크 e2e **57 passed / 0 failed** (4 skipped은 쓰기·조건부 스킵). 병원 상세 의사 렌더·매거진 저자 fallback·지역 체인 운영 확인.
-- 남은 항목: ① /admin 수동 확인(병원 1건 관계 표시/저장, 매거진 저자·연결 병원) — **유일한 잔여 항목**.
+- 남은 항목: 없음 (admin 확인은 7-1 참조).
 
 ## 7-1. P3 실행 기록 (2026-07-12)
 
@@ -155,6 +155,7 @@ psql "$DATABASE_URL" -c "INSERT INTO payload_migrations (name, batch, created_at
 - 본 DB: 동일 실행(DELETE 15·79), 동일 검증 전부 통과. 라이브 스모크: 홈/병원 상세(한글 slug percent-encoding 필요)/매거진 목록·상세/사이트맵 전부 200.
 - 베이스라인: `src/migrations/20260712_121529_init` 생성(테이블 22, 레거시 0) → 운영 `payload_migrations`에 batch 1로 마킹, dev push 마커(`dev`, batch -1) 제거. **이후 스키마 변경은 `payload migrate:create` → `payload migrate` 흐름으로만 관리** (로컬 dev·e2e는 push 유지).
 - 리허설 컨테이너는 중지 상태로 보존(P3 후 상태). 불필요 시 `docker rm medirok-mig-rehearsal`.
+- /admin 확인(P3 후, Chrome 자동화): 병원 목록 관계 컬럼(진료과·지역) 해석 ✓ · 디오디 상세 Department=피부과/Region=청담동 관계 필드 렌더 ✓ · 저장 검증(walkingMinutes 8→9→8 실변경 저장, FK 보존·updatedAt 갱신 — 값 미변경 시 Save는 no-op이므로 실변경으로 테스트) ✓ · Doctors 목록 hospital 관계 해석(디오디 5·예온 5+) ✓ · 매거진 목록 13건 렌더 ✓. 매거진 관계(연결 병원·진료과·지역·저자)는 세션 유실로 UI 대신 depth=1 API/SQL로 검증 완료 — **체크리스트 전 항목 종결**.
 
 ## 8. 리스크·롤백 매트릭스
 
