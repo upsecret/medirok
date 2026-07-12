@@ -32,7 +32,8 @@ DROP TABLE IF EXISTS public.hospitals_doctors;
 -- ─── 4. hasMany 텍스트 레거시 행 제거 ───
 -- linkedHospitalSlugs (magazines_rels로 이관 완료)
 DELETE FROM public.magazines_texts WHERE path = 'linkedHospitalSlugs';
--- 레거시 doctors credentials가 hospitals_texts에 있었다면 해당 path 행도 제거 (런북 Q2 결과에 따라):
--- DELETE FROM public.hospitals_texts WHERE path = '<Q2에서 확인한 path>';
+-- 레거시 doctors credentials — Q2 결과 변형 B: hospitals_texts에 path='doctors.<n>.credentials'
+-- (doctors 컬렉션으로 승격 완료. hospitals의 현행 hasMany 텍스트인 path='tags'는 건드리지 않음)
+DELETE FROM public.hospitals_texts WHERE path LIKE 'doctors.%.credentials';
 
 COMMIT;
