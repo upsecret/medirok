@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { loadState, metaContent, ogContent, expectCanonical } from "./helpers";
+import { SITE_URL } from "@/lib/site";
 
 const state = loadState();
 
@@ -30,7 +31,7 @@ test.describe("SEO 메타", () => {
 
     for (const path of ["/hospitals", "/magazine", "/estimate", "/verification"]) {
       expect(body, `sitemap에 ${path}가 있어야 합니다`).toContain(
-        `<loc>https://medirok.com${path}</loc>`
+        `<loc>${SITE_URL}${path}</loc>`
       );
     }
     expect(body).toContain("/magazine/category/regional");
@@ -40,10 +41,10 @@ test.describe("SEO 메타", () => {
     const body = await (await request.get("/sitemap.xml")).text();
 
     if (state.hospitalCount > 0) {
-      expect(body).toContain("https://medirok.com/hospital/");
+      expect(body).toContain(`${SITE_URL}/hospital/`);
     }
     if (state.magazineCount > 0) {
-      expect(body).toContain("https://medirok.com/magazine/");
+      expect(body).toContain(`${SITE_URL}/magazine/`);
     }
   });
 
