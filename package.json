@@ -22,7 +22,12 @@
     "seed:magazine-cheongdam": "node --env-file=.env.local --import tsx/esm scripts/seed-magazine-cheongdam.ts",
     "seed:dod": "node --env-file=.env.local --import tsx/esm scripts/seed-dod.ts",
     "seed:magazine-dod-interview": "node --env-file=.env.local --import tsx/esm scripts/seed-magazine-dod-interview.ts",
-    "payload:generate-types": "payload generate:types"
+    "seed:magazine-incheon-laminate": "node --env-file=.env.local --import tsx/esm scripts/seed-magazine-incheon-laminate.ts",
+    "seed:magazine-incheon-dental": "node --env-file=.env.local --import tsx/esm scripts/seed-magazine-incheon-dental.ts",
+    "seed:magazine-cheongdam-procedure": "node --env-file=.env.local --import tsx/esm scripts/seed-magazine-cheongdam-procedure.ts",
+    "seed:magazine-regenerative": "node --env-file=.env.local --import tsx/esm scripts/seed-magazine-regenerative.ts",
+    "payload:generate-types": "payload generate:types",
+    "indexnow": "node --import tsx/esm scripts/indexnow-ping.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.85.0",

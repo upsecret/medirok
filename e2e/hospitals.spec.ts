@@ -152,7 +152,8 @@ test.describe("병원 상세", () => {
 
   // slug→FK 전환: doctors 컬렉션 승격으로 "의원 소속 의사 → 그 의사가 쓴 매거진"
   // 역방향 cross-link가 가능해졌다 (getMagazinesByDoctorSlugs).
-  test('의료진 cross-link: "의료진이 직접 쓴 글" 섹션이 매거진으로 연결된다', async ({
+  // 여기에 linkedHospitals 기반 글(getMagazinesByHospital)이 합쳐져 한 섹션으로 노출된다.
+  test('의원 cross-link: "관련 메디록 매거진" 섹션이 매거진으로 연결된다', async ({
     page,
   }) => {
     const hSlug = state.crossLinks.hospitalWithAuthoredMagsSlug;
@@ -160,7 +161,7 @@ test.describe("병원 상세", () => {
     await page.goto(`/hospital/${hSlug}`);
 
     const section = page.locator("section").filter({
-      has: page.getByRole("heading", { name: /의료진이 직접 쓴 글/ }),
+      has: page.getByRole("heading", { name: /관련 메디록 매거진/ }),
     });
     await expect(section).toBeVisible();
     const cards = section.locator('a[href^="/magazine/"]');

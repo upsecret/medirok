@@ -39,7 +39,7 @@ export interface E2EState {
     authorHospitalSlug: string | null;
     /** linkedHospitals 관계가 1건 이상인 매거진 slug ("관련 메디록 의원" 카드 테스트) */
     linkedHospitalsMagazineSlug: string | null;
-    /** 소속 의사가 매거진을 1편 이상 쓴 의원 slug ("의료진이 직접 쓴 글" 테스트) */
+    /** 소속 의사가 매거진을 1편 이상 쓴 의원 slug ("관련 메디록 매거진" 테스트) */
     hospitalWithAuthoredMagsSlug: string | null;
   };
 }

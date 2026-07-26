@@ -5,6 +5,27 @@
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 
+// 자사 호스트 — 본문에 절대 URL로 쓰인 내부 링크가 nofollow 처리되지 않도록 판별한다.
+// (기존 매거진 본문은 https://www.medirok.com/... 절대 URL을 쓰고 있고,
+//  canonical은 apex를 쓰므로 두 호스트 모두 내부로 본다.)
+const INTERNAL_HOSTS = new Set(["medirok.com", "www.medirok.com"]);
+
+/** 절대 URL이면 내부/외부를 호스트로 판정하고, 내부면 경로만 남겨 정규화한다. */
+function resolveHref(href?: string): { href?: string; external: boolean } {
+  if (typeof href !== "string" || !/^https?:\/\//i.test(href)) {
+    return { href, external: false };
+  }
+  try {
+    const url = new URL(href);
+    if (INTERNAL_HOSTS.has(url.hostname.toLowerCase())) {
+      return { href: `${url.pathname}${url.search}${url.hash}`, external: false };
+    }
+  } catch {
+    // 파싱 불가한 URL은 외부로 취급(보수적)
+  }
+  return { href, external: true };
+}
+
 const components: Components = {
   h2: ({ children }) => (
     <h2 className="text-xl font-medium mt-7 mb-3">{children}</h2>
@@ -32,10 +53,10 @@ const components: Components = {
   ),
   li: ({ children }) => <li className="leading-relaxed">{children}</li>,
   a: ({ href, children }) => {
-    const external = typeof href === "string" && /^https?:\/\//.test(href);
+    const { href: resolved, external } = resolveHref(href);
     return (
       <a
-        href={href}
+        href={resolved}
         className="text-[var(--color-accent-700)] underline underline-offset-2 hover:opacity-80"
         {...(external ? { target: "_blank", rel: "noopener nofollow" } : {})}
       >

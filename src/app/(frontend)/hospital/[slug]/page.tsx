@@ -9,7 +9,10 @@ import {
   deptUrlName,
   decodeParam,
 } from "@/lib/hospitals-data";
-import { getMagazinesByDoctorSlugs } from "@/lib/magazines-data";
+import {
+  getMagazinesByDoctorSlugs,
+  getMagazinesByHospital,
+} from "@/lib/magazines-data";
 import { MedirokCertBox } from "@/components/MedirokCertBox";
 import { HospitalCard } from "@/components/HospitalCard";
 import { MagazineCard } from "@/components/MagazineCard";
@@ -65,9 +68,17 @@ export default async function HospitalDetailPage({ params }: PageProps) {
   ]);
   const similar = await getSimilarHospitals(hospital.departmentSlug, hospital.slug);
 
-  // 이 의원에 소속된 의사들이 쓴 매거진
+  // 이 의원과 연결된 매거진 — 소속 의사가 저자인 글 + linkedHospitals로 연결된 글
+  // (지역 가이드류는 저자가 큐레이션팀이라 linkedHospitals로만 잡힌다)
   const doctorSlugs = hospital.doctors.map((d) => d.slug);
-  const hospitalMagazines = await getMagazinesByDoctorSlugs(doctorSlugs);
+  const [byDoctor, byHospital] = await Promise.all([
+    getMagazinesByDoctorSlugs(doctorSlugs),
+    getMagazinesByHospital(hospital.slug),
+  ]);
+  const hospitalMagazines = [
+    ...byDoctor,
+    ...byHospital.filter((m) => !byDoctor.some((d) => d.slug === m.slug)),
+  ];
 
   // ── 브레드크럼 — nav + BreadcrumbList JSON-LD는 <Breadcrumbs>가 렌더 ──
   const navItems: Crumb[] = [
@@ -231,7 +242,7 @@ export default async function HospitalDetailPage({ params }: PageProps) {
                   메디록 · 의원 매거진
                 </p>
                 <h2 className="text-base font-medium mt-1">
-                  {hospital.nameKr} 의료진이 직접 쓴 글
+                  {hospital.nameKr} 관련 메디록 매거진
                 </h2>
               </div>
               <span className="text-xs text-[var(--color-text-muted)]">
