@@ -9,6 +9,7 @@ import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { buildConfig } from "payload";
 
 import { Magazines } from "@/payload/collections/Magazines";
+import { BlogPosts } from "@/payload/collections/BlogPosts";
 import { Hospitals } from "@/payload/collections/Hospitals";
 import { Doctors } from "@/payload/collections/Doctors";
 import { Departments } from "@/payload/collections/Departments";
@@ -28,6 +29,8 @@ export default buildConfig({
   collections: [
     // 매거진 (단일 통합 컬렉션)
     Magazines,
+    // 병원 블로그 (네이버 블로그 이식 — enterprise)
+    BlogPosts,
     // 의원 + 마스터 데이터
     Hospitals,
     Doctors,

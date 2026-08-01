@@ -5,6 +5,7 @@ import {
   getAllDepartments,
 } from "@/lib/hospitals-data";
 import { getAllMagazines } from "@/lib/magazines-data";
+import { getAllBlogPosts } from "@/lib/blog-data";
 import { SUBWAY_LINES } from "@/lib/stations";
 import { SITE_URL } from "@/lib/site";
 
@@ -14,11 +15,12 @@ const MAGAZINE_CATEGORIES = ["article", "regional", "interview", "case"];
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [hospitals, regions, departments, magazines] = await Promise.all([
+  const [hospitals, regions, departments, magazines, blogPosts] = await Promise.all([
     getAllHospitals(),
     getAllRegions(),
     getAllDepartments(),
     getAllMagazines(),
+    getAllBlogPosts(),
   ]);
   // 진료과 slug(영문) → URL 세그먼트(한국어 nameKr)
   const deptNameBySlug = new Map(departments.map((d) => [d.slug, d.nameKr]));
@@ -31,6 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: url("/"), lastModified: now, changeFrequency: "daily", priority: 1 },
     { url: url("/hospitals"), lastModified: now, changeFrequency: "daily", priority: 0.9 },
     { url: url("/magazine"), lastModified: now, changeFrequency: "daily", priority: 0.8 },
+    { url: url("/blog"), lastModified: now, changeFrequency: "daily", priority: 0.7 },
     { url: url("/estimate"), lastModified: now, changeFrequency: "monthly", priority: 0.5 },
     { url: url("/verification"), lastModified: now, changeFrequency: "monthly", priority: 0.5 },
   ];
@@ -50,6 +53,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: "monthly",
     priority: 0.7,
   }));
+
+  // 의원 블로그 — 병원별 목록 + 글 상세
+  const blogHospitalSlugs = [
+    ...new Set(blogPosts.map((p) => p.hospitalSlug).filter(Boolean)),
+  ];
+  const blogHospitalEntries: MetadataRoute.Sitemap = blogHospitalSlugs.map((slug) => ({
+    url: url(`/blog/${slug}`),
+    lastModified: now,
+    changeFrequency: "weekly",
+    priority: 0.6,
+  }));
+  const blogPostEntries: MetadataRoute.Sitemap = blogPosts
+    .filter((p) => p.hospitalSlug)
+    .map((p) => ({
+      url: url(`/blog/${p.hospitalSlug}/${p.slug}`),
+      lastModified: p.publishedAt ? new Date(p.publishedAt) : now,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    }));
 
   // 의원 상세
   const hospitalEntries: MetadataRoute.Sitemap = hospitals.map((h) => ({
@@ -127,6 +149,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...staticEntries,
     ...categoryEntries,
     ...magazineEntries,
+    ...blogHospitalEntries,
+    ...blogPostEntries,
     ...hospitalEntries,
     ...sidoEntries,
     ...guEntries,

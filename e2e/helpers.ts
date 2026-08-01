@@ -26,6 +26,18 @@ export interface E2EState {
     sidoName: string;
     guName: string;
   } | null;
+  /** 병원 블로그(네이버 이식) 픽스처 — 글이 없으면 null → 테스트 skip */
+  blog: {
+    count: number;
+    /** 3레벨 URL 1단계 (한국어 병원 slug) */
+    hospitalSlug: string;
+    postSlug: string;
+    hasFaq: boolean;
+    /** sourcePosts 개수 — BlogPosting.isBasedOn 길이 검증용 */
+    sourceCount: number;
+    /** authorDoctor가 설정된 글인지 (JSON-LD author가 Person이어야 함) */
+    hasAuthorDoctor: boolean;
+  } | null;
   /**
    * slug→FK 전환으로 생긴 관계 교차링크 픽스처.
    * 해당 관계 데이터가 있을 때만 채워지고, 없으면 각 필드가 null → 테스트 skip.
@@ -59,6 +71,7 @@ export function loadState(): E2EState {
       magazineSlug: null,
       magazine: null,
       region: null,
+      blog: null,
       crossLinks: {
         authorMagazineSlug: null,
         authorDoctorName: null,

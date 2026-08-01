@@ -154,3 +154,36 @@ export interface Magazine {
   publishedAt: string;
   category: string;
 }
+
+// ─────────────────────────────────────────────
+// 병원 블로그 — 네이버 블로그 이식 (enterprise)
+// ─────────────────────────────────────────────
+
+/** 재구성의 근거가 된 네이버 블로그 원문 1건 */
+export interface BlogSourcePost {
+  title: string;
+  url: string;
+  /** 네이버 원문 게시일 (YYYY-MM-DD) */
+  postedAt: string;
+}
+
+export interface BlogPost {
+  slug: string;
+  seoTitle: string;
+  metaDescription: string;
+  shortAnswer: string;
+  body: string; // Markdown
+  targetKeywords: string[];
+  faqBlocks?: { question: string; answer: string }[];
+  /** 블로그 소유 병원 — URL 1단계이자 그룹핑 키 */
+  hospitalSlug: string;
+  authorDoctorSlug?: string;
+  authorName?: string;
+  authorTitle?: string;
+  sourceBlogName: string;
+  sourceBlogUrl: string;
+  /** 최소 1건. 이 글이 종합한 원문 전체 */
+  sourcePosts: BlogSourcePost[];
+  disclaimerType: "general" | "case" | "price" | "qna";
+  publishedAt: string;
+}

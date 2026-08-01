@@ -19,6 +19,7 @@ export function Header() {
           <nav className="hidden md:flex items-center gap-4 ml-4 text-sm text-[var(--color-text-secondary)]">
             <Link href="/hospitals">병원찾기</Link>
             <Link href={"/magazine" as Route}>매거진</Link>
+            <Link href={"/blog" as Route}>블로그</Link>
             <Link href="/verification">
               <span className="hanja text-[var(--color-accent-600)]">醫錄</span> 인증제
             </Link>

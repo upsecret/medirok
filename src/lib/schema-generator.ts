@@ -40,6 +40,97 @@ export function articleSchema(props: BaseArticleProps) {
   };
 }
 
+// ─────────────────────────────────────────────
+// 병원 블로그 — 네이버 원문 재구성 (attribution 필수)
+// ─────────────────────────────────────────────
+
+interface SourcePostProps {
+  title: string;
+  url: string;
+  postedAt: string;
+}
+
+interface BlogPostingProps {
+  title: string;
+  description: string;
+  publishedAt: string;
+  url: string;
+  /** 원문 저자가 의사면 Person, 아니면 병원명으로 Organization */
+  authorName?: string;
+  authorTitle?: string;
+  authorIsPerson: boolean;
+  authorUrl?: string;
+  /** 재구성의 근거가 된 네이버 원문 — isBasedOn + citation 양쪽에 사용 */
+  sourcePosts: SourcePostProps[];
+  sourceBlogUrl: string;
+}
+
+/**
+ * 재구성 글임을 구조화해 선언한다.
+ * isBasedOn = 원문 URL(기계 판독용), citation = 원문 메타(제목·게시일 포함).
+ * 둘 다 넣는 이유: 크롤러마다 읽는 속성이 달라 한쪽만으로는 출처 연결이 끊긴다.
+ */
+export function blogPostingSchema(props: BlogPostingProps) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: props.title,
+    description: props.description,
+    datePublished: props.publishedAt,
+    dateModified: props.publishedAt,
+    ...(props.authorName && {
+      author: {
+        "@type": props.authorIsPerson ? "Person" : "Organization",
+        name: props.authorName,
+        ...(props.authorIsPerson &&
+          props.authorTitle && { jobTitle: props.authorTitle }),
+        ...(props.authorUrl && { url: props.authorUrl }),
+      },
+    }),
+    publisher: {
+      "@type": "Organization",
+      name: "메디록",
+      logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png` },
+    },
+    isBasedOn: props.sourcePosts.map((p) => p.url),
+    citation: props.sourcePosts.map((p) => ({
+      "@type": "BlogPosting",
+      headline: p.title,
+      url: p.url,
+      datePublished: p.postedAt,
+    })),
+    sameAs: [props.sourceBlogUrl],
+    mainEntityOfPage: { "@type": "WebPage", "@id": props.url },
+  };
+}
+
+interface BlogProps {
+  name: string;
+  description: string;
+  url: string;
+  /** 네이버 원본 블로그 — 이 블로그 섹션의 출처 */
+  sourceBlogUrl: string;
+  posts: { title: string; url: string; publishedAt: string; description: string }[];
+}
+
+export function blogSchema(props: BlogProps) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: props.name,
+    description: props.description,
+    url: props.url,
+    sameAs: [props.sourceBlogUrl],
+    blogPost: props.posts.map((p) => ({
+      "@type": "BlogPosting",
+      headline: p.title,
+      url: p.url,
+      datePublished: p.publishedAt,
+      description: p.description,
+    })),
+  };
+}
+
 interface FaqProps {
   question: string;
   answer: string;

@@ -11,14 +11,21 @@
  *              doctors[] 임베드 → doctors 컬렉션 upsert (hospital 관계 포함)
  *   magazines: authorDoctorSlug → authorDoctor, linkedHospitalSlugs → linkedHospitals,
  *              linkedDepartmentSlug → linkedDepartment, linkedRegionSlug → linkedRegion
+ *   blog-posts: hospitalSlug → hospital, authorDoctorSlug → authorDoctor
  *
- * 주의: 참조 대상이 먼저 존재해야 한다 (departments/regions → hospitals → magazines 순).
+ * 주의: 참조 대상이 먼저 존재해야 한다 (departments/regions → hospitals → magazines/blog-posts 순).
  */
 
 import type { Payload } from "payload";
 
 type AnyData = Record<string, unknown>;
-type Collection = "departments" | "regions" | "hospitals" | "doctors" | "magazines";
+type Collection =
+  | "departments"
+  | "regions"
+  | "hospitals"
+  | "doctors"
+  | "magazines"
+  | "blog-posts";
 
 const str = (v: unknown): string => (typeof v === "string" ? v : "");
 
@@ -100,6 +107,15 @@ export async function upsertWithRefs(
     delete data.linkedDepartmentSlug;
     delete data.linkedRegionSlug;
     // linkedTreatmentSlug는 대상 컬렉션이 없어 텍스트 유지
+  }
+
+  if (collection === "blog-posts") {
+    const hospitalSlug = str(data.hospitalSlug);
+    if (hospitalSlug) data.hospital = await findIdBySlug(payload, "hospitals", hospitalSlug);
+    const authorSlug = str(data.authorDoctorSlug);
+    if (authorSlug) data.authorDoctor = await findIdBySlug(payload, "doctors", authorSlug);
+    delete data.hospitalSlug;
+    delete data.authorDoctorSlug;
   }
 
   // ── 본문 upsert ──

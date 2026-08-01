@@ -16,6 +16,7 @@ import type {
   CurationNote,
   Magazine,
   MagazineType,
+  BlogPost,
 } from "@/types";
 
 export type Raw = Record<string, unknown>;
@@ -309,5 +310,43 @@ export function mapMagazine(doc: Raw, ctx: MagazineRefContext): Magazine {
     disclaimerType: (str(doc.disclaimerType) || "general") as Magazine["disclaimerType"],
     publishedAt: dayOnly(doc.publishedAt),
     category: str(doc.category),
+  };
+}
+
+// ── BlogPost (네이버 블로그 이식) ──
+
+export function mapBlogPost(doc: Raw, ctx: MagazineRefContext): BlogPost {
+  const hospitalFromRel = ctx.hospitalSlugById.get(relId(doc.hospital) ?? "");
+  const authorFromRel = ctx.doctorSlugById.get(relId(doc.authorDoctor) ?? "");
+
+  return {
+    slug: str(doc.slug),
+    seoTitle: str(doc.seoTitle),
+    metaDescription: str(doc.metaDescription),
+    shortAnswer: str(doc.shortAnswer),
+    body: str(doc.body),
+    targetKeywords: strArr(doc.targetKeywords) ?? [],
+    faqBlocks: Array.isArray(doc.faqBlocks)
+      ? (doc.faqBlocks as Raw[])
+          .map((f) => ({ question: str(f.question), answer: str(f.answer) }))
+          .filter((f) => f.question && f.answer)
+      : undefined,
+    hospitalSlug: hospitalFromRel ?? "",
+    authorDoctorSlug: authorFromRel || undefined,
+    authorName: optStr(doc.authorName),
+    authorTitle: optStr(doc.authorTitle),
+    sourceBlogName: str(doc.sourceBlogName),
+    sourceBlogUrl: str(doc.sourceBlogUrl),
+    sourcePosts: Array.isArray(doc.sourcePosts)
+      ? (doc.sourcePosts as Raw[])
+          .map((p) => ({
+            title: str(p.title),
+            url: str(p.url),
+            postedAt: dayOnly(p.postedAt),
+          }))
+          .filter((p) => p.title && p.url)
+      : [],
+    disclaimerType: (str(doc.disclaimerType) || "general") as BlogPost["disclaimerType"],
+    publishedAt: dayOnly(doc.publishedAt),
   };
 }

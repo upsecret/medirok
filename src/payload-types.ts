@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     magazines: Magazine;
+    'blog-posts': BlogPost;
     hospitals: Hospital;
     doctors: Doctor;
     departments: Department;
@@ -82,6 +83,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     magazines: MagazinesSelect<false> | MagazinesSelect<true>;
+    'blog-posts': BlogPostsSelect<false> | BlogPostsSelect<true>;
     hospitals: HospitalsSelect<false> | HospitalsSelect<true>;
     doctors: DoctorsSelect<false> | DoctorsSelect<true>;
     departments: DepartmentsSelect<false> | DepartmentsSelect<true>;
@@ -359,6 +361,75 @@ export interface Doctor {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-posts".
+ */
+export interface BlogPost {
+  id: number;
+  slug: string;
+  seoTitle: string;
+  metaDescription: string;
+  /**
+   * AEO용 핵심 답변 (요약 박스에 노출)
+   */
+  shortAnswer: string;
+  /**
+   * 본문 (마크다운). 질문형 ## 제목 권장. 이미지는 사용하지 않는다(v1 텍스트 전용).
+   */
+  body: string;
+  /**
+   * 타겟 키워드 (여러 개 입력)
+   */
+  targetKeywords?: string[] | null;
+  faqBlocks?:
+    | {
+        question: string;
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * 블로그 소유 병원 (URL 1단계에 사용)
+   */
+  hospital: number | Hospital;
+  /**
+   * 원문 저자가 의사인 경우 지정. 설정 시 저자 프로필 노출.
+   */
+  authorDoctor?: (number | null) | Doctor;
+  /**
+   * authorDoctor 미설정 시 사용
+   */
+  authorName?: string | null;
+  authorTitle?: string | null;
+  /**
+   * 예: "예온치과병원 공식 블로그"
+   */
+  sourceBlogName: string;
+  /**
+   * 네이버 블로그 루트 URL
+   */
+  sourceBlogUrl: string;
+  /**
+   * 이 글이 재구성한 네이버 블로그 원문 전체
+   */
+  sourcePosts: {
+    title: string;
+    url: string;
+    /**
+     * 네이버 원문 게시일
+     */
+    postedAt: string;
+    id?: string | null;
+  }[];
+  /**
+   * ★ 의료법 광고심의 안전 문구 자동 주입. 매거진 푸터에 자동 표시.
+   */
+  disclaimerType: 'general' | 'case' | 'price' | 'qna';
+  publishedAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
@@ -457,6 +528,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'magazines';
         value: number | Magazine;
+      } | null)
+    | ({
+        relationTo: 'blog-posts';
+        value: number | BlogPost;
       } | null)
     | ({
         relationTo: 'hospitals';
@@ -561,6 +636,43 @@ export interface MagazinesSelect<T extends boolean = true> {
   disclaimerType?: T;
   publishedAt?: T;
   category?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-posts_select".
+ */
+export interface BlogPostsSelect<T extends boolean = true> {
+  slug?: T;
+  seoTitle?: T;
+  metaDescription?: T;
+  shortAnswer?: T;
+  body?: T;
+  targetKeywords?: T;
+  faqBlocks?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  hospital?: T;
+  authorDoctor?: T;
+  authorName?: T;
+  authorTitle?: T;
+  sourceBlogName?: T;
+  sourceBlogUrl?: T;
+  sourcePosts?:
+    | T
+    | {
+        title?: T;
+        url?: T;
+        postedAt?: T;
+        id?: T;
+      };
+  disclaimerType?: T;
+  publishedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

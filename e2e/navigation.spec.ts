@@ -13,6 +13,9 @@ test.describe("헤더 내비게이션 (데스크톱)", () => {
     await page.getByRole("navigation").getByRole("link", { name: "매거진" }).click();
     await expect(page).toHaveURL("/magazine");
 
+    await page.getByRole("navigation").getByRole("link", { name: "블로그", exact: true }).click();
+    await expect(page).toHaveURL("/blog");
+
     await page.getByRole("navigation").getByRole("link", { name: /인증제/ }).click();
     await expect(page).toHaveURL("/verification");
 

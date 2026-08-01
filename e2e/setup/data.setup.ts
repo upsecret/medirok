@@ -28,6 +28,7 @@ setup("시드 데이터 확인 및 픽스처 기록", async ({ request }) => {
     magazineSlug: null,
     magazine: null,
     region: null,
+    blog: null,
     crossLinks: {
       authorMagazineSlug: null,
       authorDoctorName: null,
@@ -126,10 +127,40 @@ setup("시드 데이터 확인 및 픽스처 기록", async ({ request }) => {
     }
   }
 
-  // ── 관계 교차링크 픽스처 (slug→FK 전환으로 생긴 cross-link) ──
   // 관계는 depth=0에서 id(단수) / id 배열(hasMany)로 온다.
   const doctorById = new Map(doctors.map((d) => [relId(d.id) ?? (d.id as number | string), d]));
   const hospitalById = new Map(docs.map((h) => [relId(h.id) ?? (h.id as number | string), h]));
+
+  // ── 병원 블로그 (네이버 이식) ──
+  // URL 1단계가 병원 slug이므로 hospital 관계가 해석되는 글만 픽스처로 쓴다.
+  const bRes = await request.get("/api/blog-posts?limit=100&depth=0&sort=-publishedAt");
+  expect(bRes.status(), "Payload REST /api/blog-posts 응답 확인").toBe(200);
+  const bBody = (await bRes.json()) as { docs?: Doc[]; totalDocs?: number };
+  const blogDocs = bBody.docs ?? [];
+  const blogCount = bBody.totalDocs ?? blogDocs.length;
+
+  for (const doc of blogDocs) {
+    const slug = String(doc.slug ?? "");
+    const hospital = hospitalById.get(relId(doc.hospital) ?? "");
+    const hospitalSlug = hospital ? String(hospital.slug ?? "") : "";
+    if (!slug || !hospitalSlug) continue;
+    const res = await request.get(
+      `/blog/${encodeURIComponent(hospitalSlug)}/${encodeURIComponent(slug)}`
+    );
+    if (res.status() !== 200) continue;
+    state.blog = {
+      count: blogCount,
+      hospitalSlug,
+      postSlug: slug,
+      hasFaq: Array.isArray(doc.faqBlocks) && doc.faqBlocks.length > 0,
+      sourceCount: Array.isArray(doc.sourcePosts) ? doc.sourcePosts.length : 0,
+      hasAuthorDoctor: relId(doc.authorDoctor) != null,
+    };
+    // FAQ와 저자 의사를 모두 갖춘 글이 검증 범위가 넓다
+    if (state.blog.hasFaq && state.blog.hasAuthorDoctor) break;
+  }
+
+  // ── 관계 교차링크 픽스처 (slug→FK 전환으로 생긴 cross-link) ──
 
   // (1) authorDoctor가 실제 의사로 해석되는 매거진 + 그 의사의 소속 의원
   for (const m of magazineDocs) {
@@ -173,6 +204,11 @@ setup("시드 데이터 확인 및 픽스처 기록", async ({ request }) => {
   }
   if (state.magazineCount === 0) {
     console.warn("⚠️  Payload DB에 매거진 데이터가 없습니다. 관련 테스트는 skip됩니다.");
+  }
+  if (!state.blog) {
+    console.warn(
+      "⚠️  Payload DB에 병원 블로그 데이터가 없습니다. 관련 테스트는 skip됩니다. (시드: npm run seed:blog-posts)"
+    );
   }
 
   fs.writeFileSync(STATE_PATH, JSON.stringify(state, null, 2));
