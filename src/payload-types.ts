@@ -226,7 +226,6 @@ export interface Media {
    * 원본 이미지가 게시된 페이지 URL
    */
   sourceUrl?: string | null;
-  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -829,7 +828,6 @@ export interface MediaSelect<T extends boolean = true> {
   caption?: T;
   credit?: T;
   sourceUrl?: T;
-  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

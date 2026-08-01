@@ -196,6 +196,22 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
+  // Blob에 올리는 상황에서도 Payload는 파일명 충돌 검사에 로컬 staticDir(`media/`)를
+  // 들여다본다. 토큰 없이 돌린 예전 실행이 남긴 파일이 있으면 이름이 통째로 밀린다
+  // (guide-...-2026.jpg → guide-...-2027.jpg). 이름이 밀리면 이 스크립트의 멱등 조회
+  // (`<slug>.jpg`)가 영영 빗나가 재실행마다 중복이 쌓인다.
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    const staticDir = path.resolve("media");
+    const stale = await fs.readdir(staticDir).catch(() => [] as string[]);
+    if (stale.length > 0) {
+      console.error(
+        `✗ 로컬 media/ 에 파일 ${stale.length}개가 남아 있습니다.\n` +
+          "  Blob 업로드 시 파일명이 밀리므로 먼저 비우세요:  rm -rf media/"
+      );
+      process.exit(1);
+    }
+  }
+
   const payload = await getSeedPayload();
   const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "medirok-thumb-"));
 
@@ -266,6 +282,14 @@ async function main(): Promise<void> {
           ...(e.sourceUrl ? { sourceUrl: e.sourceUrl } : {}),
         },
       });
+      // Payload가 이름을 바꿔 저장했다면 멱등성이 깨진 것이므로 즉시 멈춘다
+      if (doc.filename !== filename) {
+        console.error(
+          `✗ 파일명이 밀렸습니다: ${filename} → ${doc.filename}\n` +
+            "  같은 이름의 파일이 이미 저장소(또는 로컬 media/)에 있습니다. 정리 후 재실행하세요."
+        );
+        process.exit(1);
+      }
       mediaId = doc.id;
       created++;
       console.log(`  + media 생성    ${filename}`);
