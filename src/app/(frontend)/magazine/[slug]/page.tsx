@@ -19,6 +19,7 @@ import { MagazineCard } from "@/components/MagazineCard";
 import { Markdown } from "@/components/Markdown";
 import { MedicalDisclaimer } from "@/components/MedicalDisclaimer";
 import { AuthorProfile } from "@/components/AuthorProfile";
+import { Thumbnail } from "@/components/Thumbnail";
 import { JsonLd } from "@/components/JsonLd";
 import {
   articleSchema,
@@ -26,7 +27,7 @@ import {
   qnaPageSchema,
   breadcrumbSchema,
 } from "@/lib/schema-generator";
-import { SITE_URL } from "@/lib/site";
+import { SITE_URL, absMediaUrl } from "@/lib/site";
 
 // DB(매거진)를 매 요청 시 반영 — 정적 캐시로 인한 옛 데이터 노출 방지
 export const dynamic = "force-dynamic";
@@ -45,6 +46,8 @@ export async function generateMetadata({ params }: PageProps) {
   const m = await getMagazineBySlug(slug);
   if (!m) return {};
   const canonical = `/magazine/${m.slug}`;
+  // 공유 미리보기는 상대 경로를 해석하지 못하는 크롤러가 있어 절대 URL로 넘긴다
+  const images = m.thumbnail ? [absMediaUrl(m.thumbnail.featureUrl)] : undefined;
   return {
     title: m.seoTitle,
     description: m.metaDescription,
@@ -54,7 +57,16 @@ export async function generateMetadata({ params }: PageProps) {
       description: m.metaDescription,
       type: "article",
       url: canonical,
+      images,
     },
+    ...(images && {
+      twitter: {
+        card: "summary_large_image" as const,
+        title: m.seoTitle,
+        description: m.metaDescription,
+        images,
+      },
+    }),
   };
 }
 
@@ -106,6 +118,9 @@ export default async function MagazineDetailPage({ params }: PageProps) {
         authorName: magazine.authorName,
         authorTitle: magazine.authorTitle,
         url,
+        imageUrl: magazine.thumbnail
+          ? absMediaUrl(magazine.thumbnail.featureUrl)
+          : undefined,
       })
     );
   }
@@ -156,6 +171,18 @@ export default async function MagazineDetailPage({ params }: PageProps) {
             </p>
           )}
         </header>
+
+        {/* 히어로는 이미지가 있을 때만 — 목록 카드와 달리 높이를 맞출 형제가 없어
+            플레이스홀더를 띄울 이유가 없다 */}
+        {magazine.thumbnail && (
+          <div className="container-content pb-4">
+            <Thumbnail
+              thumbnail={magazine.thumbnail}
+              variant="feature"
+              priority
+            />
+          </div>
+        )}
 
         <div className="container-content">
           <ShortAnswerBlock

@@ -13,12 +13,20 @@ import {
   mapDoctor,
   buildRegionIndex,
   slugById,
+  thumbnailById,
   relId,
   type HospitalRefContext,
   type Raw,
   type DocId,
 } from "@/lib/payload-mappers";
-import type { Hospital, Doctor, Department, Region, RegionLevel } from "@/types";
+import type {
+  Hospital,
+  Doctor,
+  Department,
+  Region,
+  RegionLevel,
+  Thumbnail,
+} from "@/types";
 
 /**
  * Next.js 동적 라우트 파라미터(params)는 한국어 등 비ASCII 세그먼트를
@@ -103,24 +111,38 @@ const hospitalCtx = cache(async (): Promise<HospitalRefContext> => {
   };
 });
 
+/** 대표 이미지 해석용 — 매거진·블로그가 depth:0을 유지하도록 media를 따로 읽는다 */
+const rawMediaDocs = cache(async (): Promise<Raw[]> => {
+  const payload = await getPayloadClient();
+  const res = await payload.find({
+    collection: "media",
+    limit: 500,
+    depth: 0,
+  });
+  return res.docs as unknown as Raw[];
+});
+
 /** 관계 id → slug 해석 맵 (magazines-data 등 다른 데이터 모듈 공용) */
 export const getRefSlugMaps = cache(async () => {
-  const [hospitals, departments, regions, doctors] = await Promise.all([
+  const [hospitals, departments, regions, doctors, media] = await Promise.all([
     rawHospitalDocs(),
     rawDepartmentDocs(),
     rawRegionDocs(),
     rawDoctorDocs(),
+    rawMediaDocs(),
   ]);
   return {
     hospitalSlugById: slugById(hospitals),
     departmentSlugById: slugById(departments),
     regionSlugById: slugById(regions),
     doctorSlugById: slugById(doctors),
+    thumbnailById: thumbnailById(media),
   } as {
     hospitalSlugById: Map<DocId, string>;
     departmentSlugById: Map<DocId, string>;
     regionSlugById: Map<DocId, string>;
     doctorSlugById: Map<DocId, string>;
+    thumbnailById: Map<DocId, Thumbnail>;
   };
 });
 

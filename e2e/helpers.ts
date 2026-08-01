@@ -39,6 +39,20 @@ export interface E2EState {
     hasAuthorDoctor: boolean;
   } | null;
   /**
+   * 대표 이미지(썸네일) 픽스처.
+   * 썸네일은 optional이라 "있는 문서"와 "없는 문서" 양쪽이 정상 동작해야 한다 —
+   * 없는 쪽은 플레이스홀더로 그려지며 이것도 회귀 대상이다.
+   */
+  thumbnail: {
+    /** thumbnail이 설정된 매거진 slug */
+    magazineSlug: string | null;
+    /** thumbnail이 없는 매거진 slug (플레이스홀더 경로 검증용) */
+    magazineWithoutSlug: string | null;
+    /** thumbnail이 설정된 블로그 글 (3레벨 URL) */
+    blogHospitalSlug: string | null;
+    blogPostSlug: string | null;
+  };
+  /**
    * slug→FK 전환으로 생긴 관계 교차링크 픽스처.
    * 해당 관계 데이터가 있을 때만 채워지고, 없으면 각 필드가 null → 테스트 skip.
    */
@@ -72,6 +86,12 @@ export function loadState(): E2EState {
       magazine: null,
       region: null,
       blog: null,
+      thumbnail: {
+        magazineSlug: null,
+        magazineWithoutSlug: null,
+        blogHospitalSlug: null,
+        blogPostSlug: null,
+      },
       crossLinks: {
         authorMagazineSlug: null,
         authorDoctorName: null,

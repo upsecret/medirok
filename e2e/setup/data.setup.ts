@@ -29,6 +29,12 @@ setup("시드 데이터 확인 및 픽스처 기록", async ({ request }) => {
     magazine: null,
     region: null,
     blog: null,
+    thumbnail: {
+      magazineSlug: null,
+      magazineWithoutSlug: null,
+      blogHospitalSlug: null,
+      blogPostSlug: null,
+    },
     crossLinks: {
       authorMagazineSlug: null,
       authorDoctorName: null,
@@ -158,6 +164,24 @@ setup("시드 데이터 확인 및 픽스처 기록", async ({ request }) => {
     };
     // FAQ와 저자 의사를 모두 갖춘 글이 검증 범위가 넓다
     if (state.blog.hasFaq && state.blog.hasAuthorDoctor) break;
+  }
+
+  // ── 대표 이미지 픽스처 ──
+  const withThumb = magazineDocs.find((m) => relId(m.thumbnail) != null);
+  const withoutThumb = magazineDocs.find((m) => relId(m.thumbnail) == null);
+  state.thumbnail.magazineSlug = withThumb ? String(withThumb.slug ?? "") || null : null;
+  state.thumbnail.magazineWithoutSlug = withoutThumb
+    ? String(withoutThumb.slug ?? "") || null
+    : null;
+
+  for (const doc of blogDocs) {
+    if (relId(doc.thumbnail) == null) continue;
+    const hospital = hospitalById.get(relId(doc.hospital) ?? "");
+    const hSlug = hospital ? String(hospital.slug ?? "") : "";
+    if (!hSlug) continue;
+    state.thumbnail.blogHospitalSlug = hSlug;
+    state.thumbnail.blogPostSlug = String(doc.slug ?? "") || null;
+    break;
   }
 
   // ── 관계 교차링크 픽스처 (slug→FK 전환으로 생긴 cross-link) ──

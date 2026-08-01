@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Route } from "next";
+import { Thumbnail } from "@/components/Thumbnail";
 import type { BlogPost } from "@/types";
 
 interface BlogPostCardProps {
@@ -15,6 +16,11 @@ export function BlogPostCard({ post, hospitalSlug, hospitalName }: BlogPostCardP
       href={`/blog/${hospitalSlug}/${post.slug}` as Route}
       className="block bg-white border border-[var(--color-surface-border)] rounded-md p-4 transition hover:border-[var(--color-accent-400)]"
     >
+      <Thumbnail
+        thumbnail={post.thumbnail}
+        placeholderLabel="의원 블로그"
+        className="mb-3"
+      />
       <div className="flex items-center gap-2 mb-2">
         <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-[var(--color-accent-100)] text-[var(--color-accent-600)]">
           의원 블로그

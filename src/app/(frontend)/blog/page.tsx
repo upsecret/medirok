@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import { getBlogHospitals } from "@/lib/blog-data";
 import { JsonLd } from "@/components/JsonLd";
+import { Thumbnail } from "@/components/Thumbnail";
 import { itemListSchema, breadcrumbSchema } from "@/lib/schema-generator";
 import { SITE_URL } from "@/lib/site";
 
@@ -90,6 +91,12 @@ export default async function BlogIndexPage() {
                     href={`/blog/${hospital.slug}` as Route}
                     className="block bg-white border border-[var(--color-surface-border)] rounded-md p-4 transition hover:border-[var(--color-accent-400)]"
                   >
+                    {/* 의원 카드의 얼굴 = 최근 글의 대표 이미지 */}
+                    <Thumbnail
+                      thumbnail={posts[0].thumbnail}
+                      placeholderLabel="의원 블로그"
+                      className="mb-3"
+                    />
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-[var(--color-accent-100)] text-[var(--color-accent-600)]">
                         의원 블로그

@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "**.amazonaws.com" },
       { protocol: "https", hostname: "**.cloudfront.net" },
+      // Payload Media → Vercel Blob (토큰 미설정 시엔 동일 출처 /api/media/file/*로 서빙되어
+      // remotePattern이 필요 없다)
+      { protocol: "https", hostname: "**.public.blob.vercel-storage.com" },
     ],
   },
   typedRoutes: true,

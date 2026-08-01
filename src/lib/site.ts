@@ -9,3 +9,12 @@ export const SITE_URL = "https://www.medirok.com";
 export function absUrl(path: string): string {
   return `${SITE_URL}${path}`;
 }
+
+/**
+ * 업로드 이미지 URL → 절대 URL.
+ * 저장소에 따라 형태가 다르다 — Vercel Blob은 이미 절대 URL(`https://….blob.vercel-storage.com/…`),
+ * 토큰 없는 폴백은 동일 출처 상대 경로(`/api/media/file/…`). 앞의 것에 SITE_URL을 덧붙이면 깨진다.
+ */
+export function absMediaUrl(url: string): string {
+  return /^https?:\/\//i.test(url) ? url : absUrl(url);
+}

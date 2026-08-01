@@ -11,13 +11,14 @@ import { BlogSourceAttribution } from "@/components/BlogSourceAttribution";
 import { Markdown } from "@/components/Markdown";
 import { MedicalDisclaimer } from "@/components/MedicalDisclaimer";
 import { AuthorProfile } from "@/components/AuthorProfile";
+import { Thumbnail } from "@/components/Thumbnail";
 import { JsonLd } from "@/components/JsonLd";
 import {
   blogPostingSchema,
   faqPageSchema,
   breadcrumbSchema,
 } from "@/lib/schema-generator";
-import { SITE_URL } from "@/lib/site";
+import { SITE_URL, absMediaUrl } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +39,9 @@ export async function generateMetadata({ params }: PageProps) {
   const post = await getBlogPost(hospitalSlug, decodeParam(raw.slug));
   if (!post) return {};
   const canonical = `/blog/${hospitalSlug}/${post.slug}`;
+  const images = post.thumbnail
+    ? [absMediaUrl(post.thumbnail.featureUrl)]
+    : undefined;
   return {
     title: post.seoTitle,
     description: post.metaDescription,
@@ -47,7 +51,16 @@ export async function generateMetadata({ params }: PageProps) {
       description: post.metaDescription,
       type: "article",
       url: canonical,
+      images,
     },
+    ...(images && {
+      twitter: {
+        card: "summary_large_image" as const,
+        title: post.seoTitle,
+        description: post.metaDescription,
+        images,
+      },
+    }),
   };
 }
 
@@ -98,6 +111,9 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
         : `${SITE_URL}/hospital/${encodeURIComponent(hospital.slug)}`,
       sourcePosts: post.sourcePosts,
       sourceBlogUrl: post.sourceBlogUrl,
+      imageUrl: post.thumbnail
+        ? absMediaUrl(post.thumbnail.featureUrl)
+        : undefined,
     }),
   ];
 
@@ -143,6 +159,12 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
             의원 공식 네이버 블로그 기반 재구성 · 원문 {post.sourcePosts.length}편
           </p>
         </header>
+
+        {post.thumbnail && (
+          <div className="container-content pb-4">
+            <Thumbnail thumbnail={post.thumbnail} variant="feature" priority />
+          </div>
+        )}
 
         <div className="container-content">
           <ShortAnswerBlock

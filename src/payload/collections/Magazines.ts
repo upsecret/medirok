@@ -51,6 +51,17 @@ export const Magazines: CollectionConfig = {
     { name: "seoTitle", type: "text", required: true },
     { name: "metaDescription", type: "textarea", required: true },
     {
+      // 목록 카드·상세 히어로·OG 이미지가 모두 이 한 장을 쓴다.
+      // optional — 필수로 걸면 썸네일이 없는 기존 글이 저장 불가가 된다.
+      name: "thumbnail",
+      type: "upload",
+      relationTo: "media",
+      admin: {
+        description:
+          "대표 이미지 (16:9 권장). 미지정 시 카테고리 색 플레이스홀더로 대체된다.",
+      },
+    },
+    {
       name: "shortAnswer",
       type: "textarea",
       required: true,

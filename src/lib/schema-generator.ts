@@ -63,6 +63,8 @@ interface BlogPostingProps {
   /** 재구성의 근거가 된 네이버 원문 — isBasedOn + citation 양쪽에 사용 */
   sourcePosts: SourcePostProps[];
   sourceBlogUrl: string;
+  /** 대표 이미지 절대 URL */
+  imageUrl?: string;
 }
 
 /**
@@ -78,6 +80,7 @@ export function blogPostingSchema(props: BlogPostingProps) {
     description: props.description,
     datePublished: props.publishedAt,
     dateModified: props.publishedAt,
+    ...(props.imageUrl && { image: props.imageUrl }),
     ...(props.authorName && {
       author: {
         "@type": props.authorIsPerson ? "Person" : "Organization",

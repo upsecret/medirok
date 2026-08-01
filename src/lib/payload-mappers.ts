@@ -17,6 +17,7 @@ import type {
   Magazine,
   MagazineType,
   BlogPost,
+  Thumbnail,
 } from "@/types";
 
 export type Raw = Record<string, unknown>;
@@ -91,6 +92,37 @@ export interface MagazineRefContext {
   doctorSlugById: Map<DocId, string>;
   departmentSlugById: Map<DocId, string>;
   regionSlugById: Map<DocId, string>;
+  thumbnailById: Map<DocId, Thumbnail>;
+}
+
+/**
+ * media 도큐먼트 → Thumbnail.
+ * depth:0 조회를 유지하기 위해 media를 따로 읽어 id 맵으로 만들고 여기서 해석한다
+ * (depth:1로 올리면 병원·의사·지역 관계까지 전부 populate되어 응답이 부푼다).
+ */
+export function mapMediaDoc(doc: Raw): Thumbnail | undefined {
+  const url = str(doc.url);
+  if (!url) return undefined;
+  const sizes = (doc.sizes ?? {}) as Record<string, Raw | undefined>;
+  const sizeUrl = (name: string): string => str(sizes[name]?.url) || url;
+  return {
+    url,
+    cardUrl: sizeUrl("card"),
+    featureUrl: sizeUrl("feature"),
+    alt: str(doc.alt),
+    width: optNum(doc.width),
+    height: optNum(doc.height),
+  };
+}
+
+/** raw media 배열 → id→Thumbnail 맵 */
+export function thumbnailById(docs: Raw[]): Map<DocId, Thumbnail> {
+  const map = new Map<DocId, Thumbnail>();
+  for (const d of docs) {
+    const t = mapMediaDoc(d);
+    if (t) map.set(d.id as DocId, t);
+  }
+  return map;
 }
 
 /** raw 도큐먼트 배열 → id→slug 맵 */
@@ -280,6 +312,7 @@ export function mapMagazine(doc: Raw, ctx: MagazineRefContext): Magazine {
     type: str(doc.type) as MagazineType,
     seoTitle: str(doc.seoTitle),
     metaDescription: str(doc.metaDescription),
+    thumbnail: ctx.thumbnailById.get(relId(doc.thumbnail) ?? ""),
     shortAnswer: str(doc.shortAnswer),
     body: str(doc.body),
     targetKeywords: strArr(doc.targetKeywords) ?? [],
@@ -323,6 +356,7 @@ export function mapBlogPost(doc: Raw, ctx: MagazineRefContext): BlogPost {
     slug: str(doc.slug),
     seoTitle: str(doc.seoTitle),
     metaDescription: str(doc.metaDescription),
+    thumbnail: ctx.thumbnailById.get(relId(doc.thumbnail) ?? ""),
     shortAnswer: str(doc.shortAnswer),
     body: str(doc.body),
     targetKeywords: strArr(doc.targetKeywords) ?? [],

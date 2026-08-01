@@ -131,11 +131,26 @@ export interface Article {
 
 export type MagazineType = "article" | "qna" | "regional" | "interview" | "case";
 
+/**
+ * 업로드된 대표 이미지 (Payload media).
+ * 용도별로 다른 파생 사이즈를 쓴다 — 카드는 card(768×432), 상세 히어로와 OG는
+ * feature(1280×720). sharp가 만들지 못한 사이즈는 원본(url)으로 폴백한다.
+ */
+export interface Thumbnail {
+  url: string;
+  cardUrl: string;
+  featureUrl: string;
+  alt: string;
+  width?: number;
+  height?: number;
+}
+
 export interface Magazine {
   slug: string;
   type: MagazineType;
   seoTitle: string;
   metaDescription: string;
+  thumbnail?: Thumbnail;
   shortAnswer: string;
   body: string; // Markdown
   targetKeywords: string[];
@@ -171,6 +186,7 @@ export interface BlogPost {
   slug: string;
   seoTitle: string;
   metaDescription: string;
+  thumbnail?: Thumbnail;
   shortAnswer: string;
   body: string; // Markdown
   targetKeywords: string[];

@@ -45,6 +45,11 @@ next-env.d.ts
 *.db
 *.db-journal
 
+# 썸네일 작업 디렉터리 (수집 원본·생성 카드 — 최종본은 Blob에 올라간다)
+/.thumbnails/
+# Media 로컬 디스크 폴백 (BLOB_READ_WRITE_TOKEN 없는 환경의 업로드 경로)
+/media/
+
 .vercel
 
 # claude code (로컬 에이전트 설정)

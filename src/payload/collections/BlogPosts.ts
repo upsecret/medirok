@@ -31,6 +31,15 @@ export const BlogPosts: CollectionConfig = {
     { name: "seoTitle", type: "text", required: true },
     { name: "metaDescription", type: "textarea", required: true },
     {
+      // 원문 네이버 블로그에서 고른 대표 이미지. 출처는 media.credit/sourceUrl에 남긴다.
+      name: "thumbnail",
+      type: "upload",
+      relationTo: "media",
+      admin: {
+        description: "대표 이미지 (16:9 권장). 원문 블로그에서 선정.",
+      },
+    },
+    {
       name: "shortAnswer",
       type: "textarea",
       required: true,

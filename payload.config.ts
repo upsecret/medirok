@@ -6,7 +6,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
+import { vercelBlobStorage } from "@payloadcms/storage-vercel-blob";
 import { buildConfig } from "payload";
+import sharp from "sharp";
 
 import { Magazines } from "@/payload/collections/Magazines";
 import { BlogPosts } from "@/payload/collections/BlogPosts";
@@ -41,6 +43,23 @@ export default buildConfig({
     Users,
   ],
   editor: lexicalEditor(),
+  // Media.imageSizes(thumbnail/card/feature) 생성에 필요. Payload 3.x는 sharp를
+  // 자동으로 집어오지 않고 config로 넘겨받는다 — 빠지면 리사이즈가 조용히 생략된다.
+  sharp,
+  plugins: [
+    // 이미지 저장소. Vercel 런타임은 파일시스템이 읽기 전용이라 Media의 로컬 디스크
+    // (staticDir)로는 운영 업로드가 저장되지 않는다 — Blob으로 내보낸다.
+    vercelBlobStorage({
+      // 토큰이 없는 환경(e2e docker, 토큰 미설정 로컬)은 자동으로 로컬 디스크로 폴백한다.
+      enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+      // 폴백 여부와 무관하게 스키마를 동일하게 유지한다.
+      // 끄면 플러그인이 붙이는 필드가 환경마다 달라져, 로컬에서 만든 마이그레이션이
+      // 운영 스키마와 어긋난다.
+      alwaysInsertFields: true,
+      collections: { media: true },
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    }),
+  ],
   secret: process.env.PAYLOAD_SECRET || "default-dev-secret-please-change",
   db: postgresAdapter({
     // 런타임은 pooled 연결(DATABASE_URL), 마이그레이션/스키마 push는 직결(UNPOOLED) 권장

@@ -140,6 +140,10 @@ export interface Magazine {
   seoTitle: string;
   metaDescription: string;
   /**
+   * 대표 이미지 (16:9 권장). 미지정 시 카테고리 색 플레이스홀더로 대체된다.
+   */
+  thumbnail?: (number | null) | Media;
+  /**
    * AEO용 핵심 답변 (요약 박스에 노출)
    */
   shortAnswer: string;
@@ -202,6 +206,64 @@ export interface Magazine {
   category?: string | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  /**
+   * 대체 텍스트. 스크린리더와 검색엔진이 읽는다.
+   */
+  alt: string;
+  caption?: string | null;
+  /**
+   * 차용 이미지의 저작권자. 예: "예온치과병원 공식 홈페이지"
+   */
+  credit?: string | null;
+  /**
+   * 원본 이미지가 게시된 페이지 URL
+   */
+  sourceUrl?: string | null;
+  prefix?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    feature?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -369,6 +431,10 @@ export interface BlogPost {
   seoTitle: string;
   metaDescription: string;
   /**
+   * 대표 이미지 (16:9 권장). 원문 블로그에서 선정.
+   */
+  thumbnail?: (number | null) | Media;
+  /**
    * AEO용 핵심 답변 (요약 박스에 노출)
    */
   shortAnswer: string;
@@ -427,52 +493,6 @@ export interface BlogPost {
   publishedAt: string;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  alt: string;
-  caption?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-  sizes?: {
-    thumbnail?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    card?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    feature?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -608,6 +628,7 @@ export interface MagazinesSelect<T extends boolean = true> {
   type?: T;
   seoTitle?: T;
   metaDescription?: T;
+  thumbnail?: T;
   shortAnswer?: T;
   body?: T;
   targetKeywords?: T;
@@ -647,6 +668,7 @@ export interface BlogPostsSelect<T extends boolean = true> {
   slug?: T;
   seoTitle?: T;
   metaDescription?: T;
+  thumbnail?: T;
   shortAnswer?: T;
   body?: T;
   targetKeywords?: T;
@@ -805,6 +827,9 @@ export interface RegionsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
+  credit?: T;
+  sourceUrl?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
