@@ -44,9 +44,14 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Noto+Serif+KR:wght@400;500;600&display=swap"
         />
       </head>
-      <body>
+      {/*
+        sticky footer — 콘텐츠가 뷰포트보다 짧아도 footer가 화면 하단에 붙는다.
+        main이 남는 높이를 흡수하지 않으면 footer가 콘텐츠 바로 뒤에서 멈춘다.
+        (MobileTabBar는 position:fixed라 이 흐름에 관여하지 않는다)
+      */}
+      <body className="min-h-dvh flex flex-col">
         <Header />
-        <main className="pb-16 md:pb-0">{children}</main>
+        <main className="grow pb-16 md:pb-0">{children}</main>
         <Footer />
         <MobileTabBar />
       </body>
