@@ -127,6 +127,10 @@ const FROM_NAVER: Entry[] = [
     // 글자가 박힌 이미지라 목록·카드 배경에서 지저분했다 — 병원 공식 사이트의
     // 시설 사진으로 교체한다(출처는 credit에 남는다).
     src: cand("yeon-site", "06.jpg"),
+    // 교체본은 **새 파일명**이어야 한다. 파일명을 유지하면 URL이 같아
+    // next/image 최적화 캐시가 (url, w, q)별로 들고 있는 옛 바이트를 계속 서빙한다
+    // (Blob의 cacheControlMaxAge 기본값이 1년이라 저절로 풀리지도 않는다).
+    filename: "yeon-incheon-laminate-clinic.jpg",
     alt: "예온치과병원 상담실",
     credit: "예온치과병원 공식 홈페이지",
     sourceUrl: YEON_SITE,
@@ -241,9 +245,12 @@ async function main(): Promise<void> {
     .find((a) => a.startsWith("--leave-placeholder="))
     ?.split("=")[1];
   /**
-   * 이미지를 **교체**할 때 쓴다. 이 스크립트는 파일명 기준 멱등이라, 소스 파일만 바꾸고
-   * 그냥 돌리면 옛 media를 그대로 재사용해 교체가 조용히 무시된다.
-   * 지정한 slug는 기존 media를 지우고 다시 올린다.
+   * 이미지를 **교체**할 때 쓴다. 지정한 slug는 문서가 현재 물고 있는 media를 지운 뒤
+   * 새로 올린다(고아 media 방지).
+   *
+   * 교체 시에는 반드시 `filename`도 새 이름으로 바꿔야 한다. 이름을 유지하면 URL이 같아
+   * next/image 최적화 캐시가 (url, w, q)별로 들고 있는 옛 바이트를 계속 서빙한다.
+   * 실제로 파일명을 그대로 두고 교체했더니 w=828은 새 이미지, w=640은 옛 이미지가 나왔다.
    */
   const refresh = new Set(
     (process.argv.find((a) => a.startsWith("--refresh="))?.split("=")[1] ?? "")
@@ -342,19 +349,17 @@ async function main(): Promise<void> {
       continue;
     }
 
-    // 1-b) 교체 지정분은 기존 media를 먼저 지운다 — 안 그러면 파일명 멱등 때문에
-    //      옛 이미지가 재사용되어 교체가 조용히 무시된다
+    // 1-b) 교체 지정분은 **문서가 현재 물고 있는 media**를 지운다.
+    //      파일명이 아니라 참조를 기준으로 지워야 새 파일명으로 교체할 때 고아가 안 남는다.
     if (refresh.has(e.slug)) {
-      const old = await payload.find({
-        collection: "media",
-        where: { filename: { equals: filename } },
-        limit: 1,
-        depth: 0,
-      });
-      if (old.docs.length > 0) {
-        const oldId = (old.docs[0] as { id: number | string }).id;
-        await payload.delete({ collection: "media", id: oldId });
-        console.log(`  ♻ 교체 위해 삭제 ${filename} (media #${oldId})`);
+      const cur = target.docs[0] as Record<string, unknown>;
+      const oldId = cur[e.field ?? "thumbnail"];
+      if (oldId != null) {
+        await payload.delete({
+          collection: "media",
+          id: oldId as number | string,
+        });
+        console.log(`  ♻ 교체 위해 기존 media #${oldId} 삭제`);
       }
     }
 
