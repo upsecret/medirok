@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import { getBlogHospitals } from "@/lib/blog-data";
 import { JsonLd } from "@/components/JsonLd";
-import { Thumbnail } from "@/components/Thumbnail";
+import { HospitalBrandCover } from "@/components/HospitalBrandCover";
 import { itemListSchema, breadcrumbSchema } from "@/lib/schema-generator";
 import { SITE_URL } from "@/lib/site";
 
@@ -92,14 +92,13 @@ export default async function BlogIndexPage() {
                     className="block bg-white border border-[var(--color-surface-border)] rounded-md p-4 transition hover:border-[var(--color-accent-400)]"
                   >
                     {/*
-                      의원 단위 목록이므로 카드는 의원으로 식별돼야 한다.
-                      배경은 최근 글의 대표 이미지, 그 위에 의원 로고 배지를 얹는다
-                      (사진·로고를 어드민에서 각각 독립 교체할 수 있다).
+                      의원 단위 목록이므로 카드의 주인공은 의원 로고다.
+                      배경(coverImage)은 어둡게·흐리게 깔아 로고만 또렷하게 남긴다.
                     */}
-                    <Thumbnail
-                      thumbnail={posts[0].thumbnail}
+                    <HospitalBrandCover
+                      cover={hospital.coverImage}
                       logo={hospital.logo}
-                      placeholderLabel="의원 블로그"
+                      hospitalName={hospital.nameKr}
                       className="mb-3"
                     />
                     <div className="flex items-center gap-2 mb-2">

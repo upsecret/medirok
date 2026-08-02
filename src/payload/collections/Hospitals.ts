@@ -26,13 +26,26 @@ export const Hospitals: CollectionConfig = {
     { name: "nameKr", type: "text", required: true },
     { name: "shortDescription", type: "text" },
     {
-      // /blog 의원 카드의 로고 배지. 사진 위 흰 칩에 얹으므로 흰 배경으로
-      // 평탄화된 이미지를 올린다 — 투명 PNG의 흰색 요소는 칩 위에서 사라진다.
+      // /blog 의원 카드 중앙에 흰 플레이트로 얹힌다. 어두운 배경 위라
+      // **짙은 색** 로고여야 하고, 흰 배경으로 평탄화된 이미지를 올린다.
       name: "logo",
       type: "upload",
       relationTo: "media",
       admin: {
-        description: "의원 로고 (가로형 권장). /blog 카드 배지에 원본 그대로 축소 표시된다.",
+        description:
+          "의원 로고 (짙은 색, 흰 배경). /blog 카드 중앙에 크게 표시된다.",
+      },
+    },
+    {
+      // 로고를 돋보이게 하려고 어둡게+흐릿하게 깔리는 배경.
+      // 글 썸네일을 끌어 쓰면 카드뉴스 타이틀처럼 글자가 박힌 이미지가 걸릴 수 있어
+      // 의원 단위로 따로 지정한다.
+      name: "coverImage",
+      type: "upload",
+      relationTo: "media",
+      admin: {
+        description:
+          "/blog 카드 배경. 글자가 없는 시설 사진만 사용한다 (어둡게·흐리게 처리되어 로고 뒤에 깔린다).",
       },
     },
     // ── 관계 (slug→FK 전환 완료: 레거시 slug 텍스트 필드는 M5에서 제거) ──

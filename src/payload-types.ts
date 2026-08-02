@@ -274,9 +274,13 @@ export interface Hospital {
   nameKr: string;
   shortDescription?: string | null;
   /**
-   * 의원 로고 (가로형 권장). /blog 카드 배지에 원본 그대로 축소 표시된다.
+   * 의원 로고 (짙은 색, 흰 배경). /blog 카드 중앙에 크게 표시된다.
    */
   logo?: (number | null) | Media;
+  /**
+   * /blog 카드 배경. 글자가 없는 시설 사진만 사용한다 (어둡게·흐리게 처리되어 로고 뒤에 깔린다).
+   */
+  coverImage?: (number | null) | Media;
   /**
    * 진료과 참조
    */
@@ -710,6 +714,7 @@ export interface HospitalsSelect<T extends boolean = true> {
   nameKr?: T;
   shortDescription?: T;
   logo?: T;
+  coverImage?: T;
   department?: T;
   region?: T;
   addressLine?: T;

@@ -248,6 +248,7 @@ export function mapHospital(doc: Raw, ctx: HospitalRefContext): Hospital {
     nameKr: str(doc.nameKr),
     shortDescription: optStr(doc.shortDescription),
     logo: ctx.thumbnailById.get(relId(doc.logo) ?? ""),
+    coverImage: ctx.thumbnailById.get(relId(doc.coverImage) ?? ""),
     departmentSlug: (deptFromRel ?? "") as DepartmentSlug,
     sidoSlug: regionSlugs.sido,
     regionSlug: regionSlugs.gu ?? "",

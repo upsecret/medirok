@@ -147,26 +147,44 @@ test.describe("대표 이미지", () => {
     expect(await brokenImages(page)).toEqual([]);
   });
 
-  test("블로그 집계 카드에 의원 로고 배지가 렌더된다", async ({ page }) => {
+  test("블로그 집계 카드 = 배경 커버 + 대형 로고", async ({ page }) => {
     test.skip(!state.blog, "블로그 글이 없습니다");
     await page.goto("/blog");
     await scrollToBottom(page);
 
-    // 의원 카드 = /blog/<병원slug> 링크. 카드마다 배경 1장 + (로고가 있으면) 배지 1장.
+    // 의원 카드 = /blog/<병원slug> 링크. 카드마다 배경 1장 + (로고가 있으면) 로고 1장.
     const cards = page.locator('main a[href^="/blog/"]');
     const cardCount = await cards.count();
     expect(cardCount, "의원 카드가 있어야 합니다").toBeGreaterThan(0);
 
     const imgCount = await page.locator("main img").count();
-    expect(
-      imgCount,
-      "배경 이미지 외에 로고 배지가 더 있어야 합니다"
-    ).toBeGreaterThan(cardCount);
+    expect(imgCount, "배경 외에 로고가 더 있어야 합니다").toBeGreaterThan(cardCount);
 
-    expect(await brokenImages(page), "로고 배지가 깨지면 안 됩니다").toEqual([]);
+    expect(await brokenImages(page), "커버·로고가 깨지면 안 됩니다").toEqual([]);
   });
 
-  test("로고 배지는 장식이라 보조기술에서 숨겨진다", async ({ page }) => {
+  test("로고가 카드의 주인공 크기로 렌더된다", async ({ page }) => {
+    test.skip(!state.blog, "블로그 글이 없습니다");
+    await page.goto("/blog");
+    await scrollToBottom(page);
+
+    // 배지(28px) 시절로 되돌아가지 않도록 고정한다.
+    // 카드 안에서 가장 작은 이미지 = 로고, 가장 큰 것 = 배경 커버.
+    const heights = await page.evaluate(() =>
+      [...document.querySelectorAll('main a[href^="/blog/"]')].map((a) =>
+        [...a.querySelectorAll("img")]
+          .map((i) => Math.round(i.getBoundingClientRect().height))
+          .sort((x, y) => x - y)
+      )
+    );
+    const withLogo = heights.filter((h) => h.length >= 2);
+    expect(withLogo.length, "로고가 있는 카드가 있어야 합니다").toBeGreaterThan(0);
+    for (const [logoH] of withLogo) {
+      expect(logoH, `로고 표시 높이가 너무 작습니다: ${logoH}px`).toBeGreaterThanOrEqual(40);
+    }
+  });
+
+  test("커버·로고는 장식이라 보조기술에서 숨겨진다", async ({ page }) => {
     test.skip(!state.blog, "블로그 글이 없습니다");
     await page.goto("/blog");
     await scrollToBottom(page);

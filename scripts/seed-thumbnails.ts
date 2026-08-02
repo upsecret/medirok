@@ -5,6 +5,7 @@
  *   npm run seed:thumbnails               (운영 — .env.local)
  *   npm run seed:thumbnails -- --dry      (업로드 없이 소스 존재 여부만 점검)
  *   npm run seed:thumbnails -- --optional (없는 원본은 건너뛴다 — e2e용)
+ *   npm run seed:thumbnails -- --refresh=<slug,…>  (이미지 교체 — 기존 media를 지우고 재업로드)
  *
  * --optional이 필요한 이유: 차용 원본은 외부 사이트에서 받아오므로 네트워크가 없거나
  * 갓 클론한 환경에는 없다. 반면 생성 카드는 로컬에서 만들 수 있어 항상 존재한다.
@@ -52,7 +53,7 @@ interface Entry {
    */
   kind?: "thumbnail" | "logo";
   /** 연결할 필드. 기본 thumbnail */
-  field?: "thumbnail" | "logo";
+  field?: "thumbnail" | "logo" | "coverImage";
   /**
    * 저장 파일명. 기본은 slug 기반이지만 **한국어 slug는 반드시 여기서 ASCII로 지정**한다 —
    * Payload의 /api/media/file/:filename 라우트가 퍼센트 인코딩된 한글 파일명을 해석하지
@@ -122,12 +123,13 @@ const FROM_NAVER: Entry[] = [
   {
     collection: "blog-posts",
     slug: "yeon-incheon-laminate",
-    // 이 글의 참조 원문 3편은 모두 카드뉴스 형식이라 사진이 없다.
-    // 그중 판독 가능한 타이틀 카드를 쓴다.
-    src: cand("naver", "yeon-incheon-laminate_224131997364_01.jpg"),
-    alt: "예온치과병원 인천 라미네이트 안내 타이틀 이미지",
-    credit: "예온치과병원 공식 네이버 블로그",
-    sourceUrl: naverUrl("income3357", "224131997364"),
+    // 참조 원문 3편이 모두 카드뉴스라 사진이 없다. 처음엔 그중 타이틀 카드를 썼는데
+    // 글자가 박힌 이미지라 목록·카드 배경에서 지저분했다 — 병원 공식 사이트의
+    // 시설 사진으로 교체한다(출처는 credit에 남는다).
+    src: cand("yeon-site", "06.jpg"),
+    alt: "예온치과병원 상담실",
+    credit: "예온치과병원 공식 홈페이지",
+    sourceUrl: YEON_SITE,
   },
   {
     collection: "blog-posts",
@@ -188,7 +190,40 @@ const LOGOS: Entry[] = [
   },
 ];
 
-const ENTRIES: Entry[] = [...BORROWED, ...FROM_NAVER, ...GENERATED, ...LOGOS];
+// ── 의원 커버 (/blog 카드 배경) ──
+// 어둡게·흐리게 깔려 로고를 받쳐 주는 배경. **글자가 없는 시설 사진만** 쓴다.
+const COVERS: Entry[] = [
+  {
+    collection: "hospitals",
+    slug: "예온치과병원",
+    src: cand("yeon-site", "14.jpg"),
+    filename: "yeon-dental-cover.jpg",
+    alt: "예온치과병원 진료실",
+    credit: "예온치과병원 공식 홈페이지",
+    sourceUrl: YEON_SITE,
+    field: "coverImage",
+  },
+  {
+    collection: "hospitals",
+    slug: "디오디피부과의원청담",
+    // dod-site 6장 중 3장은 매거진에 사용, 나머지는 인물·텍스트라 부적합.
+    // 네이버 원문 중 유일하게 글자·인물이 없는 사진이다.
+    src: cand("naver", "dod-cheongdam-skin_224316949261_02.jpg"),
+    filename: "dod-cheongdam-cover.jpg",
+    alt: "디오디피부과의원 청담 대기 라운지",
+    credit: "디오디피부과의원 청담 공식 네이버 블로그",
+    sourceUrl: naverUrl("tj32xdcbiswj9", "224316949261"),
+    field: "coverImage",
+  },
+];
+
+const ENTRIES: Entry[] = [
+  ...BORROWED,
+  ...FROM_NAVER,
+  ...GENERATED,
+  ...LOGOS,
+  ...COVERS,
+];
 
 const exists = async (p: string): Promise<boolean> =>
   fs
@@ -205,6 +240,17 @@ async function main(): Promise<void> {
   const leave = process.argv
     .find((a) => a.startsWith("--leave-placeholder="))
     ?.split("=")[1];
+  /**
+   * 이미지를 **교체**할 때 쓴다. 이 스크립트는 파일명 기준 멱등이라, 소스 파일만 바꾸고
+   * 그냥 돌리면 옛 media를 그대로 재사용해 교체가 조용히 무시된다.
+   * 지정한 slug는 기존 media를 지우고 다시 올린다.
+   */
+  const refresh = new Set(
+    (process.argv.find((a) => a.startsWith("--refresh="))?.split("=")[1] ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+  );
 
   // 소스 누락은 업로드를 시작하기 전에 전부 알린다 — 절반만 올라간 상태가 제일 곤란하다
   const present: Entry[] = [];
@@ -294,6 +340,22 @@ async function main(): Promise<void> {
     if (target.docs.length === 0) {
       console.log(`  ⚠ 문서 없음     ${e.collection}/${e.slug} — 건너뜀`);
       continue;
+    }
+
+    // 1-b) 교체 지정분은 기존 media를 먼저 지운다 — 안 그러면 파일명 멱등 때문에
+    //      옛 이미지가 재사용되어 교체가 조용히 무시된다
+    if (refresh.has(e.slug)) {
+      const old = await payload.find({
+        collection: "media",
+        where: { filename: { equals: filename } },
+        limit: 1,
+        depth: 0,
+      });
+      if (old.docs.length > 0) {
+        const oldId = (old.docs[0] as { id: number | string }).id;
+        await payload.delete({ collection: "media", id: oldId });
+        console.log(`  ♻ 교체 위해 삭제 ${filename} (media #${oldId})`);
+      }
     }
 
     // 2) media 확보 (파일명 기준 멱등)
