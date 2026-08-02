@@ -87,6 +87,8 @@ export interface Hospital {
   slug: string;
   nameKr: string;
   shortDescription?: string;
+  /** 의원 로고. 파생 사이즈(16:9 크롭)가 아니라 원본 url을 쓴다 */
+  logo?: Thumbnail;
   departmentSlug: DepartmentSlug;
   /** 시/도 slug (예: 인천). URL·지역 필터의 상위 스코프 — 구 이름 충돌 방지용 */
   sidoSlug?: string;

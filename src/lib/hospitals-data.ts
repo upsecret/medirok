@@ -91,10 +91,12 @@ const rawDoctorDocs = cache(async (): Promise<Raw[]> => {
 
 /** Hospital 매핑 컨텍스트 (관계 id → slug 해석 + 의사 그룹핑) */
 const hospitalCtx = cache(async (): Promise<HospitalRefContext> => {
-  const [regions, departments, doctors] = await Promise.all([
+  // rawMediaDocs는 React cache라 getRefSlugMaps()와 같은 조회를 공유한다 — 쿼리 증가 없음
+  const [regions, departments, doctors, media] = await Promise.all([
     rawRegionDocs(),
     rawDepartmentDocs(),
     rawDoctorDocs(),
+    rawMediaDocs(),
   ]);
   const doctorsByHospitalId = new Map<DocId, Doctor[]>();
   for (const d of doctors) {
@@ -108,6 +110,7 @@ const hospitalCtx = cache(async (): Promise<HospitalRefContext> => {
     regionIndex: buildRegionIndex(regions),
     departmentSlugById: slugById(departments),
     doctorsByHospitalId,
+    thumbnailById: thumbnailById(media),
   };
 });
 

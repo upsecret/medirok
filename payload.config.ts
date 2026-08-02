@@ -52,10 +52,10 @@ export default buildConfig({
     vercelBlobStorage({
       // 토큰이 없는 환경(e2e docker, 토큰 미설정 로컬)은 자동으로 로컬 디스크로 폴백한다.
       enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
-      // 폴백 여부와 무관하게 스키마를 동일하게 유지한다.
-      // 끄면 플러그인이 붙이는 필드가 환경마다 달라져, 로컬에서 만든 마이그레이션이
-      // 운영 스키마와 어긋난다.
-      alwaysInsertFields: true,
+      // alwaysInsertFields는 쓰지 않는다. 이 플러그인에서 그 옵션은 **비활성 분기에서만**
+      // 동작해, 토큰이 없을 때만 media에 prefix 필드를 붙인다 — 즉 환경마다 스키마가
+      // 갈리는 원인이 된다(토큰 有=prefix 없음 / 無=prefix 있음).
+      // 빼두면 양쪽 모두 prefix가 없어 마이그레이션 생성이 결정적이 된다.
       collections: { media: true },
       token: process.env.BLOB_READ_WRITE_TOKEN,
     }),

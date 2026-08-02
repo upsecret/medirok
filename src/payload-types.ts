@@ -274,6 +274,10 @@ export interface Hospital {
   nameKr: string;
   shortDescription?: string | null;
   /**
+   * 의원 로고 (가로형 권장). /blog 카드 배지에 원본 그대로 축소 표시된다.
+   */
+  logo?: (number | null) | Media;
+  /**
    * 진료과 참조
    */
   department: number | Department;
@@ -705,6 +709,7 @@ export interface HospitalsSelect<T extends boolean = true> {
   slug?: T;
   nameKr?: T;
   shortDescription?: T;
+  logo?: T;
   department?: T;
   region?: T;
   addressLine?: T;

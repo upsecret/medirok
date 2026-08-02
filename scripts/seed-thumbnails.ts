@@ -39,13 +39,26 @@ const naverUrl = (blogId: string, logNo: string): string =>
   `https://blog.naver.com/${blogId}/${logNo}`;
 
 interface Entry {
-  collection: "magazines" | "blog-posts";
+  collection: "magazines" | "blog-posts" | "hospitals";
   slug: string;
   /** 원본 파일 절대경로 */
   src: string;
   alt: string;
   credit?: string;
   sourceUrl?: string;
+  /**
+   * thumbnail = 16:9 센터 크롭 (기본)
+   * logo      = 크롭 없이 여백만 잘라 흰 배경으로 평탄화 (/blog 카드 배지용)
+   */
+  kind?: "thumbnail" | "logo";
+  /** 연결할 필드. 기본 thumbnail */
+  field?: "thumbnail" | "logo";
+  /**
+   * 저장 파일명. 기본은 slug 기반이지만 **한국어 slug는 반드시 여기서 ASCII로 지정**한다 —
+   * Payload의 /api/media/file/:filename 라우트가 퍼센트 인코딩된 한글 파일명을 해석하지
+   * 못해 파일이 디스크(또는 Blob)에 있어도 404가 난다.
+   */
+  filename?: string;
 }
 
 const cand = (...p: string[]): string => path.join(CAND, ...p);
@@ -148,7 +161,34 @@ const GENERATED: Entry[] = GENERATED_SLUGS.map((slug) => ({
   credit: "메디록",
 }));
 
-const ENTRIES: Entry[] = [...BORROWED, ...FROM_NAVER, ...GENERATED];
+// ── 의원 로고 (/blog 카드 배지) ──
+// 흰 칩 위에 얹으므로 짙은 색 마크만 쓸 수 있다 (collect.ts 주석 참고).
+const LOGOS: Entry[] = [
+  {
+    collection: "hospitals",
+    slug: "예온치과병원",
+    src: cand("logos", "yeon-mark.svg"),
+    filename: "yeon-dental-logo.png",
+    alt: "예온치과병원 로고",
+    credit: "예온치과병원",
+    sourceUrl: YEON_SITE,
+    kind: "logo",
+    field: "logo",
+  },
+  {
+    collection: "hospitals",
+    slug: "디오디피부과의원청담",
+    src: cand("logos", "dod-mark.png"),
+    filename: "dod-cheongdam-logo.png",
+    alt: "디오디피부과의원 청담 로고",
+    credit: "디오디피부과의원 청담",
+    sourceUrl: DOD_SITE,
+    kind: "logo",
+    field: "logo",
+  },
+];
+
+const ENTRIES: Entry[] = [...BORROWED, ...FROM_NAVER, ...GENERATED, ...LOGOS];
 
 const exists = async (p: string): Promise<boolean> =>
   fs
@@ -238,7 +278,10 @@ async function main(): Promise<void> {
   let linked = 0;
 
   for (const e of present) {
-    const filename = `${e.slug}.jpg`;
+    const isLogo = e.kind === "logo";
+    // 로고는 파일명 충돌을 피하려 접미사를 붙인다 — 병원 slug가 매거진 slug와 겹칠 일은
+    // 없지만, media 목록에서 용도가 바로 보이는 편이 낫다
+    const filename = e.filename ?? (isLogo ? `${e.slug}-logo.png` : `${e.slug}.jpg`);
 
     // 1) 대상 문서부터 확인 — 없는데 media만 만들면 고아 이미지가 남는다
     //    (로컬 e2e는 병원 연결 매거진 5편을 시드하지 않아 실제로 발생한다)
@@ -268,10 +311,25 @@ async function main(): Promise<void> {
       console.log(`  = media 재사용  ${filename}`);
     } else {
       const out = path.join(tmp, filename);
-      await sharp(e.src)
-        .resize(W, H, { fit: "cover", position: "centre" })
-        .jpeg({ quality: 82, mozjpeg: true })
-        .toFile(out);
+      if (isLogo) {
+        // 로고는 크롭하면 안 된다. density는 SVG 래스터화 해상도 — 기본값이면
+        // 예온 로고가 viewBox 크기(163×24) 그대로 래스터화돼 배지에서 뭉갠다.
+        // trim은 원본의 넓은 여백(예온 SVG는 마크 오른쪽이 전부 빈 영역)을 걷어낸다.
+        // flatten은 흰 칩과 맞추기 위한 것 — 투명 PNG의 흰 요소가 사라지는 것도 함께 막는다.
+        await sharp(e.src, { density: 1200 })
+          .flatten({ background: "#ffffff" })
+          .trim({ threshold: 10 })
+          .resize({ height: 240, fit: "inside", withoutEnlargement: true })
+          .png()
+          .toFile(out);
+        const m = await sharp(out).metadata();
+        console.log(`    로고 산출 ${m.width}×${m.height}`);
+      } else {
+        await sharp(e.src)
+          .resize(W, H, { fit: "cover", position: "centre" })
+          .jpeg({ quality: 82, mozjpeg: true })
+          .toFile(out);
+      }
 
       const doc = await payload.create({
         collection: "media",
@@ -296,13 +354,14 @@ async function main(): Promise<void> {
     }
 
     // 3) 대상 문서에 연결
+    const field = e.field ?? "thumbnail";
     await payload.update({
       collection: e.collection,
       id: (target.docs[0] as { id: number | string }).id,
-      data: { thumbnail: mediaId },
+      data: { [field]: mediaId },
     });
     linked++;
-    console.log(`  → 연결          ${e.collection}/${e.slug}`);
+    console.log(`  → 연결          ${e.collection}/${e.slug}.${field}`);
   }
 
   await fs.rm(tmp, { recursive: true, force: true });

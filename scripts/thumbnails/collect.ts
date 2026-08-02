@@ -167,8 +167,25 @@ const naver: Target = {
   },
 };
 
+// ── 의원 로고 (/blog 카드 배지) ──
+//
+// 배지는 흰 칩 위에 얹히므로 **밝은 배경용(짙은 색) 자산**만 쓸 수 있다.
+// 후보를 훑어본 결과 양쪽 다 "마크"만 남았다:
+//   - 예온 logo.svg = 리프 마크 단독(path 1개, #7D6E62). 워드마크는 SVG가 아니라 HTML 텍스트다.
+//     풀 락업은 sns_logo.jpg(OG용)에 있지만 트림하면 134×20이라 배지 해상도에 못 미친다.
+//   - 디오디 logo-lockup.png / logo-mark-white.png는 **흰색** 버전이라 흰 칩에서 사라진다.
+//     짙은 색은 logo-mark-dark.png(모노그램)뿐이다.
+// 결과적으로 양쪽 모두 마크만 쓰게 되어 형태도 서로 맞는다. 의원명은 카드 heading이 담당한다.
+const logos: Target = {
+  group: "logos",
+  resolve: async () => [
+    { url: `${YEON_SITE}/img_core/logo.svg`, name: "yeon-mark.svg" },
+    { url: `${DOD_SITE}/images/brand/logo-mark-dark.png`, name: "dod-mark.png" },
+  ],
+};
+
 async function run(): Promise<void> {
-  for (const target of [yeon, dod, naver]) {
+  for (const target of [yeon, dod, naver, logos]) {
     const dir = path.join(OUT_ROOT, target.group);
     await fs.mkdir(dir, { recursive: true });
     console.log(`\n• ${target.group}`);

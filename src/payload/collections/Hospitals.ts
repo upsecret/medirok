@@ -25,6 +25,16 @@ export const Hospitals: CollectionConfig = {
     { name: "slug", type: "text", required: true, unique: true, index: true },
     { name: "nameKr", type: "text", required: true },
     { name: "shortDescription", type: "text" },
+    {
+      // /blog 의원 카드의 로고 배지. 사진 위 흰 칩에 얹으므로 흰 배경으로
+      // 평탄화된 이미지를 올린다 — 투명 PNG의 흰색 요소는 칩 위에서 사라진다.
+      name: "logo",
+      type: "upload",
+      relationTo: "media",
+      admin: {
+        description: "의원 로고 (가로형 권장). /blog 카드 배지에 원본 그대로 축소 표시된다.",
+      },
+    },
     // ── 관계 (slug→FK 전환 완료: 레거시 slug 텍스트 필드는 M5에서 제거) ──
     {
       name: "department",

@@ -91,9 +91,14 @@ export default async function BlogIndexPage() {
                     href={`/blog/${hospital.slug}` as Route}
                     className="block bg-white border border-[var(--color-surface-border)] rounded-md p-4 transition hover:border-[var(--color-accent-400)]"
                   >
-                    {/* 의원 카드의 얼굴 = 최근 글의 대표 이미지 */}
+                    {/*
+                      의원 단위 목록이므로 카드는 의원으로 식별돼야 한다.
+                      배경은 최근 글의 대표 이미지, 그 위에 의원 로고 배지를 얹는다
+                      (사진·로고를 어드민에서 각각 독립 교체할 수 있다).
+                    */}
                     <Thumbnail
                       thumbnail={posts[0].thumbnail}
+                      logo={hospital.logo}
                       placeholderLabel="의원 블로그"
                       className="mb-3"
                     />

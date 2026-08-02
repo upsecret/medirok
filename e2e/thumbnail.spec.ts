@@ -147,6 +147,38 @@ test.describe("대표 이미지", () => {
     expect(await brokenImages(page)).toEqual([]);
   });
 
+  test("블로그 집계 카드에 의원 로고 배지가 렌더된다", async ({ page }) => {
+    test.skip(!state.blog, "블로그 글이 없습니다");
+    await page.goto("/blog");
+    await scrollToBottom(page);
+
+    // 의원 카드 = /blog/<병원slug> 링크. 카드마다 배경 1장 + (로고가 있으면) 배지 1장.
+    const cards = page.locator('main a[href^="/blog/"]');
+    const cardCount = await cards.count();
+    expect(cardCount, "의원 카드가 있어야 합니다").toBeGreaterThan(0);
+
+    const imgCount = await page.locator("main img").count();
+    expect(
+      imgCount,
+      "배경 이미지 외에 로고 배지가 더 있어야 합니다"
+    ).toBeGreaterThan(cardCount);
+
+    expect(await brokenImages(page), "로고 배지가 깨지면 안 됩니다").toEqual([]);
+  });
+
+  test("로고 배지는 장식이라 보조기술에서 숨겨진다", async ({ page }) => {
+    test.skip(!state.blog, "블로그 글이 없습니다");
+    await page.goto("/blog");
+    await scrollToBottom(page);
+    // 의원명이 카드 heading에 이미 있으므로 로고까지 읽히면 중복 낭독이 된다
+    const exposed = await page.evaluate(() =>
+      [...document.querySelectorAll("main img")]
+        .filter((i) => (i.getAttribute("alt") ?? "") === "")
+        .filter((i) => i.getAttribute("aria-hidden") !== "true").length
+    );
+    expect(exposed, "alt가 빈 이미지는 aria-hidden이어야 합니다").toBe(0);
+  });
+
   test("publisher 로고가 실제로 존재한다", async ({ page }) => {
     // JSON-LD가 가리키는 publisher.logo.url이 404면 구조화 데이터가 무효가 된다
     const res = await page.request.get("/logo.png");

@@ -84,6 +84,8 @@ export interface HospitalRefContext {
   departmentSlugById: Map<DocId, string>;
   /** doctors 컬렉션 문서를 hospital id로 그룹핑한 맵 */
   doctorsByHospitalId: Map<DocId, Doctor[]>;
+  /** 로고(media) 해석용 — MagazineRefContext와 같은 맵을 공유한다 */
+  thumbnailById: Map<DocId, Thumbnail>;
 }
 
 /** Magazine 매핑용 관계 컨텍스트 */
@@ -245,6 +247,7 @@ export function mapHospital(doc: Raw, ctx: HospitalRefContext): Hospital {
     slug: str(doc.slug),
     nameKr: str(doc.nameKr),
     shortDescription: optStr(doc.shortDescription),
+    logo: ctx.thumbnailById.get(relId(doc.logo) ?? ""),
     departmentSlug: (deptFromRel ?? "") as DepartmentSlug,
     sidoSlug: regionSlugs.sido,
     regionSlug: regionSlugs.gu ?? "",

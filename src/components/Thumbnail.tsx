@@ -21,6 +21,8 @@ interface ThumbnailProps {
   variant?: "card" | "feature";
   /** 상세 히어로처럼 뷰포트 상단에 오는 이미지에만 지정 (LCP) */
   priority?: boolean;
+  /** 좌하단 로고 배지 (의원 블로그 카드) — 이미지 위에 흰 칩으로 얹는다 */
+  logo?: ThumbnailData;
   className?: string;
 }
 
@@ -30,11 +32,31 @@ export function Thumbnail({
   placeholderLabel,
   variant = "card",
   priority = false,
+  logo,
   className = "",
 }: ThumbnailProps) {
   const isFeature = variant === "feature";
   const radius = isFeature ? "rounded-lg" : "rounded";
   const wrapper = `relative w-full aspect-[16/9] overflow-hidden ${radius} bg-[var(--color-surface-bg3)] ${className}`;
+
+  /**
+   * 로고 배지. 파생 사이즈는 16:9 cover 크롭이라 로고를 잘라 먹으므로 **원본**을 쓴다.
+   * next/image는 fill이 아니면 width/height가 필수라 없으면 렌더하지 않는다.
+   * alt를 비우는 이유: 의원명이 카드 heading에 이미 있어 중복 낭독이 된다.
+   */
+  const badge =
+    logo && logo.width && logo.height ? (
+      <div className="absolute left-3 bottom-3 rounded bg-white/95 px-2.5 py-1.5 shadow-sm ring-1 ring-black/5">
+        <Image
+          src={logo.url}
+          alt=""
+          aria-hidden="true"
+          width={logo.width}
+          height={logo.height}
+          className="h-7 w-auto md:h-8"
+        />
+      </div>
+    ) : null;
 
   if (!thumbnail) {
     return (
@@ -54,6 +76,7 @@ export function Thumbnail({
             </span>
           )}
         </div>
+        {badge}
       </div>
     );
   }
@@ -72,6 +95,7 @@ export function Thumbnail({
         }
         className="object-cover"
       />
+      {badge}
     </div>
   );
 }
