@@ -84,6 +84,39 @@ test.describe("의원 블로그 상세", () => {
     expect(text).not.toMatch(/\[[^\]]+\]\(https?:\/\//); // 링크 문법
   });
 
+  // ── 재작성(2026-08-03) 회귀 가드 ────────────────────────────────
+  // 초판은 원문 반영률이 37~43%로 얇았고 병원 블로그의 어투가 지워져 있었다.
+  // 다시 얇아지거나 원문의 광고체가 그대로 딸려 들어오는 것을 둘 다 막는다.
+
+  test("본문이 얇아지지 않는다 (원문 반영률 회귀 차단)", async ({ page }) => {
+    test.skip(!blog, "Payload DB에 병원 블로그 데이터가 없습니다");
+    await page.goto(postPath);
+
+    // 공백을 뺀 글자 수. 재작성 후 실측 3,275(라미네이트) ~ 5,610(디오디)자다.
+    // 가장 짧은 글 기준으로 여유를 두되, 초판 수준(약 2,400자)으로 되돌아가면 잡힌다.
+    const len = await page.evaluate(
+      () => (document.querySelector("article") as HTMLElement).innerText.replace(/\s/g, "").length
+    );
+    expect(len, `본문이 너무 짧습니다: ${len}자`).toBeGreaterThan(3000);
+  });
+
+  test("원문의 광고체가 딸려 들어오지 않는다", async ({ page }) => {
+    test.skip(!blog, "Payload DB에 병원 블로그 데이터가 없습니다");
+    await page.goto(postPath);
+    // 출처 박스는 제외한다 — 네이버 원문 제목("…잘하는곳…")은 있는 그대로 실어야 한다.
+    const text = await page.evaluate(() => {
+      const clone = document.querySelector("article")!.cloneNode(true) as HTMLElement;
+      clone.querySelector('section[aria-label="원문 출처"]')?.remove();
+      return clone.innerText;
+    });
+
+    // 네이버 원문의 이모지 불릿·맺음말 상투구·최상급 표현
+    expect(text, "이모지 불릿이 남아 있습니다").not.toMatch(/[✔💡👉▶🔺✅📌■]/u);
+    for (const banned of ["긴 글 읽어주셔", "잘하는곳", "잘하는 곳"]) {
+      expect(text, `금칙 표현이 본문에 있습니다: ${banned}`).not.toContain(banned);
+    }
+  });
+
   test("AEO: 핵심 답변(ShortAnswer) 블록이 상단에 노출된다", async ({ page }) => {
     test.skip(!blog, "Payload DB에 병원 블로그 데이터가 없습니다");
     await page.goto(postPath);
