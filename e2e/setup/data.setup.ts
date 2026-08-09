@@ -145,26 +145,32 @@ setup("시드 데이터 확인 및 픽스처 기록", async ({ request }) => {
   const blogDocs = bBody.docs ?? [];
   const blogCount = bBody.totalDocs ?? blogDocs.length;
 
+  const blogPaths: string[] = [];
   for (const doc of blogDocs) {
     const slug = String(doc.slug ?? "");
     const hospital = hospitalById.get(relId(doc.hospital) ?? "");
     const hospitalSlug = hospital ? String(hospital.slug ?? "") : "";
     if (!slug || !hospitalSlug) continue;
-    const res = await request.get(
-      `/blog/${encodeURIComponent(hospitalSlug)}/${encodeURIComponent(slug)}`
-    );
+    const path = `/blog/${encodeURIComponent(hospitalSlug)}/${encodeURIComponent(slug)}`;
+    const res = await request.get(path);
     if (res.status() !== 200) continue;
-    state.blog = {
-      count: blogCount,
-      hospitalSlug,
-      postSlug: slug,
-      hasFaq: Array.isArray(doc.faqBlocks) && doc.faqBlocks.length > 0,
-      sourceCount: Array.isArray(doc.sourcePosts) ? doc.sourcePosts.length : 0,
-      hasAuthorDoctor: relId(doc.authorDoctor) != null,
-    };
-    // FAQ와 저자 의사를 모두 갖춘 글이 검증 범위가 넓다
-    if (state.blog.hasFaq && state.blog.hasAuthorDoctor) break;
+    blogPaths.push(path);
+    // 대표 픽스처는 FAQ와 저자 의사를 모두 갖춘 글이 검증 범위가 넓다.
+    // 경로 목록은 계속 모아야 하므로 여기서 break하지 않는다.
+    const better = !state.blog || !(state.blog.hasFaq && state.blog.hasAuthorDoctor);
+    if (better) {
+      state.blog = {
+        count: blogCount,
+        hospitalSlug,
+        postSlug: slug,
+        hasFaq: Array.isArray(doc.faqBlocks) && doc.faqBlocks.length > 0,
+        sourceCount: Array.isArray(doc.sourcePosts) ? doc.sourcePosts.length : 0,
+        hasAuthorDoctor: relId(doc.authorDoctor) != null,
+        allPaths: [],
+      };
+    }
   }
+  if (state.blog) state.blog.allPaths = blogPaths;
 
   // ── 대표 이미지 픽스처 ──
   const withThumb = magazineDocs.find((m) => relId(m.thumbnail) != null);

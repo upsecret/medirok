@@ -143,6 +143,25 @@ const FROM_NAVER: Entry[] = [
     credit: "디오디피부과의원 청담 공식 네이버 블로그",
     sourceUrl: naverUrl("tj32xdcbiswj9", "224316949261"),
   },
+  {
+    collection: "blog-posts",
+    slug: "yeon-incheon-ortho",
+    src: cand("naver", "yeon-incheon-ortho_224372061740_04.jpg"),
+    alt: "케이스에 담긴 투명교정 장치",
+    credit: "예온치과병원 공식 네이버 블로그",
+    sourceUrl: naverUrl("income3357", "224372061740"),
+  },
+  {
+    collection: "blog-posts",
+    slug: "dod-cheongdam-lifting",
+    // 참조 원문 5편의 이미지 195장을 훑었으나 쓸 수 있는 것이 없었다 —
+    // 전부 글자가 박힌 카드뉴스이거나 원장·모델 얼굴이 식별되는 사진이다.
+    // dod-site 8장도 이미 매거진에 쓰였거나 같은 문제가 있어, 라미네이트 편처럼
+    // 폴백하는 대신 브랜드 타이포 카드를 쓴다(생성물이라 저작권·초상권 이슈가 없다).
+    src: gen("dod-cheongdam-lifting"),
+    alt: "메디록 병원 블로그 대표 이미지",
+    credit: "메디록",
+  },
 ];
 
 // ── 생성 카드 (차용할 사진이 없는 매거진 10편) ──

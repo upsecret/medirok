@@ -88,32 +88,61 @@ test.describe("의원 블로그 상세", () => {
   // 초판은 원문 반영률이 37~43%로 얇았고 병원 블로그의 어투가 지워져 있었다.
   // 다시 얇아지거나 원문의 광고체가 그대로 딸려 들어오는 것을 둘 다 막는다.
 
-  test("본문이 얇아지지 않는다 (원문 반영률 회귀 차단)", async ({ page }) => {
-    test.skip(!blog, "Payload DB에 병원 블로그 데이터가 없습니다");
-    await page.goto(postPath);
+  // 2026-08-09: 대표 1편이 아니라 **전 편**을 훑는다. 한 편만 검사하면
+  // 나중에 추가되는 글이 얇거나 광고체를 달고 들어와도 통과해 버린다.
 
-    // 공백을 뺀 글자 수. 재작성 후 실측 3,275(라미네이트) ~ 5,610(디오디)자다.
+  test("모든 글의 본문이 얇아지지 않는다 (원문 반영률 회귀 차단)", async ({ page }) => {
+    test.skip(!blog, "Payload DB에 병원 블로그 데이터가 없습니다");
+
+    // 공백을 뺀 글자 수. 실측 3,275(라미네이트) ~ 6,392(디오디 리프팅)자다.
     // 가장 짧은 글 기준으로 여유를 두되, 초판 수준(약 2,400자)으로 되돌아가면 잡힌다.
-    const len = await page.evaluate(
-      () => (document.querySelector("article") as HTMLElement).innerText.replace(/\s/g, "").length
-    );
-    expect(len, `본문이 너무 짧습니다: ${len}자`).toBeGreaterThan(3000);
+    for (const path of blog!.allPaths) {
+      await page.goto(path);
+      const len = await page.evaluate(
+        () =>
+          (document.querySelector("article") as HTMLElement).innerText.replace(/\s/g, "").length
+      );
+      expect(len, `본문이 너무 짧습니다 (${path}): ${len}자`).toBeGreaterThan(3000);
+    }
   });
 
-  test("원문의 광고체가 딸려 들어오지 않는다", async ({ page }) => {
+  test("모든 글에 원문의 광고체가 딸려 들어오지 않는다", async ({ page }) => {
     test.skip(!blog, "Payload DB에 병원 블로그 데이터가 없습니다");
-    await page.goto(postPath);
-    // 출처 박스는 제외한다 — 네이버 원문 제목("…잘하는곳…")은 있는 그대로 실어야 한다.
-    const text = await page.evaluate(() => {
-      const clone = document.querySelector("article")!.cloneNode(true) as HTMLElement;
-      clone.querySelector('section[aria-label="원문 출처"]')?.remove();
-      return clone.innerText;
-    });
 
-    // 네이버 원문의 이모지 불릿·맺음말 상투구·최상급 표현
-    expect(text, "이모지 불릿이 남아 있습니다").not.toMatch(/[✔💡👉▶🔺✅📌■]/u);
-    for (const banned of ["긴 글 읽어주셔", "잘하는곳", "잘하는 곳"]) {
-      expect(text, `금칙 표현이 본문에 있습니다: ${banned}`).not.toContain(banned);
+    for (const path of blog!.allPaths) {
+      await page.goto(path);
+      // 출처 박스는 제외한다 — 네이버 원문 제목("…잘하는곳…")은 있는 그대로 실어야 한다.
+      const text = await page.evaluate(() => {
+        const clone = document.querySelector("article")!.cloneNode(true) as HTMLElement;
+        clone.querySelector('section[aria-label="원문 출처"]')?.remove();
+        return clone.innerText;
+      });
+
+      // 네이버 원문의 이모지 불릿·맺음말 상투구·최상급 표현
+      expect(text, `이모지 불릿이 남아 있습니다 (${path})`).not.toMatch(/[✔💡👉▶🔺✅📌■❐]/u);
+      for (const banned of ["긴 글 읽어주셔", "잘하는곳", "잘하는 곳", "불안은 정보가"]) {
+        expect(text, `금칙 표현이 본문에 있습니다 (${path}): ${banned}`).not.toContain(banned);
+      }
+    }
+  });
+
+  test("모든 글이 원출처를 밝히고 본문에 마크다운이 새지 않는다", async ({ page }) => {
+    test.skip(!blog, "Payload DB에 병원 블로그 데이터가 없습니다");
+
+    for (const path of blog!.allPaths) {
+      await page.goto(path);
+      // 원출처 표기가 빠지면 출처 없이 옮긴 것이 된다 (docs/content-sources.md).
+      const src = page.locator('section[aria-label="원문 출처"]');
+      await expect(src, `원문 출처 박스가 없습니다 (${path})`).toBeVisible();
+      expect(
+        await src.locator('a[href*="blog.naver.com"]').count(),
+        `원문 링크가 없습니다 (${path})`
+      ).toBeGreaterThan(0);
+
+      const body = await page.evaluate(
+        () => (document.querySelector("article") as HTMLElement).innerText
+      );
+      expect(body, `마크다운이 그대로 노출됐습니다 (${path})`).not.toMatch(/\*\*|^## |\|---/m);
     }
   });
 

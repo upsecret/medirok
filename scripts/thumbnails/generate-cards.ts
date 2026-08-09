@@ -107,16 +107,37 @@ function html(opts: {
 </body></html>`;
 }
 
+/**
+ * 병원 블로그(`blog-posts`)는 `type`이 없다. 병원 원문에서 쓸 만한 사진을 못 구한 편에만
+ * 카드를 만든다 — 실제로 디오디 리프팅 편이 그랬다(원문 이미지가 전부 텍스트 배너·인물).
+ * 매거진 카드와 같은 시각 언어를 쓰되 라벨로만 갈라 둔다.
+ */
+const BLOG_LABEL = "병원 블로그";
+const BLOG_COLOR = "#7C6238"; // globals.css --color-accent-600
+
+/**
+ * 카드를 쓰는 블로그 글은 여기에 명시한다. "썸네일이 없으면 만든다"로 두면
+ * 원문 사진을 찾는 단계를 건너뛰게 되므로, 사진을 못 찾았다는 판단을 코드에 남긴다.
+ */
+const BLOG_CARD_SLUGS = ["dod-cheongdam-lifting"];
+
 async function run(): Promise<void> {
   const only = process.argv.slice(2);
   const payload = await getSeedPayload();
-  const res = await payload.find({ collection: "magazines", limit: 500, depth: 0 });
+  const [mags, blogs] = await Promise.all([
+    payload.find({ collection: "magazines", limit: 500, depth: 0 }),
+    payload.find({ collection: "blog-posts", limit: 500, depth: 0 }),
+  ]);
 
-  const targets = (res.docs as unknown as Record<string, unknown>[]).filter((d) => {
-    const slug = String(d.slug);
-    if (only.length > 0) return only.includes(slug);
-    return !d.thumbnail; // 이미 대표 이미지가 있으면 건드리지 않는다
-  });
+  const pick = (docs: unknown[], allow?: string[]): Record<string, unknown>[] =>
+    (docs as Record<string, unknown>[]).filter((d) => {
+      const slug = String(d.slug);
+      if (allow && !allow.includes(slug)) return false;
+      if (only.length > 0) return only.includes(slug);
+      return !d.thumbnail; // 이미 대표 이미지가 있으면 건드리지 않는다
+    });
+
+  const targets = [...pick(mags.docs), ...pick(blogs.docs, BLOG_CARD_SLUGS)];
 
   if (targets.length === 0) {
     console.log("생성 대상이 없습니다.");
@@ -129,12 +150,14 @@ async function run(): Promise<void> {
 
   for (const doc of targets) {
     const slug = String(doc.slug);
+    const isBlog = doc.sourceBlogUrl !== undefined; // blog-posts에만 있는 필수 필드
     const type = String(doc.type);
+    const label = isBlog ? BLOG_LABEL : (TYPE_LABELS[type] ?? "메디록");
     const [title, subtitle] = splitTitle(String(doc.seoTitle));
     await page.setContent(
       html({
-        label: TYPE_LABELS[type] ?? "메디록",
-        color: TYPE_COLORS[type] ?? "#2D3748",
+        label,
+        color: isBlog ? BLOG_COLOR : (TYPE_COLORS[type] ?? "#2D3748"),
         title,
         subtitle,
       }),
@@ -142,7 +165,7 @@ async function run(): Promise<void> {
     );
     const out = path.join(OUT_DIR, `${slug}.png`);
     await page.screenshot({ path: out });
-    console.log(`  ✓ ${slug}.png  [${TYPE_LABELS[type]}] ${title}`);
+    console.log(`  ✓ ${slug}.png  [${label}] ${title}`);
   }
 
   await browser.close();

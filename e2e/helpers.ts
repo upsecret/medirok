@@ -37,6 +37,11 @@ export interface E2EState {
     sourceCount: number;
     /** authorDoctor가 설정된 글인지 (JSON-LD author가 Person이어야 함) */
     hasAuthorDoctor: boolean;
+    /**
+     * 200을 반환한 모든 글의 3레벨 경로. 본문 품질 가드(분량·광고체)는
+     * 대표 1편이 아니라 전 편을 훑어야 한다 — 새 글만 얇게 들어오는 것을 놓친다.
+     */
+    allPaths: string[];
   } | null;
   /**
    * 대표 이미지(썸네일) 픽스처.
