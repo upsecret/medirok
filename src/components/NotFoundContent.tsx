@@ -25,9 +25,9 @@ const DESTINATIONS: { href: Route; label: string; detail: string }[] = [
     detail: "인증 의원이 직접 쓴 진료 기록",
   },
   {
-    href: "/estimate" as Route,
-    label: "무료 견적 받기",
-    detail: "조건을 남기면 의원별 견적을 받아봅니다",
+    href: "/verification/apply" as Route,
+    label: "醫錄 인증제 신청",
+    detail: "의원을 위한 4단계 인증 심사 신청 창구",
   },
 ];
 

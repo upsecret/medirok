@@ -34,8 +34,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: url("/hospitals"), lastModified: now, changeFrequency: "daily", priority: 0.9 },
     { url: url("/magazine"), lastModified: now, changeFrequency: "daily", priority: 0.8 },
     { url: url("/blog"), lastModified: now, changeFrequency: "daily", priority: 0.7 },
-    { url: url("/estimate"), lastModified: now, changeFrequency: "monthly", priority: 0.5 },
     { url: url("/verification"), lastModified: now, changeFrequency: "monthly", priority: 0.5 },
+    { url: url("/verification/apply"), lastModified: now, changeFrequency: "monthly", priority: 0.5 },
   ];
 
   // 매거진 카테고리

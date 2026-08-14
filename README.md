@@ -43,7 +43,7 @@ npm run start
 | `/magazine` | **매거진 리스트** |
 | `/magazine/[slug]` | **매거진 상세** (AEO 최적화) |
 | `/magazine/category/qna` | Q&A 카테고리 |
-| `/estimate` | 무료 견적 (휴대폰만) |
+| `/verification/apply` | 醫錄 인증제 신청 (의원 대상 B2B 폼) |
 | `/inje` | 醫錄 인증제 |
 | `/admin` | **Payload CMS 어드민** |
 
@@ -65,7 +65,7 @@ medirok/
 │   │   │       └── [region]/page.tsx          # 진료과×지역 (예: /hospitals/dental/gangnam)
 │   │   ├── hospital/
 │   │   │   └── [slug]/page.tsx                # 의원 상세
-│   │   ├── estimate/page.tsx                  # 무료 견적
+│   │   ├── verification/apply/page.tsx        # 醫錄 인증제 신청 (의원 대상)
 │   │   └── inje/page.tsx                      # 醫錄 인증제 소개
 │   ├── components/
 │   │   ├── Logo.tsx                # 錄 Vault 로고
@@ -110,7 +110,7 @@ medirok/
 - `/hospitals/dental` — 치과 진료과 (큐레이션 + 디렉터리)
 - `/hospitals/dental/gangnam` — 강남 치과 (진료과×지역 SEO 페이지)
 - `/hospital/hangyeol-dental` — 의원 상세 (醫錄 4단계 + 시술가 + 후기)
-- `/estimate` — 백내장/임플란트 무료 견적
+- `/verification/apply` — 醫錄 인증제 신청 (의원 대상. 접수는 `certification-applications` 컬렉션)
 - `/inje` — 醫錄 인증제 소개
 
 ## 다음 단계 (Phase 2)

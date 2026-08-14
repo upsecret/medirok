@@ -27,10 +27,10 @@ export function Header() {
         </div>
         <div className="flex items-center gap-3">
           <Link
-            href="/estimate"
+            href="/verification/apply"
             className="btn-primary text-xs sm:text-sm"
           >
-            무료 견적 받기
+            <span className="hanja">醫錄</span> 인증제 신청
           </Link>
         </div>
       </div>

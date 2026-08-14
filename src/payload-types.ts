@@ -73,6 +73,7 @@ export interface Config {
     doctors: Doctor;
     departments: Department;
     regions: Region;
+    'certification-applications': CertificationApplication;
     media: Media;
     users: User;
     'payload-kv': PayloadKv;
@@ -88,6 +89,7 @@ export interface Config {
     doctors: DoctorsSelect<false> | DoctorsSelect<true>;
     departments: DepartmentsSelect<false> | DepartmentsSelect<true>;
     regions: RegionsSelect<false> | RegionsSelect<true>;
+    'certification-applications': CertificationApplicationsSelect<false> | CertificationApplicationsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -503,6 +505,25 @@ export interface BlogPost {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "certification-applications".
+ */
+export interface CertificationApplication {
+  id: number;
+  hospitalName: string;
+  representativeName: string;
+  phone: string;
+  email?: string | null;
+  region?: string | null;
+  department?: string | null;
+  homepageUrl?: string | null;
+  interests?: ('certification' | 'curation' | 'content')[] | null;
+  message?: string | null;
+  status?: ('pending' | 'contacted' | 'reviewing' | 'listed' | 'closed') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
@@ -575,6 +596,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'regions';
         value: number | Region;
+      } | null)
+    | ({
+        relationTo: 'certification-applications';
+        value: number | CertificationApplication;
       } | null)
     | ({
         relationTo: 'media';
@@ -826,6 +851,24 @@ export interface RegionsSelect<T extends boolean = true> {
   nameEn?: T;
   level?: T;
   parent?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "certification-applications_select".
+ */
+export interface CertificationApplicationsSelect<T extends boolean = true> {
+  hospitalName?: T;
+  representativeName?: T;
+  phone?: T;
+  email?: T;
+  region?: T;
+  department?: T;
+  homepageUrl?: T;
+  interests?: T;
+  message?: T;
+  status?: T;
   updatedAt?: T;
   createdAt?: T;
 }

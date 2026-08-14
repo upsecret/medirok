@@ -40,6 +40,13 @@ const nextConfig: NextConfig = {
         destination: "/hospitals/서울/강남구/치과",
         permanent: true,
       },
+      // 환자 대상 무료견적 폼 폐지 → 병원(client) 대상 인증제 신청으로 대체.
+      // /estimate는 sitemap에 실려 색인되어 있었으므로 301로 넘긴다.
+      {
+        source: "/estimate",
+        destination: "/verification/apply",
+        permanent: true,
+      },
     ];
   },
 };

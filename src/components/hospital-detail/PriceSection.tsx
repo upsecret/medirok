@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { formatKRW } from "@/lib/format";
 import type { Hospital } from "@/types";
 
@@ -18,6 +17,8 @@ export function PriceSection({ hospital }: { hospital: Hospital }) {
             <p className="text-sm text-[var(--color-text-secondary)]">
               공개된 진료 가격 정보가 아직 없습니다.
             </p>
+            {/* 전화번호가 없으면 안내만 한다. 예전엔 /estimate(견적 폼)로 보냈으나
+                그 동선은 환자용이 아니라 병원 대상 인증제 신청으로 바뀌었다. */}
             {hospital.phone ? (
               <a
                 href={`tel:${hospital.phone.replace(/[^0-9+]/g, "")}`}
@@ -26,12 +27,9 @@ export function PriceSection({ hospital }: { hospital: Hospital }) {
                 📞 진료문의하기
               </a>
             ) : (
-              <Link
-                href="/estimate"
-                className="inline-block mt-3 bg-[var(--color-primary-600)] text-white text-sm font-medium px-5 py-2.5 rounded-md"
-              >
-                진료문의하기
-              </Link>
+              <p className="text-xs text-[var(--color-text-muted)] mt-2">
+                진료 문의는 의원에 직접 확인해 주세요.
+              </p>
             )}
           </div>
         ) : (

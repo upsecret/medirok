@@ -19,8 +19,8 @@ test.describe("헤더 내비게이션 (데스크톱)", () => {
     await page.getByRole("navigation").getByRole("link", { name: /인증제/ }).click();
     await expect(page).toHaveURL("/verification");
 
-    await page.getByRole("link", { name: "무료 견적 받기" }).click();
-    await expect(page).toHaveURL("/estimate");
+    await page.getByRole("banner").getByRole("link", { name: /인증제 신청/ }).click();
+    await expect(page).toHaveURL("/verification/apply");
   });
 
   test("로고 클릭 시 홈으로 이동한다", async ({ page }) => {
@@ -42,11 +42,11 @@ test.describe("모바일 탭바", () => {
     await page.getByRole("link", { name: "매거진" }).last().click();
     await expect(page).toHaveURL("/magazine");
 
-    await page.getByRole("link", { name: "무료견적" }).click();
-    await expect(page).toHaveURL("/estimate");
+    await page.getByRole("link", { name: "블로그" }).last().click();
+    await expect(page).toHaveURL("/blog");
 
-    await page.getByRole("link", { name: "메디록 인증" }).click();
-    await expect(page).toHaveURL("/verification");
+    await page.getByRole("link", { name: "인증 신청" }).click();
+    await expect(page).toHaveURL("/verification/apply");
 
     // dev overlay가 하단 탭 클릭을 가로채는 경우가 있어 href·가시성만 검증
     const homeTab = page.locator("nav.fixed.bottom-0 a[href='/']");

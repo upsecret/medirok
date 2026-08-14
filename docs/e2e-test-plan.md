@@ -4,6 +4,8 @@
 
 > **구현 완료 (2026-07-04)**: 전체 75개 테스트(setup 1 + chromium 67 + mobile 7) 구현·실행 완료.
 > 71개 통과, 4개 `test.fixme` 예약: ① 견적 폼 제출×2(백엔드 미구현) ② `/hospital/[slug]/booking` 라우트 부재(홈 큐레이션 CTA 404) ③ `/hospitals/역/...` 역 페이지 404(정적 한글 세그먼트 라우팅 — 원인 확인 필요, sitemap에 포함되므로 우선 수정 권장).
+>
+> 2026-08-14 갱신: ①은 해소됐다. 견적 폼 자체가 폐지되고 의원 대상 인증제 신청 폼(백엔드 포함)으로 교체되며 두 `test.fixme`가 실제 테스트로 승격됐다. ②③은 그대로 남아 있다.
 > D2~D4(지역 SEO P0)는 이미 구현되어 있어 fixme가 아닌 실제 회귀 테스트로 작성됨.
 
 ## 1. 현황 요약
@@ -18,7 +20,7 @@
 | navigation.spec.ts | 데스크톱 헤더, 로고, 모바일 탭바 |
 | dashboard.spec.ts | 미인증 리다이렉트, 잘못된 비밀번호, 정상 로그인 |
 | seo.spec.ts | robots.txt, sitemap.xml, 대시보드 noindex |
-| static-pages.spec.ts | 인증제 소개, 견적 폼 필드 표시 |
+| static-pages.spec.ts | 인증제 소개, 인증제 신청 폼(표시·검증·제출·301) |
 
 주요 갭: 진료과/역 필터 미검증, 지역 SEO 타이틀·canonical·JSON-LD 스키마 구조 미검증(local-seo-개선방안.md의 P0 항목), 매거진 마크다운/AEO 블록 미검증, 폼 제출 없음, 404 시나리오 없음, 모바일은 탭바만 검증.
 
@@ -85,13 +87,17 @@
 | E6 | 상세 meta: title·description·OG 태그 | 신규 | ❌ |
 | E7 | 존재하지 않는 slug → 404 | 신규 | ❌ |
 
-### F. 무료 견적 (`/estimate`)
+### F. 醫錄 인증제 신청 (`/verification/apply`)
+
+2026-08-14: 환자 대상 무료견적 폼(`/estimate`)을 폐지하고 의원 대상 인증제 신청으로 교체했다.
+Payload `certification-applications` 컬렉션 + 서버 액션이 붙어 F2·F3의 `test.fixme`를 해제했다.
 
 | # | 요구사항 | 테스트 | 상태 |
 |---|---|---|---|
-| F1 | 폼 필드 표시 | 기존 유지 | ✅ |
-| F2 | 필수값 없이 제출 시 브라우저 검증 동작 | required 속성 검증 | ❌ |
-| F3 | 제출 성공 플로우 | 백엔드 미구현 → `test.fixme()` 예약 | ❌ |
+| F1 | 폼 필드 표시 (의원명·담당자·연락처·개인정보 고지) | 갱신 | ✅ |
+| F2 | 필수값 없이 제출 시 브라우저 검증 동작 | required 속성 검증 | ✅ |
+| F3 | 제출 성공 → 접수 완료 안내 | 서버 액션 경로 (e2e docker DB에 실제 레코드 생성) | ✅ |
+| F4 | 폐지된 `/estimate` → `/verification/apply` 301 | 신규 | ✅ |
 
 ### G. 인증제 (`/verification`) — 기존 유지 ✅
 

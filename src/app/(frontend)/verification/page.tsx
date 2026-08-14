@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export const metadata = {
   title: "醫錄 4단계 의원 인증제",
   description: "메디록의 의원 인증 시스템 — 진료이력·후기·자격·시설 4단계 검증.",
@@ -39,7 +41,7 @@ export default function VerificationPage() {
           </h1>
           <p className="text-[var(--color-accent-300)] text-sm mt-3 leading-relaxed max-w-xl mx-auto">
             모든 의원은 진료이력·실방문 후기·의료진 자격·시설장비 4단계 검증을
-            통과해야 등재됩니다. 사용자가 신뢰할 의원을 직접 고를 수 있도록.
+            통과해야 등재됩니다. 메디록이 무엇을 어떻게 확인하는지 그대로 공개합니다.
           </p>
         </div>
       </section>
@@ -83,6 +85,17 @@ export default function VerificationPage() {
             환자 만족도, 의료진 전문성을 종합 평가하며, 분과·지역별로 3~5곳만
             선정합니다.
           </p>
+
+          <div className="mt-6 bg-[var(--color-surface-bg)] border border-[var(--color-accent-400)] rounded-md p-5">
+            <h2 className="text-base font-medium">인증을 신청하시는 의원이라면</h2>
+            <p className="text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed">
+              신청 접수 → 서류 검증 → 실사·후기 검증 → 등재 순으로 진행됩니다.
+              의원 정보를 남겨주시면 담당자가 절차를 안내드립니다.
+            </p>
+            <Link href="/verification/apply" className="btn-accent inline-block mt-4 text-sm">
+              <span className="hanja">醫錄</span> 인증제 신청하기
+            </Link>
+          </div>
         </div>
       </section>
     </>

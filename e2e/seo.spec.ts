@@ -29,7 +29,7 @@ test.describe("SEO 메타", () => {
   test("sitemap에 정적·매거진 카테고리 URL이 포함된다", async ({ request }) => {
     const body = await (await request.get("/sitemap.xml")).text();
 
-    for (const path of ["/hospitals", "/magazine", "/estimate", "/verification"]) {
+    for (const path of ["/hospitals", "/magazine", "/verification", "/verification/apply"]) {
       expect(body, `sitemap에 ${path}가 있어야 합니다`).toContain(
         `<loc>${SITE_URL}${path}</loc>`
       );

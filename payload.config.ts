@@ -17,6 +17,7 @@ import { Doctors } from "@/payload/collections/Doctors";
 import { Departments } from "@/payload/collections/Departments";
 import { Regions } from "@/payload/collections/Regions";
 import { Media } from "@/payload/collections/Media";
+import { CertificationApplications } from "@/payload/collections/CertificationApplications";
 import { Users } from "@/payload/collections/Users";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -38,6 +39,8 @@ export default buildConfig({
     Doctors,
     Departments,
     Regions,
+    // 인증제 신청 접수 (B2B 리드)
+    CertificationApplications,
     // 미디어 + 사용자(관리자)
     Media,
     Users,

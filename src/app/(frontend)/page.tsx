@@ -200,13 +200,13 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <a
-        href="https://partner.medirok.com"
+      <Link
+        href="/verification/apply"
         className="block bg-[var(--color-primary-700)] py-3 text-center text-xs text-[var(--color-accent-400)]"
       >
         혹시 의원장님이신가요?{" "}
-        <span className="text-white">메디록 큐레이션 파트너 신청하기 →</span>
-      </a>
+        <span className="text-white">醫錄 인증제 신청하기 →</span>
+      </Link>
     </>
   );
 }

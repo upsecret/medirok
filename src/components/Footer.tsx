@@ -27,7 +27,7 @@ export function Footer() {
           <div>
             <p className="text-white font-medium text-xs mb-2">파트너</p>
             <ul className="space-y-1.5 text-xs">
-              <li><a href="https://partner.medirok.com">파트너 등록</a></li>
+              <li><Link href="/verification/apply"><span className="hanja">醫錄</span> 인증제 신청</Link></li>
               <li><Link href={"/seo-solution" as Route}>SEO 솔루션</Link></li>
               <li><Link href={"/curation-criteria" as Route}>큐레이션 심사 기준</Link></li>
             </ul>

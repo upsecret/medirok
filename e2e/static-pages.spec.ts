@@ -12,34 +12,47 @@ test.describe("醫錄 인증제", () => {
   });
 });
 
-test.describe("무료 견적", () => {
-  test("견적 폼 필드가 표시된다", async ({ page }) => {
-    await page.goto("/estimate");
+// 2026-08-14: 환자 대상 무료견적 폼(/estimate)을 폐지하고 병원(client) 대상
+// 인증제 신청(/verification/apply)으로 교체했다. 백엔드(Payload 컬렉션 +
+// 서버 액션)가 생겼으므로 예전 test.fixme 2건을 실제 테스트로 승격한다.
+test.describe("醫錄 인증제 신청", () => {
+  const SUBMIT = "醫錄 인증제 신청하기";
 
-    await expect(page.getByRole("heading", { name: "백내장·임플란트 무료 견적" })).toBeVisible();
-    await expect(page.getByText("메디록 인증 의원만 매칭")).toBeVisible();
-    await expect(page.getByText("시술 선택")).toBeVisible();
-    await expect(page.getByText("희망 지역")).toBeVisible();
-    await expect(page.getByText("연령대")).toBeVisible();
-    await expect(page.locator("select").first()).toBeVisible();
-    await expect(page.locator('input[type="tel"]')).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: "메디록 인증 의원 3곳 견적 받기" })
-    ).toBeVisible();
+  test("신청 폼 필드가 표시된다", async ({ page }) => {
+    await page.goto("/verification/apply");
+
+    await expect(page.getByRole("heading", { name: /인증제 신청/ })).toBeVisible();
+    await expect(page.getByLabel(/의원명/)).toBeVisible();
+    await expect(page.getByLabel(/담당자·원장 성함/)).toBeVisible();
+    await expect(page.getByLabel(/연락처/)).toBeVisible();
+    await expect(page.getByText("개인정보 수집·이용 안내")).toBeVisible();
+    await expect(page.getByRole("button", { name: SUBMIT })).toBeVisible();
   });
 
-  // 폼 제출 백엔드(action/필수값 검증)가 아직 미구현 — 구현 시 fixme 해제
-  test.fixme("필수값 없이 제출하면 검증 오류가 표시된다", async ({ page }) => {
-    await page.goto("/estimate");
-    await page.getByRole("button", { name: "메디록 인증 의원 3곳 견적 받기" }).click();
-    // 기대: 연락처(tel) 필수값 검증 메시지 노출, 페이지 이탈 없음
-    await expect(page).toHaveURL("/estimate");
+  test("필수값 없이 제출하면 브라우저 검증에 걸려 페이지를 벗어나지 않는다", async ({ page }) => {
+    await page.goto("/verification/apply");
+    await page.getByRole("button", { name: SUBMIT }).click();
+
+    await expect(page).toHaveURL("/verification/apply");
+    // 폼이 그대로 남아 있어야 한다 — 완료 화면으로 넘어가면 검증이 뚫린 것이다
+    await expect(page.getByRole("button", { name: SUBMIT })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "신청이 접수되었습니다" })).toBeHidden();
   });
 
-  test.fixme("견적 요청 제출 성공 시 완료 안내가 표시된다", async ({ page }) => {
+  test("정상 제출하면 접수 완료 안내가 표시된다", async ({ page }) => {
+    await page.goto("/verification/apply");
+
+    await page.getByLabel(/의원명/).fill("e2e 테스트치과의원");
+    await page.getByLabel(/담당자·원장 성함/).fill("테스트");
+    await page.getByLabel(/연락처/).fill("010-1234-5678");
+    await page.getByLabel(/개인정보 수집·이용에 동의합니다/).check();
+    await page.getByRole("button", { name: SUBMIT }).click();
+
+    await expect(page.getByRole("heading", { name: "신청이 접수되었습니다" })).toBeVisible();
+  });
+
+  test("폐지된 /estimate는 신청 페이지로 넘어간다", async ({ page }) => {
     await page.goto("/estimate");
-    await page.locator('input[type="tel"]').fill("010-1234-5678");
-    await page.getByRole("button", { name: "메디록 인증 의원 3곳 견적 받기" }).click();
-    // 기대: 제출 완료 화면/토스트 (백엔드 구현 후 어서션 확정)
+    await expect(page).toHaveURL("/verification/apply");
   });
 });

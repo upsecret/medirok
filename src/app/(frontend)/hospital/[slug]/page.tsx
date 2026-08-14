@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import {
   getHospitalBySlug,
   getDepartmentBySlug,
@@ -174,7 +173,9 @@ export default async function HospitalDetailPage({ params }: PageProps) {
 
       <section className="bg-white py-3 border-b border-[var(--color-surface-border)]">
         <div className="container-page">
-          <div className="grid grid-cols-4 gap-1.5">
+          {/* 이 액션바는 환자가 특정 의원을 보는 자리다. 병원 대상 인증제 신청 CTA는
+              여기 두지 않는다(전역 헤더·탭바가 담당). */}
+          <div className="grid grid-cols-3 gap-1.5">
             <button className="bg-[var(--color-surface-bg)] border border-[var(--color-surface-border)] rounded-md py-3 text-center">
               <span className="text-xl">📞</span>
               <p className="text-[10px] font-medium mt-1">전화</p>
@@ -187,15 +188,6 @@ export default async function HospitalDetailPage({ params }: PageProps) {
               <span className="text-xl">📅</span>
               <p className="text-[10px] font-medium text-white mt-1">예약</p>
             </button>
-            <Link
-              href="/estimate"
-              className="bg-[var(--color-accent-400)] rounded-md py-3 text-center block"
-            >
-              <span className="text-xl">💎</span>
-              <p className="text-[10px] font-medium text-[var(--color-text-on-gold)] mt-1">
-                무료견적
-              </p>
-            </Link>
           </div>
         </div>
       </section>
