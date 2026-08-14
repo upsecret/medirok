@@ -10,8 +10,14 @@ import {
 import { DepartmentIcon } from "@/components/DepartmentIcon";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { fullRegionName } from "@/lib/local-seo";
+import { getRegionRouteParams } from "@/lib/route-params";
 
 export const revalidate = 1800;
+
+// 없으면 위 revalidate가 무시된다 — route-params.ts 주석 참고.
+export async function generateStaticParams() {
+  return (await getRegionRouteParams()).gu;
+}
 
 interface PageProps {
   params: Promise<{ sido: string; gu: string }>;

@@ -5,6 +5,7 @@
 // 지역 모달은 지역(시도) → 시군구 → 동 단계별 드릴다운
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import type { Hospital, Region, Department } from "@/types";
 import { HospitalListRow } from "./HospitalListRow";
 import { HospitalQuickView } from "./HospitalQuickView";
@@ -17,27 +18,24 @@ interface Props {
   hospitals: Hospital[];
   regions: Region[];
   departments: Department[];
-  initialSido?: string;
-  initialRegion?: string;
-  initialDong?: string;
-  initialDept?: string;
-  initialSort?: string;
-  initialLine?: string;
-  initialStation?: string;
 }
 
-export function HospitalFinder({
-  hospitals,
-  regions,
-  departments,
-  initialSido,
-  initialRegion,
-  initialDong,
-  initialDept,
-  initialSort,
-  initialLine,
-  initialStation,
-}: Props) {
+/**
+ * 초기 필터는 여기서 직접 읽는다. 서버 페이지가 searchParams를 받으면 그 라우트가
+ * 통째로 동적 렌더링이 되어 CDN 캐시를 못 쓴다(운영에서 /hospitals가 매번 no-store였다).
+ * 어차피 값이 쓰이는 곳은 이 클라이언트 컴포넌트뿐이다.
+ * useSearchParams는 Suspense 경계 안에서만 정적 셸과 공존한다 — 호출부 참고.
+ */
+export function HospitalFinder({ hospitals, regions, departments }: Props) {
+  const sp = useSearchParams();
+  const initialSido = sp.get("sido") ?? undefined;
+  const initialRegion = sp.get("region") ?? undefined;
+  const initialDong = sp.get("dong") ?? undefined;
+  const initialDept = sp.get("dept") ?? undefined;
+  const initialSort = sp.get("sort") ?? undefined;
+  const initialLine = sp.get("line") ?? undefined;
+  const initialStation = sp.get("station") ?? undefined;
+
   const {
     sido,
     setSido,

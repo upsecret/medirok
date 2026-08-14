@@ -4,7 +4,15 @@ import { HospitalCard } from "@/components/HospitalCard";
 import { getAllHospitals, decodeParam } from "@/lib/hospitals-data";
 import { findStation } from "@/lib/stations";
 
-export const dynamic = "force-dynamic";
+// 이 라우트만 동적으로 남는다.
+//
+// generateStaticParams를 붙이면 프리렌더가 InvalidCharacterError로 깨진다
+// (/hospitals/역/인천지하철1호선/아라역). 세그먼트에 **리터럴 한글 디렉터리(역/)**가
+// 있는 라우트는 이 프로젝트에서 이미 알려진 문제다 — docs/e2e-test-plan.md의
+// "역 페이지 404(정적 한글 세그먼트 라우팅)" 항목과 같은 뿌리로 보인다.
+// 그 버그를 먼저 고쳐야 캐시를 켤 수 있다. 지금은 캐시 없이 동적 렌더 —
+// 이전과 동일한 동작이다.
+export const revalidate = 1800;
 
 interface PageProps {
   params: Promise<{ line: string; station: string }>;

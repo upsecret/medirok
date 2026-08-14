@@ -5,8 +5,9 @@ import type { MagazineType } from "@/types";
 import { getMagazinesByType } from "@/lib/magazines-data";
 import { MagazineCard } from "@/components/MagazineCard";
 
-// DB(매거진)를 매 요청 시 반영 — 정적 캐시로 인한 옛 데이터 노출 방지
-export const dynamic = "force-dynamic";
+// 시드는 즉시 라이브라 캐시를 안 쓰고 있었다. 이제 ISR로 두고 발행 직후 반영은
+// /revalidate 엔드포인트가 담당한다(scripts/revalidate.ts · 런북 §9-3).
+export const revalidate = 1800;
 
 const CAT_LABELS: Partial<Record<MagazineType, string>> = {
   article: "시술 가이드",

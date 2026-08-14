@@ -1,9 +1,16 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getRegionBySlug, getChildRegions, decodeParam } from "@/lib/hospitals-data";
+import { getRegionRouteParams } from "@/lib/route-params";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 export const revalidate = 1800;
+
+// generateStaticParams가 없으면 Next가 prerender 매니페스트에 항목을 만들지 않아
+// 위 revalidate 선언이 통째로 무시된다(운영에서 no-store로 나가고 있었다).
+export async function generateStaticParams() {
+  return (await getRegionRouteParams()).sido;
+}
 
 interface PageProps {
   params: Promise<{ sido: string }>;

@@ -92,6 +92,10 @@ export function useHospitalFilters({
     if (sort !== "recommended") params.set("sort", sort);
     const qs = params.toString();
     const url = (qs ? `/hospitals?${qs}` : "/hospitals") as Route;
+    // 현재 URL과 같으면 쏘지 않는다. 페이지가 정적 셸 + useSearchParams 조합이 되면서
+    // 마운트 직후 같은 URL로 replace가 한 번 더 나가 RSC 왕복이 헛돌았다.
+    const current = `${window.location.pathname}${window.location.search}`;
+    if (current === url) return;
     router.replace(url, { scroll: false });
   }, [sido, region, dong, line, station, dept, sort, router]);
 

@@ -20,7 +20,9 @@ import {
 } from "@/lib/schema-generator";
 import { SITE_URL, absMediaUrl } from "@/lib/site";
 
-export const dynamic = "force-dynamic";
+// 시드는 즉시 라이브라 캐시를 안 쓰고 있었다. 이제 ISR로 두고 발행 직후 반영은
+// /revalidate 엔드포인트가 담당한다(scripts/revalidate.ts · 런북 §9-3).
+export const revalidate = 3600;
 
 interface PageProps {
   params: Promise<{ hospitalSlug: string; slug: string }>;

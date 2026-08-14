@@ -23,9 +23,15 @@ import { LocationHoursSection } from "@/components/hospital-detail/LocationHours
 import { Breadcrumbs, type Crumb } from "@/components/Breadcrumbs";
 import { medicalOrgSchema } from "@/lib/schema-generator";
 import { fullRegionName, hospitalUrl } from "@/lib/local-seo";
+import { getHospitalRouteParams } from "@/lib/route-params";
 
-// 병원 상세 — 30분 ISR 캐시. 어드민 변경 즉시 반영 필요 시 revalidatePath 권장.
+// 병원 상세 — 30분 ISR 캐시. 시드 직후 반영은 /revalidate 엔드포인트가 담당한다.
 export const revalidate = 1800;
+
+// 없으면 위 revalidate가 무시된다 — route-params.ts 주석 참고.
+export async function generateStaticParams() {
+  return getHospitalRouteParams();
+}
 
 interface PageProps {
   params: Promise<{ slug: string }>;
