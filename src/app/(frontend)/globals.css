@@ -52,9 +52,11 @@
   --color-info:    #4A6FA0;
 
   /* Typography */
+  /* 세리프 2종은 next/font가 self-host하며 아래 변수를 layout.tsx에서 주입한다.
+     외부 오리진(fonts.googleapis.com)이 사라졌으므로 폰트명을 직접 쓰지 않는다. */
   --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-serif: "Cormorant Garamond", "Noto Serif KR", Georgia, serif;
-  --font-hanja: "Noto Serif KR", "Source Han Serif", serif;
+  --font-serif: var(--font-cormorant), var(--font-noto-serif-kr), Georgia, serif;
+  --font-hanja: var(--font-noto-serif-kr), "Source Han Serif", serif;
 
   /* Radius */
   --radius-sm: 4px;
