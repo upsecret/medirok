@@ -22,9 +22,15 @@ const TYPE_COLORS: Record<Magazine["type"], string> = {
 interface MagazineCardProps {
   magazine: Magazine;
   size?: "lg" | "sm";
+  /** 목록 최상단 카드에만 준다 — 그 카드가 LCP 요소인데 기본값이 lazy라 늦게 시작한다 */
+  priority?: boolean;
 }
 
-export function MagazineCard({ magazine, size = "sm" }: MagazineCardProps) {
+export function MagazineCard({
+  magazine,
+  size = "sm",
+  priority = false,
+}: MagazineCardProps) {
   const isLarge = size === "lg";
   return (
     <Link
@@ -41,6 +47,7 @@ export function MagazineCard({ magazine, size = "sm" }: MagazineCardProps) {
         thumbnail={magazine.thumbnail}
         accentColor={TYPE_COLORS[magazine.type]}
         placeholderLabel={TYPE_LABELS[magazine.type]}
+        priority={priority}
         className={isLarge ? "mb-3 md:mb-0 md:w-2/5 md:shrink-0" : "mb-3"}
       />
       <div className={isLarge ? "md:flex-1 md:min-w-0" : ""}>

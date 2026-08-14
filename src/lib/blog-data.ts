@@ -16,6 +16,7 @@ const findAll = cache(async (): Promise<BlogPost[]> => {
       limit: 500,
       sort: "-publishedAt",
       depth: 0,
+      pagination: false,
     }),
     getRefSlugMaps(),
   ]);

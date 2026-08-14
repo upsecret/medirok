@@ -17,6 +17,7 @@ const findAll = cache(async (): Promise<Magazine[]> => {
       limit: 1000,
       sort: "-publishedAt",
       depth: 0,
+      pagination: false,
     }),
     getRefSlugMaps(),
   ]);
@@ -27,9 +28,13 @@ export async function getAllMagazines(): Promise<Magazine[]> {
   return findAll();
 }
 
-export async function getMagazineBySlug(
+/**
+ * cache로 감싼 이유: generateMetadata와 페이지 본문이 같은 slug로 각각 호출해
+ * 동일 쿼리가 요청당 2번 실행되고 있었다.
+ */
+export const getMagazineBySlug = cache(async (
   slug: string
-): Promise<Magazine | undefined> {
+): Promise<Magazine | undefined> => {
   const payload = await getPayloadClient();
   const [res, refs] = await Promise.all([
     payload.find({
@@ -37,12 +42,13 @@ export async function getMagazineBySlug(
       where: { slug: { equals: slug } },
       limit: 1,
       depth: 0,
+      pagination: false,
     }),
     getRefSlugMaps(),
   ]);
   const doc = (res.docs as unknown as Raw[])[0];
   return doc ? mapMagazine(doc, refs) : undefined;
-}
+})
 
 export async function getMagazinesByType(
   type: MagazineType

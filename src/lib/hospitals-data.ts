@@ -53,6 +53,7 @@ const rawHospitalDocs = cache(async (): Promise<Raw[]> => {
     limit: 1000,
     sort: "createdAt", // 시드 입력 순서 유지
     depth: 0,
+    pagination: false,
   });
   return res.docs as unknown as Raw[];
 });
@@ -64,6 +65,7 @@ const rawDepartmentDocs = cache(async (): Promise<Raw[]> => {
     limit: 200,
     sort: "priority",
     depth: 0,
+    pagination: false,
   });
   return res.docs as unknown as Raw[];
 });
@@ -74,6 +76,7 @@ const rawRegionDocs = cache(async (): Promise<Raw[]> => {
     collection: "regions",
     limit: 500,
     depth: 0,
+    pagination: false,
   });
   return res.docs as unknown as Raw[];
 });
@@ -85,6 +88,7 @@ const rawDoctorDocs = cache(async (): Promise<Raw[]> => {
     limit: 2000,
     sort: "createdAt",
     depth: 0,
+    pagination: false,
   });
   return res.docs as unknown as Raw[];
 });
@@ -121,6 +125,7 @@ const rawMediaDocs = cache(async (): Promise<Raw[]> => {
     collection: "media",
     limit: 500,
     depth: 0,
+    pagination: false,
   });
   return res.docs as unknown as Raw[];
 });
@@ -175,12 +180,15 @@ export async function getHospitalsBySlugs(slugs: string[]): Promise<Hospital[]> 
  * 지역×진료과 병원 조회 — 관계(FK) where 쿼리 (M6: SQL 고도화)
  * department = 진료과 id, region IN (구 id + 하위 동 id들) 단일 인덱스 쿼리.
  * 구 이름이 도시 간 중복돼도 관계 기반이라 정확 (sidoSlug 스코프 불필요 — 구 id가 유일).
+ *
+ * cache로 감싼 이유: generateMetadata와 페이지 본문이 같은 인자로 각각 호출해
+ * 동일 쿼리가 요청당 2번 실행되고 있었다.
  */
-export async function getHospitalsByDeptAndRegion(
+export const getHospitalsByDeptAndRegion = cache(async (
   deptSlug: string,
   regionSlug?: string,
   sidoSlug?: string
-): Promise<Hospital[]> {
+): Promise<Hospital[]> => {
   const [payload, ctx, departments, regions] = await Promise.all([
     getPayloadClient(),
     hospitalCtx(),
@@ -218,9 +226,10 @@ export async function getHospitalsByDeptAndRegion(
     limit: 1000,
     sort: "createdAt",
     depth: 0,
+    pagination: false,
   });
   return (res.docs as unknown as Raw[]).map((d) => mapHospital(d, ctx));
-}
+})
 
 /** 같은 진료과의 다른 병원 (병원 상세 '비슷한 병원' 섹션) */
 export async function getSimilarHospitals(

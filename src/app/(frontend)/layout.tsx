@@ -35,6 +35,14 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
+        {/*
+          폰트가 외부 오리진 2곳에서 온다. 렌더 블로킹 스타일시트라 DNS+TLS 왕복이
+          첫 페인트 앞에 그대로 붙는다 — preconnect로 그 왕복을 앞당긴다.
+          (근본 해결은 next/font self-host. 별건으로 남긴다.)
+        */}
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"

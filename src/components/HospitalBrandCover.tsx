@@ -21,6 +21,8 @@ interface HospitalBrandCoverProps {
   logo?: Thumbnail;
   /** 로고가 없을 때 대신 표시할 이름 */
   hospitalName: string;
+  /** 목록 최상단 카드에만 준다 — 그 카드가 LCP 요소인데 기본값이 lazy다 */
+  priority?: boolean;
   className?: string;
 }
 
@@ -28,6 +30,7 @@ export function HospitalBrandCover({
   cover,
   logo,
   hospitalName,
+  priority = false,
   className = "",
 }: HospitalBrandCoverProps) {
   const hasLogo = Boolean(logo && logo.width && logo.height);
@@ -43,6 +46,7 @@ export function HospitalBrandCover({
           alt=""
           aria-hidden="true"
           fill
+          priority={priority}
           sizes="(max-width: 768px) 100vw, 384px"
           // scale-110이 없으면 블러가 가장자리를 먹어 컨테이너 배경이 비친다
           className="object-cover scale-110 blur-[3px]"
@@ -60,6 +64,10 @@ export function HospitalBrandCover({
               aria-hidden="true"
               width={logo!.width}
               height={logo!.height}
+              // sizes가 없으면 next/image가 표시 크기를 모른 채 원본 폭 기준
+              // 1x/2x srcset을 만든다. 실제로는 h-12(48px)·md:h-14(56px)로 그리므로
+              // 가로는 로고 비율을 감안해도 200px을 넘지 않는다.
+              sizes="200px"
               className="h-12 w-auto md:h-14"
             />
           </div>

@@ -68,8 +68,10 @@ export default async function MagazineListPage() {
             최신 글
           </p>
           <div className="space-y-3">
-            {recent.map((m) => (
-              <MagazineCard key={m.slug} magazine={m} size="lg" />
+            {/* 첫 카드가 이 페이지의 LCP 요소다. Thumbnail 기본값이 lazy라
+                프리로드 스캐너가 잡지 못하고 레이아웃 확정 후에야 요청이 시작됐다. */}
+            {recent.map((m, i) => (
+              <MagazineCard key={m.slug} magazine={m} size="lg" priority={i === 0} />
             ))}
           </div>
         </div>

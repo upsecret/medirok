@@ -7,7 +7,17 @@ import { useState } from "react";
 import type { Region } from "@/types";
 import type { RegionSelection } from "./types";
 import { Modal, TabBtn, RegionRow, Empty } from "./primitives";
-import { StationPicker } from "./StationPicker";
+import dynamic from "next/dynamic";
+
+/**
+ * 역 목록(@/lib/stations)이 56KB짜리 데이터라 정적 import하면 /hospitals 첫 로드
+ * 번들에 무조건 실린다(실측 라우트 청크 72.8KB / firstLoad +58KB). 사용자가
+ * "역주변" 탭을 열기 전엔 쓰이지 않으므로 그때 받는다.
+ */
+const StationPicker = dynamic(
+  () => import("./StationPicker").then((m) => m.StationPicker),
+  { ssr: false, loading: () => <p className="py-6 text-center text-sm text-[var(--color-text-muted)]">불러오는 중…</p> },
+);
 
 export function LocationModal({
   regions,

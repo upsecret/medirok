@@ -86,7 +86,7 @@ export default async function BlogIndexPage() {
                 블로그 운영 의원 ({groups.length})
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {groups.map(({ hospital, posts }) => (
+                {groups.map(({ hospital, posts }, i) => (
                   <Link
                     key={hospital.slug}
                     href={`/blog/${hospital.slug}` as Route}
@@ -100,6 +100,8 @@ export default async function BlogIndexPage() {
                       cover={hospital.coverImage}
                       logo={hospital.logo}
                       hospitalName={hospital.nameKr}
+                      // 첫 카드가 LCP 요소다 (2열 그리드라 첫 행 2장까지)
+                      priority={i < 2}
                       className="mb-3"
                     />
                     <div className="flex items-center gap-2 mb-2">

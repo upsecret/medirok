@@ -6,7 +6,12 @@
 // REVALIDATE_SECRET이 없으면 조용히 넘어가지 않고 실패시킨다 — 조용한 실패가
 // 정확히 이 장치가 막으려는 상황이다.
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.medirok.com";
+import { SITE_URL } from "@/lib/site";
+
+// NEXT_PUBLIC_SITE_URL은 쓰지 않는다 — .env.local에서 그 값은 localhost:3000이라
+// 운영 대신 로컬을 때린다. 정식 도메인의 유일한 출처는 SITE_URL이다.
+// 로컬 검증이 필요하면 REVALIDATE_TARGET으로 명시적으로 덮어쓴다.
+const SITE = process.env.REVALIDATE_TARGET ?? SITE_URL;
 const secret = process.env.REVALIDATE_SECRET;
 
 if (!secret) {

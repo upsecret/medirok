@@ -78,6 +78,12 @@ export default buildConfig({
     pool: {
       connectionString:
         process.env.DATABASE_URL || process.env.DATABASE_URI || "",
+      // 서버리스는 인스턴스가 옆으로 늘어난다. 인스턴스마다 node-postgres 기본값
+      // max:10을 잡으면 Neon pooler 한도에 먼저 부딪힌다. 인스턴스당 소수로 제한하고
+      // 유휴 연결은 빨리 반납한다.
+      max: 5,
+      idleTimeoutMillis: 10_000,
+      connectionTimeoutMillis: 10_000,
     },
     // Payload 기본값(dev=on, production=off)을 유지하되, 명시적으로 끌 수 있게 한다.
     // PAYLOAD_DB_PUSH=false → 스키마를 건드리지 않고 데이터만 쓴다.
