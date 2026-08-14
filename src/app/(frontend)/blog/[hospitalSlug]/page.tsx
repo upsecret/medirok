@@ -119,12 +119,14 @@ export default async function BlogHospitalPage({ params }: PageProps) {
             전체 글 ({posts.length})
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {posts.map((p) => (
+            {posts.map((p, i) => (
               <BlogPostCard
                 key={p.slug}
                 post={p}
                 hospitalSlug={hospital.slug}
                 hospitalName={hospital.nameKr}
+                // 2열 그리드라 첫 줄 두 장이 접힘 위에 온다
+                priority={i < 2}
               />
             ))}
           </div>

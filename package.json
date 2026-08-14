@@ -32,7 +32,9 @@
     "seed:thumbnails": "node --env-file=.env.local --import tsx/esm scripts/seed-thumbnails.ts && npm run revalidate",
     "payload:generate-types": "payload generate:types",
     "indexnow": "node --import tsx/esm scripts/indexnow-ping.ts",
-    "revalidate": "node --env-file=.env.local --import tsx/esm scripts/revalidate.ts"
+    "revalidate": "node --env-file=.env.local --import tsx/esm scripts/revalidate.ts && npm run warm",
+    "warm": "node --env-file=.env.local --import tsx/esm scripts/warm-images.ts",
+    "backfill:blur": "node --env-file=.env.local --import tsx/esm scripts/backfill-blur.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.87.0",

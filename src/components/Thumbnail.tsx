@@ -65,6 +65,10 @@ export function Thumbnail({
         alt={thumbnail.alt}
         fill
         priority={priority}
+        // 백필 전 문서는 blurDataURL이 없다. 그때 placeholder="blur"를 그대로 두면
+        // next/image가 렌더 시점에 에러를 던지므로 "empty"로 떨어뜨린다.
+        placeholder={thumbnail.blurDataURL ? "blur" : "empty"}
+        blurDataURL={thumbnail.blurDataURL}
         sizes={
           isFeature
             ? "(max-width: 768px) 100vw, 768px"

@@ -64,8 +64,10 @@ export default async function CategoryPage({ params }: PageProps) {
       <section className="bg-white py-6">
         <div className="container-content">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {items.map((m) => (
-              <MagazineCard key={m.slug} magazine={m} />
+            {items.map((m, i) => (
+              // 2열 그리드라 첫 줄 두 장이 접힘 위에 온다.
+              // /magazine에는 있던 처리가 카테고리 페이지에만 빠져 있었다.
+              <MagazineCard key={m.slug} magazine={m} priority={i < 2} />
             ))}
           </div>
           {items.length === 0 && (

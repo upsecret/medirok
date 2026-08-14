@@ -228,6 +228,10 @@ export interface Media {
    * 원본 이미지가 게시된 페이지 URL
    */
   sourceUrl?: string | null;
+  /**
+   * 업로드 시 자동 생성되는 저해상도 미리보기. 직접 수정하지 마세요.
+   */
+  blurDataURL?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -881,6 +885,7 @@ export interface MediaSelect<T extends boolean = true> {
   caption?: T;
   credit?: T;
   sourceUrl?: T;
+  blurDataURL?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

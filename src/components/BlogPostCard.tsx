@@ -8,9 +8,16 @@ interface BlogPostCardProps {
   /** URL 1단계. 한국어 slug는 Link가 자동 인코딩한다 */
   hospitalSlug: string;
   hospitalName?: string;
+  /** 목록 최상단 카드에만 준다 — 그 카드가 LCP 요소인데 기본값이 lazy다 */
+  priority?: boolean;
 }
 
-export function BlogPostCard({ post, hospitalSlug, hospitalName }: BlogPostCardProps) {
+export function BlogPostCard({
+  post,
+  hospitalSlug,
+  hospitalName,
+  priority = false,
+}: BlogPostCardProps) {
   return (
     <Link
       href={`/blog/${hospitalSlug}/${post.slug}` as Route}
@@ -19,6 +26,7 @@ export function BlogPostCard({ post, hospitalSlug, hospitalName }: BlogPostCardP
       <Thumbnail
         thumbnail={post.thumbnail}
         placeholderLabel="의원 블로그"
+        priority={priority}
         className="mb-3"
       />
       <div className="flex items-center gap-2 mb-2">

@@ -147,6 +147,11 @@ export interface Thumbnail {
   alt: string;
   width?: number;
   height?: number;
+  /**
+   * 16px 폭 base64 WebP. next/image의 placeholder="blur"에 넣는다.
+   * 백필 전 문서에는 없으므로 선택 필드다 — 없으면 placeholder를 끈다.
+   */
+  blurDataURL?: string;
 }
 
 export interface Magazine {

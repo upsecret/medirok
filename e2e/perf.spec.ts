@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 /**
- * 2026-08-14 성능 감사에서 고친 두 회귀를 고정한다.
+ * 2026-08-14 성능 감사에서 고친 회귀들을 고정한다.
  * 둘 다 "설정 한 줄이 빠져서 전체가 느린 경로로 흐르던" 종류라 눈에 띄지 않는다.
  * 자세한 근거는 docs/성능-감사-2026-08.md.
  *
@@ -94,5 +94,54 @@ test.describe("성능 회귀 가드", () => {
         `이미지가 서버리스 프록시를 경유한다: ${src}`,
       ).toBe(false);
     }
+  });
+
+  test("렌더 블로킹 외부 폰트 오리진이 다시 늘지 않는다", async () => {
+    const fs = await import("node:fs/promises");
+    const path = await import("node:path");
+
+    // 2026-08-15 측정: fonts.googleapis.com 스타일시트가 렌더 블로킹인데
+    // 355~428ms에 끝나 첫 페인트를 붙잡고 있었다(자체 CSS는 162~241ms).
+    // 차단 A/B로 FCP가 160~184ms 빨라지는 것을 확인하고 next/font로 옮겼다.
+    // 세리프 폰트를 다시 <link>로 되돌리면 그 손해가 그대로 돌아온다.
+    const layout = await fs.readFile(
+      path.resolve(process.cwd(), "src/app/(frontend)/layout.tsx"),
+      "utf8",
+    );
+
+    // href만 본다 — 위 사연을 적어 둔 주석에도 도메인이 등장한다.
+    const hrefs = [...layout.matchAll(/href="(https?:\/\/[^"]+)"/g)].map((m) => m[1]!);
+
+    expect(
+      hrefs.filter((h) => h.includes("fonts.googleapis.com")),
+      "세리프 폰트는 next/font로 self-host한다",
+    ).toEqual([]);
+    expect(
+      hrefs.filter((h) => h.includes("fonts.gstatic.com")),
+      "self-host하면 gstatic preconnect는 죽은 힌트다",
+    ).toEqual([]);
+    // Pretendard는 외부 오리진에 남기지만 반드시 서브셋 빌드여야 한다.
+    // static 빌드는 weight 하나가 전체 한글 폰트(약 750KB)라 2벌에 1.49MB였다.
+    for (const href of hrefs.filter((h) => h.includes("pretendard"))) {
+      expect(href, "Pretendard는 dynamic-subset 빌드만 쓴다").toContain(
+        "pretendard-dynamic-subset",
+      );
+    }
+  });
+
+  test("이미지에 blur 플레이스홀더가 실린다", async ({ page }) => {
+    // next/image는 placeholder="blur"를 인라인 background-image로 심는다.
+    // 로드 완료 후 지워지므로 **서버가 내려준 HTML**에서 확인한다.
+    const res = await page.request.get("/magazine");
+    const html = await res.text();
+
+    expect(html.includes("<img"), "이 페이지에 이미지가 있어야 의미 있는 검증이다").toBe(
+      true,
+    );
+    // 백필/업로드 훅이 blurDataURL을 채우지 못하면 조용히 회색 박스로 돌아간다.
+    expect(
+      html.includes("data:image/webp;base64"),
+      "blurDataURL이 비어 있다 — Media 업로드 훅이나 백필을 확인할 것",
+    ).toBe(true);
   });
 });

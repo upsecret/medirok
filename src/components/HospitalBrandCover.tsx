@@ -47,6 +47,8 @@ export function HospitalBrandCover({
           aria-hidden="true"
           fill
           priority={priority}
+          placeholder={cover.blurDataURL ? "blur" : "empty"}
+          blurDataURL={cover.blurDataURL}
           sizes="(max-width: 768px) 100vw, 384px"
           // scale-110이 없으면 블러가 가장자리를 먹어 컨테이너 배경이 비친다
           className="object-cover scale-110 blur-[3px]"
@@ -64,6 +66,9 @@ export function HospitalBrandCover({
               aria-hidden="true"
               width={logo!.width}
               height={logo!.height}
+              // 배경만 priority를 주고 로고를 빼면 앞뒤가 바뀐다 — 이 카드에서
+              // 시각적 주체는 로고고, 배경은 어둡게 깔린 채 흐려진 사진이다.
+              priority={priority}
               // sizes가 없으면 next/image가 표시 크기를 모른 채 원본 폭 기준
               // 1x/2x srcset을 만든다. 실제로는 h-12(48px)·md:h-14(56px)로 그리므로
               // 가로는 로고 비율을 감안해도 200px을 넘지 않는다.

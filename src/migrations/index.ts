@@ -4,6 +4,7 @@ import * as migration_20260801_231631_add_thumbnails from './20260801_231631_add
 import * as migration_20260802_003121_add_hospital_logo from './20260802_003121_add_hospital_logo';
 import * as migration_20260802_012722_add_hospital_cover from './20260802_012722_add_hospital_cover';
 import * as migration_20260814_020528_add_certification_applications from './20260814_020528_add_certification_applications';
+import * as migration_20260814_145730_add_media_blur from './20260814_145730_add_media_blur';
 
 export const migrations = [
   {
@@ -34,6 +35,11 @@ export const migrations = [
   {
     up: migration_20260814_020528_add_certification_applications.up,
     down: migration_20260814_020528_add_certification_applications.down,
-    name: '20260814_020528_add_certification_applications'
+    name: '20260814_020528_add_certification_applications',
+  },
+  {
+    up: migration_20260814_145730_add_media_blur.up,
+    down: migration_20260814_145730_add_media_blur.down,
+    name: '20260814_145730_add_media_blur'
   },
 ];

@@ -151,6 +151,9 @@ export function mapMediaDoc(doc: Raw): Thumbnail | undefined {
     alt: str(doc.alt),
     width: optNum(doc.width),
     height: optNum(doc.height),
+    // 백필 전 문서는 비어 있다 — 빈 문자열은 넘기지 않는다.
+    // next/image는 placeholder="blur"인데 blurDataURL이 falsy면 에러를 던진다.
+    blurDataURL: str(doc.blurDataURL) || undefined,
   };
 }
 
