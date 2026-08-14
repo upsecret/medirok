@@ -54,9 +54,13 @@ async function main(): Promise<void> {
 
   // 1단계: 페이지를 훑으면서 그 안의 이미지 URL을 함께 수집한다.
   const imageUrls = new Set<string>();
+  const badPages: string[] = [];
   const pagesOk = await pooled(pages, async (url) => {
     const res = await fetch(url).catch(() => null);
-    if (!res?.ok) return false;
+    if (!res?.ok) {
+      badPages.push(`${res?.status ?? "연결 실패"}  ${url}`);
+      return false;
+    }
     const html = await res.text();
     // srcset과 src 양쪽에서 긁는다. HTML 엔티티(&amp;)를 되돌려야 실제 요청 URL이 된다.
     for (const m of html.matchAll(/["\s](\/_next\/image\?[^"\s]+)/g)) {
@@ -80,10 +84,19 @@ async function main(): Promise<void> {
     `✓ 워밍 완료 — 페이지 ${pagesOk}/${pages.length}, 이미지 ${imagesOk}/${images.length} (콜드였던 것 ${cold}건)`,
   );
 
-  // 페이지를 하나라도 못 읽었으면 조용히 넘기지 않는다 — 워밍 누락은
-  // "느린 첫 방문자"로만 드러나서 눈에 띄지 않는다.
-  if (pagesOk < pages.length || imagesOk < images.length) {
-    console.error("✗ 일부 URL을 데우지 못했습니다.");
+  // sitemap이 200이 아닌 URL을 싣고 있으면 알린다. 워밍 실패가 아니라 **사이트맵
+  // 문제**이므로 종료 코드는 건드리지 않는다 — 발행할 때마다 빨간 종료가 뜨면
+  // 사람이 에러를 무시하게 되고, 그러면 정작 이미지 워밍 실패를 놓친다.
+  if (badPages.length > 0) {
+    console.warn(`\n⚠ sitemap에 200이 아닌 URL이 ${badPages.length}건 있습니다:`);
+    badPages.forEach((p) => console.warn(`   ${p}`));
+    console.warn("   색인 손해로 이어지므로 라우트나 sitemap 쪽을 고쳐야 합니다.");
+  }
+
+  // 이미지 워밍 실패는 이 스크립트가 책임지는 부분이라 실패로 다룬다.
+  // 놓치면 "첫 방문자만 느림"으로만 드러나서 눈에 띄지 않는다.
+  if (imagesOk < images.length) {
+    console.error(`✗ 이미지 ${images.length - imagesOk}건을 데우지 못했습니다.`);
     process.exit(1);
   }
 }
