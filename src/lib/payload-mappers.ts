@@ -98,15 +98,52 @@ export interface MagazineRefContext {
 }
 
 /**
+ * Vercel Blob CDN 베이스 URL. 토큰에서 스토어 id를 뽑는 규칙은
+ * storage-vercel-blob/dist/index.js:24와 동일하다.
+ * 서버에서만 평가된다 — 매핑 결과가 직렬화되어 내려가므로 클라이언트는 재계산하지 않는다.
+ */
+const BLOB_BASE = (() => {
+  const storeId = process.env.BLOB_READ_WRITE_TOKEN?.match(
+    /^vercel_blob_rw_([a-z\d]+)_[a-z\d]+$/i,
+  )?.[1];
+  return storeId ? `https://${storeId.toLowerCase()}.public.blob.vercel-storage.com` : "";
+})();
+
+const MEDIA_PROXY_PREFIX = "/api/media/file/";
+
+/**
+ * Payload 미디어 URL → Vercel Blob CDN 직결 URL.
+ *
+ * Payload가 내보내는 url은 Blob을 쓸 때조차 **항상** `/api/media/file/<filename>`이다.
+ * `vercelBlobStorage` 래퍼가 `disablePayloadAccessControl`을 cloudStoragePlugin에
+ * 전달하지 않아(세 개 옵션만 넘긴다) Blob 절대 URL 경로 자체가 열리지 않는다.
+ *
+ * 그 프록시 경로는 요청 1건마다 [서버리스 부팅 → media 4-way OR 쿼리 → Blob HEAD →
+ * Blob GET]이 돌고, 마지막 GET에 `Cache-Control: no-store`가 박혀 있어
+ * (storage-vercel-blob/dist/getFile.js:65) 업로드 시 지정한 1년 캐시가 무력화된다.
+ * 운영 실측 콜드 TTFB 1.8~2.8s — 같은 이미지의 CDN 경로는 0.09s다.
+ *
+ * 파일명이 Blob 키와 1:1이므로 여기서 CDN 주소로 바꾼다. 토큰이 없는 환경
+ * (e2e docker·로컬)은 로컬 디스크 폴백이라 상대 경로를 그대로 둔다.
+ */
+export function publicMediaUrl(url: string): string {
+  if (!BLOB_BASE || !url.startsWith(MEDIA_PROXY_PREFIX)) return url;
+  // Payload가 encodeURIComponent로 만든 파일명 — Blob 키는 디코드된 원문이다.
+  const filename = decodeURIComponent(url.slice(MEDIA_PROXY_PREFIX.length));
+  return `${BLOB_BASE}/${encodeURI(filename)}`;
+}
+
+/**
  * media 도큐먼트 → Thumbnail.
  * depth:0 조회를 유지하기 위해 media를 따로 읽어 id 맵으로 만들고 여기서 해석한다
  * (depth:1로 올리면 병원·의사·지역 관계까지 전부 populate되어 응답이 부푼다).
  */
 export function mapMediaDoc(doc: Raw): Thumbnail | undefined {
-  const url = str(doc.url);
+  const url = publicMediaUrl(str(doc.url));
   if (!url) return undefined;
   const sizes = (doc.sizes ?? {}) as Record<string, Raw | undefined>;
-  const sizeUrl = (name: string): string => str(sizes[name]?.url) || url;
+  const sizeUrl = (name: string): string =>
+    publicMediaUrl(str(sizes[name]?.url)) || url;
   return {
     url,
     cardUrl: sizeUrl("card"),

@@ -12,8 +12,12 @@ export function absUrl(path: string): string {
 
 /**
  * 업로드 이미지 URL → 절대 URL.
- * 저장소에 따라 형태가 다르다 — Vercel Blob은 이미 절대 URL(`https://….blob.vercel-storage.com/…`),
+ * 저장소에 따라 형태가 다르다 — Vercel Blob은 절대 URL(`https://….blob.vercel-storage.com/…`),
  * 토큰 없는 폴백은 동일 출처 상대 경로(`/api/media/file/…`). 앞의 것에 SITE_URL을 덧붙이면 깨진다.
+ *
+ * 주의: Blob이 절대 URL로 나오는 것은 `payload.config.ts`의 serverURL +
+ * disablePayloadAccessControl이 함께 설정돼 있을 때뿐이다. 둘 중 하나라도 빠지면
+ * Blob을 쓰면서도 상대 경로가 나온다(2026-08-14 이전이 그 상태였다).
  */
 export function absMediaUrl(url: string): string {
   return /^https?:\/\//i.test(url) ? url : absUrl(url);

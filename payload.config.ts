@@ -22,6 +22,10 @@ import { Users } from "@/payload/collections/Users";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// Blob 토큰 유무가 미디어 URL의 형태를 가른다. 아래 serverURL·
+// disablePayloadAccessControl과 반드시 같은 조건으로 묶어야 한다.
+const blobEnabled = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+
 export default buildConfig({
   admin: {
     user: "users",
@@ -54,7 +58,12 @@ export default buildConfig({
     // (staticDir)로는 운영 업로드가 저장되지 않는다 — Blob으로 내보낸다.
     vercelBlobStorage({
       // 토큰이 없는 환경(e2e docker, 토큰 미설정 로컬)은 자동으로 로컬 디스크로 폴백한다.
-      enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+      enabled: blobEnabled,
+      // 주의: 여기에 disablePayloadAccessControl을 넘겨도 소용없다. 래퍼가
+      // cloudStoragePlugin에 alwaysInsertFields·collections·useCompositePrefixes
+      // 세 개만 전달한다(storage-vercel-blob/dist/index.js:94). 그래서 url 필드는
+      // 항상 /api/media/file/* 프록시 경로로 나온다. CDN 직결 전환은 앱 레이어에서
+      // 한다 — src/lib/payload-mappers.ts의 publicMediaUrl 참고.
       // alwaysInsertFields는 쓰지 않는다. 이 플러그인에서 그 옵션은 **비활성 분기에서만**
       // 동작해, 토큰이 없을 때만 media에 prefix 필드를 붙인다 — 즉 환경마다 스키마가
       // 갈리는 원인이 된다(토큰 有=prefix 없음 / 無=prefix 있음).
