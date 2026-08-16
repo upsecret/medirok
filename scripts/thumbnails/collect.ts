@@ -145,6 +145,16 @@ const NAVER_SOURCES: NaverSource[] = [
     blogId: "tj32xdcbiswj9",
     logNos: ["224369317424", "224365487881", "224364875176", "224364657239", "224360970255"],
   },
+  {
+    postSlug: "yeon-incheon-implant",
+    blogId: "income3357",
+    logNos: ["224349395885", "224324847704", "224238585945", "224305623337", "224295802823"],
+  },
+  {
+    postSlug: "dod-cheongdam-stemcell",
+    blogId: "tj32xdcbiswj9",
+    logNos: ["224329863601", "224343279603", "224362110811", "224346637617", "224358665553"],
+  },
 ];
 
 const naver: Target = {

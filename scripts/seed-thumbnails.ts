@@ -162,6 +162,27 @@ const FROM_NAVER: Entry[] = [
     alt: "메디록 병원 블로그 대표 이미지",
     credit: "메디록",
   },
+  {
+    collection: "blog-posts",
+    slug: "yeon-incheon-implant",
+    // 같은 원문의 임플란트 3D 렌더(_03)도 쓸 만했지만, ①(yeon-incheon-dental)이
+    // 이미 같은 계열의 렌더를 쓰고 있어 목록에서 두 카드가 비슷해 보인다.
+    // 상담·설명 맥락에 더 맞고 시각적으로도 갈리는 이 장을 골랐다(얼굴 미식별).
+    src: cand("naver", "yeon-incheon-implant_224349395885_05.jpg"),
+    alt: "진료실에서 임플란트 모형을 들고 설명하는 의료진",
+    credit: "예온치과병원 공식 네이버 블로그",
+    sourceUrl: naverUrl("income3357", "224349395885"),
+  },
+  {
+    collection: "blog-posts",
+    slug: "dod-cheongdam-stemcell",
+    // 리프팅 편과 같은 결론 — 참조 원문 5편의 이미지 198장에 쓸 것이 없다.
+    // 800px급은 전부 카드뉴스이거나 원장·모델 얼굴이 식별되는 사진이고,
+    // 유일하게 쓸 만한 공간 사진들은 172×382(영상 썸네일)이라 1280×720으로 못 쓴다.
+    src: gen("dod-cheongdam-stemcell"),
+    alt: "메디록 병원 블로그 대표 이미지",
+    credit: "메디록",
+  },
 ];
 
 // ── 생성 카드 (차용할 사진이 없는 매거진 10편) ──
