@@ -183,6 +183,24 @@ const FROM_NAVER: Entry[] = [
     alt: "메디록 병원 블로그 대표 이미지",
     credit: "메디록",
   },
+  {
+    collection: "blog-posts",
+    slug: "yeon-incheon-cavity",
+    src: cand("naver", "yeon-incheon-cavity_224366769656_06.jpg"),
+    alt: "치과용 거울로 어금니 씹는 면의 충치를 살펴보는 모형",
+    credit: "예온치과병원 공식 네이버 블로그",
+    sourceUrl: naverUrl("income3357", "224366769656"),
+  },
+  {
+    collection: "blog-posts",
+    slug: "dod-cheongdam-pigment",
+    // 앞선 두 편(리프팅·줄기세포)은 쓸 사진이 없어 생성 카드로 갔지만 이번엔 있다.
+    // 참조 원문 110장 중 폭 800px 이상이 22장이고, 그중 얼굴·글자가 없는 공간 사진을 골랐다.
+    src: cand("naver", "dod-cheongdam-pigment_224320242543_04.jpg"),
+    alt: "디오디피부과의원 청담 시술실",
+    credit: "디오디피부과의원 청담 공식 네이버 블로그",
+    sourceUrl: naverUrl("tj32xdcbiswj9", "224320242543"),
+  },
 ];
 
 // ── 생성 카드 (차용할 사진이 없는 매거진 10편) ──
