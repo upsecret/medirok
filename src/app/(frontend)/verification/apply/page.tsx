@@ -17,31 +17,31 @@ const steps = [
 export default function VerificationApplyPage() {
   return (
     <>
-      <section className="bg-[var(--color-primary-600)] py-10">
+      <section className="bg-[var(--color-primary-800)] py-14 md:py-20">
         <div className="container-content text-center">
-          <p className="editorial text-[10px] tracking-[0.14em] uppercase text-[var(--color-accent-400)]">
+          <p className="eyebrow !text-[var(--color-accent-300)]">
             MEDIROK CERTIFICATION
           </p>
-          <h1 className="editorial text-white mt-2">
-            <span className="hanja">醫錄</span> 인증제 신청
+          <h1 className="editorial mt-4 text-white">
+            메디록 인증 신청
           </h1>
-          <p className="text-[var(--color-accent-300)] text-sm mt-3 leading-relaxed max-w-xl mx-auto">
+          <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-[var(--color-primary-200)]">
             의원을 위한 신청 창구입니다. 4단계 검증을 통과한 의원만 메디록에 등재되며,
             등재 이후 지역·진료과 검색 노출과 콘텐츠 자산 구축을 함께 진행합니다.
           </p>
         </div>
       </section>
 
-      <section className="bg-[var(--color-surface-bg)] py-8">
+      <section className="section-space bg-[var(--color-surface-bg)]">
         <div className="container-content">
-          <p className="text-[10px] tracking-[0.06em] uppercase text-[var(--color-text-muted)] mb-3">
+          <p className="eyebrow mb-4">
             진행 절차
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {steps.map((s) => (
               <article
                 key={s.num}
-                className="bg-white border border-[var(--color-surface-border)] rounded-md p-4"
+                className="rounded-xl border border-[var(--color-surface-border)] bg-white p-5"
               >
                 <div className="flex items-start gap-3">
                   <span
@@ -51,8 +51,8 @@ export default function VerificationApplyPage() {
                     {s.num}
                   </span>
                   <div>
-                    <h2 className="text-sm font-medium">{s.title}</h2>
-                    <p className="text-xs text-[var(--color-text-muted)] mt-1.5 leading-relaxed">
+                    <h2 className="text-lg font-semibold">{s.title}</h2>
+                    <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-muted)]">
                       {s.detail}
                     </p>
                   </div>
@@ -61,7 +61,7 @@ export default function VerificationApplyPage() {
             ))}
           </div>
 
-          <p className="text-xs text-[var(--color-text-muted)] mt-4">
+          <p className="mt-5 text-sm text-[var(--color-text-muted)]">
             심사 기준은{" "}
             <Link
               href="/verification"

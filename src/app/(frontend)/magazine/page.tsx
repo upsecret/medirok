@@ -29,28 +29,28 @@ export default async function MagazineListPage() {
 
   return (
     <>
-      <section className="bg-[var(--color-primary-600)] py-8 md:py-10">
-        <div className="container-content">
-          <p className="editorial text-[10px] tracking-[0.14em] uppercase text-[var(--color-accent-400)]">
+      <section className="bg-[var(--color-primary-800)] py-14 md:py-20">
+        <div className="container-page">
+          <p className="eyebrow !text-[var(--color-accent-300)]">
             MEDIROK MAGAZINE · 메디록
           </p>
-          <h1 className="editorial text-white mt-2">
-            의료의 기록 · 메디록 매거진
+          <h1 className="editorial mt-4 text-white">
+            병원 선택 전 읽어볼 의료 가이드
           </h1>
-          <p className="text-[var(--color-accent-300)] text-sm mt-3 leading-relaxed max-w-xl">
-            메디록 큐레이션 의원이 직접 답하는 의료 가이드.
-            치과·산부인과·피부과·정형·안과·내과·검진.
+          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[var(--color-primary-200)]">
+            시술 이름보다 선택 기준을 먼저 설명합니다. 의료진과 편집팀이 확인한 정보를
+            읽기 편한 언어로 정리했습니다.
           </p>
         </div>
       </section>
 
-      <section className="bg-white py-3 border-b border-[var(--color-surface-border)] sticky top-[57px] z-30">
-        <div className="container-content flex gap-2 overflow-x-auto">
+      <section className="sticky top-16 z-30 border-b border-[var(--color-surface-border)] bg-white/95 py-4 backdrop-blur-md">
+        <div className="container-page flex gap-2 overflow-x-auto">
           {TYPE_TABS.map((t) => (
             <Link
               key={t.type}
               href={(t.type === "all" ? "/magazine" : `/magazine/category/${t.type}`) as Route}
-              className={`text-xs px-3 py-1.5 rounded-full whitespace-nowrap ${
+              className={`min-h-11 inline-flex items-center whitespace-nowrap rounded-full px-4 text-sm font-semibold ${
                 t.type === "all"
                   ? "bg-[var(--color-primary-600)] text-white"
                   : "bg-[var(--color-surface-bg)] text-[var(--color-text-secondary)] border border-[var(--color-surface-border)]"
@@ -62,12 +62,11 @@ export default async function MagazineListPage() {
         </div>
       </section>
 
-      <section className="bg-[var(--color-surface-bg)] py-6 border-b border-[var(--color-surface-border)]">
-        <div className="container-content">
-          <p className="text-[10px] tracking-[0.06em] uppercase text-[var(--color-text-muted)] mb-3">
-            최신 글
-          </p>
-          <div className="space-y-3">
+      <section className="section-space border-b border-[var(--color-surface-border)] bg-[var(--color-surface-bg)]">
+        <div className="container-page">
+          <p className="eyebrow mb-3">LATEST STORIES</p>
+          <h2 className="editorial mb-7">최근 발행한 글</h2>
+          <div className="space-y-5">
             {/* 첫 카드가 이 페이지의 LCP 요소다. Thumbnail 기본값이 lazy라
                 프리로드 스캐너가 잡지 못하고 레이아웃 확정 후에야 요청이 시작됐다. */}
             {recent.map((m, i) => (
@@ -77,12 +76,10 @@ export default async function MagazineListPage() {
         </div>
       </section>
 
-      <section className="bg-white py-6">
-        <div className="container-content">
-          <p className="text-[10px] tracking-[0.06em] uppercase text-[var(--color-text-muted)] mb-3">
-            전체 매거진 ({all.length})
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <section className="section-space bg-white">
+        <div className="container-page">
+          <h2 className="editorial mb-7">전체 매거진 <span className="font-sans text-base text-[var(--color-text-muted)]">{all.length}편</span></h2>
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
             {all.map((m) => (
               <MagazineCard key={m.slug} magazine={m} />
             ))}

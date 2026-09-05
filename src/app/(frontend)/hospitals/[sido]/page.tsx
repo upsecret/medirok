@@ -44,22 +44,23 @@ export default async function SidoPage({ params }: PageProps) {
         ]}
       />
 
-      <section className="bg-[var(--color-surface-bg)] py-8">
+      <section className="section-space bg-[var(--color-surface-bg)]">
         <div className="container-page">
-          <h1>{region.nameKr} 시·군·구</h1>
-          <p className="text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed">
+          <p className="eyebrow">REGION</p>
+          <h1 className="editorial mt-3">{region.nameKr}에서 병원 찾기</h1>
+          <p className="mt-3 text-base leading-relaxed text-[var(--color-text-secondary)]">
             시·군·구를 선택하면 해당 지역의 전체 진료과를 볼 수 있습니다.
           </p>
 
           {gus.length > 0 ? (
-            <div className="mt-6 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+            <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
               {gus.map((g) => (
                 <Link
                   key={g.slug}
                   href={`/hospitals/${sido}/${g.slug}`}
-                  className="bg-white rounded-md py-3.5 text-center border border-[var(--color-surface-border)] hover:border-[var(--color-accent-400)] transition"
+                  className="card-lift flex min-h-16 items-center justify-center rounded-xl border border-[var(--color-surface-border)] bg-white px-3 text-center"
                 >
-                  <p className="text-sm font-medium text-[var(--color-text-primary)]">
+                  <p className="text-base font-semibold text-[var(--color-text-primary)]">
                     {g.nameKr}
                   </p>
                 </Link>

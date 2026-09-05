@@ -24,9 +24,9 @@ export default async function HospitalsPage() {
 
   return (
     <>
-      <nav className="bg-white border-b border-[var(--color-surface-border)] py-2">
-        <div className="container-page text-xs text-[var(--color-text-muted)]">
-          홈 › 병원찾기
+      <nav className="bg-white border-b border-[var(--color-surface-border)] py-2.5">
+        <div className="container-page text-sm text-[var(--color-text-muted)]">
+          홈 › 병원 찾기
         </div>
       </nav>
 

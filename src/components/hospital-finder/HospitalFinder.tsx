@@ -119,8 +119,18 @@ export function HospitalFinder({ hospitals, regions, departments }: Props) {
 
   return (
     <>
+      <section className="bg-[var(--color-primary-800)] py-10 text-white md:py-14">
+        <div className="container-page">
+          <p className="eyebrow !text-[var(--color-accent-300)]">FIND A CLINIC</p>
+          <h1 className="editorial mt-3 !text-white">내게 맞는 병원을 찾아보세요</h1>
+          <p className="mt-3 max-w-2xl text-base text-[var(--color-primary-200)] md:text-lg">
+            지역과 진료과를 선택해 인증 정보, 의료진, 가격과 후기를 비교할 수 있습니다.
+          </p>
+        </div>
+      </section>
+
       {/* 칩바 */}
-      <section className="bg-white py-3 border-b border-[var(--color-surface-border)] sticky top-[57px] z-30">
+      <section className="sticky top-16 z-30 border-b border-[var(--color-surface-border)] bg-white/95 py-4 backdrop-blur-md">
         <div className="container-page flex items-center gap-2 overflow-x-auto">
           <Chip label={regionLabel} active={hasRegion} onClick={() => setOpen("region")} />
           <Chip label={deptLabel} active={!!dept} onClick={() => setOpen("dept")} />
@@ -129,7 +139,7 @@ export function HospitalFinder({ hospitals, regions, departments }: Props) {
             <button
               type="button"
               onClick={resetAll}
-              className="shrink-0 text-xs text-[var(--color-text-muted)] px-2 py-1 whitespace-nowrap"
+              className="min-h-11 shrink-0 whitespace-nowrap px-3 text-sm font-medium text-[var(--color-text-muted)]"
             >
               초기화
             </button>
@@ -138,14 +148,14 @@ export function HospitalFinder({ hospitals, regions, departments }: Props) {
       </section>
 
       {/* 결과 리스트 */}
-      <section className="bg-[var(--color-surface-bg)] py-5 min-h-[50vh]">
-        <div className="container-page">
-          <p className="text-xs text-[var(--color-text-muted)] mb-3">
-            醫錄 인증 병원 {results.length}곳
+      <section className="min-h-[50vh] bg-[var(--color-surface-bg)] py-8 md:py-12">
+        <div className="container-page max-w-5xl">
+          <p className="mb-5 text-base font-semibold text-[var(--color-text-primary)]">
+            조건에 맞는 병원 <span className="text-[var(--color-accent-700)]">{results.length}곳</span>
           </p>
 
           {results.length > 0 ? (
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-5">
               {results.map((h) => (
                 <HospitalListRow
                   key={h.slug}
@@ -156,14 +166,14 @@ export function HospitalFinder({ hospitals, regions, departments }: Props) {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16">
-              <p className="text-sm text-[var(--color-text-muted)]">
-                선택한 조건에 맞는 醫錄 인증 병원이 아직 없습니다.
+            <div className="rounded-2xl border border-dashed border-[var(--color-surface-border)] bg-white py-16 text-center">
+              <p className="text-base text-[var(--color-text-muted)]">
+                선택한 조건에 맞는 병원이 아직 없습니다.
               </p>
               <button
                 type="button"
                 onClick={resetAll}
-                className="inline-block mt-3 text-xs text-[var(--color-accent-700)]"
+                className="btn-outline mt-5 inline-flex items-center"
               >
                 필터 초기화 →
               </button>

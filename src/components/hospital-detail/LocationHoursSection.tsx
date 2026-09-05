@@ -3,15 +3,20 @@ import type { Hospital } from "@/types";
 // 위치 · 진료시간 섹션 — 진료시간 정보 없으면 렌더하지 않음
 export function LocationHoursSection({ hospital }: { hospital: Hospital }) {
   if (!hospital.hours) return null;
+  const mapHref = `https://map.naver.com/p/search/${encodeURIComponent(
+    `${hospital.nameKr} ${hospital.addressLine}`
+  )}`;
   return (
-    <section className="py-5 bg-[var(--color-surface-bg)] border-b border-[var(--color-surface-border)]">
-      <div className="container-page">
-        <h2 className="text-base font-medium mb-3">위치 · 진료시간</h2>
-        <div className="bg-[var(--color-surface-border)] h-24 rounded-md flex items-center justify-center mb-3">
-          <span className="text-xs text-[var(--color-text-muted)]">📍 지도</span>
+    <section className="section-space bg-[var(--color-surface-bg)] border-b border-[var(--color-surface-border)]">
+      <div className="container-page max-w-5xl">
+        <div className="mb-5 flex items-end justify-between gap-4">
+          <h2>위치 · 진료시간</h2>
+          <a href={mapHref} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-[var(--color-accent-700)]">지도에서 보기 →</a>
         </div>
-        <p className="text-sm">{hospital.addressLine}</p>
-        <table className="w-full text-xs mt-3">
+        <a href={mapHref} target="_blank" rel="noopener noreferrer" className="mb-5 flex min-h-32 items-center justify-center rounded-2xl border border-[var(--color-surface-border)] bg-white text-base font-semibold text-[var(--color-primary-700)]">
+          📍 {hospital.addressLine}
+        </a>
+        <table className="w-full overflow-hidden rounded-xl bg-white text-sm">
           <tbody>
             <tr>
               <td className="text-[var(--color-text-muted)] py-1">평일</td>

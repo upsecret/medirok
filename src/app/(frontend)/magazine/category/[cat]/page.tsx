@@ -43,27 +43,27 @@ export default async function CategoryPage({ params }: PageProps) {
 
   return (
     <>
-      <nav className="bg-white border-b border-[var(--color-surface-border)] py-2">
-        <div className="container-content text-xs text-[var(--color-text-muted)]">
+      <nav className="bg-white border-b border-[var(--color-surface-border)] py-2.5">
+        <div className="container-page text-sm text-[var(--color-text-muted)]">
           <Link href="/magazine">매거진</Link> › {label}
         </div>
       </nav>
 
-      <section className="bg-[var(--color-surface-bg)] py-7">
-        <div className="container-content">
-          <p className="editorial text-[10px] tracking-[0.14em] uppercase text-[var(--color-accent-600)] mb-1">
+      <section className="bg-[var(--color-primary-800)] py-12 text-white md:py-16">
+        <div className="container-page">
+          <p className="eyebrow mb-3 !text-[var(--color-accent-300)]">
             메디록 MAGAZINE
           </p>
-          <h1>{label}</h1>
-          <p className="text-sm text-[var(--color-text-muted)] mt-2">
+          <h1 className="editorial !text-white">{label}</h1>
+          <p className="mt-3 text-base text-[var(--color-primary-200)]">
             {items.length}편의 글
           </p>
         </div>
       </section>
 
-      <section className="bg-white py-6">
-        <div className="container-content">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <section className="section-space bg-white">
+        <div className="container-page">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
             {items.map((m, i) => (
               // 2열 그리드라 첫 줄 두 장이 접힘 위에 온다.
               // /magazine에는 있던 처리가 카테고리 페이지에만 빠져 있었다.

@@ -21,31 +21,31 @@ export function BlogPostCard({
   return (
     <Link
       href={`/blog/${hospitalSlug}/${post.slug}` as Route}
-      className="block bg-white border border-[var(--color-surface-border)] rounded-md p-4 transition hover:border-[var(--color-accent-400)]"
+      className="card-lift block rounded-2xl border border-[var(--color-surface-border)] bg-white p-4"
     >
       <Thumbnail
         thumbnail={post.thumbnail}
-        placeholderLabel="의원 블로그"
+        placeholderLabel="병원 소식"
         priority={priority}
         className="mb-3"
       />
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-[var(--color-accent-100)] text-[var(--color-accent-600)]">
-          의원 블로그
+        <span className="rounded-full bg-[var(--color-accent-100)] px-2.5 py-1 text-xs font-semibold text-[var(--color-accent-700)]">
+          병원 소식
         </span>
         {hospitalName && (
-          <span className="text-[10px] text-[var(--color-text-muted)]">
+          <span className="text-xs text-[var(--color-text-muted)]">
             {hospitalName}
           </span>
         )}
       </div>
-      <h3 className="font-medium text-sm text-[var(--color-text-primary)] leading-snug">
+      <h3 className="text-lg font-semibold leading-snug text-[var(--color-text-primary)]">
         {post.seoTitle}
       </h3>
-      <p className="text-xs text-[var(--color-text-muted)] mt-2 leading-relaxed line-clamp-2">
+      <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-[var(--color-text-muted)]">
         {post.metaDescription}
       </p>
-      <div className="flex items-center justify-between mt-3 text-[10px] text-[var(--color-text-muted)]">
+      <div className="mt-4 flex items-center justify-between text-xs text-[var(--color-text-muted)]">
         <span>{post.publishedAt}</span>
         <span>원문 {post.sourcePosts.length}편 재구성</span>
       </div>

@@ -5,8 +5,8 @@ import { useFormStatus } from "react-dom";
 import { submitApplication, type ApplyState } from "./actions";
 
 const FIELD =
-  "w-full border border-[var(--color-surface-border)] rounded-md py-2.5 px-3 text-sm bg-white";
-const LABEL = "block text-sm font-medium mb-2";
+  "h-12 w-full rounded-lg border border-[var(--color-surface-border)] bg-white px-4 text-base";
+const LABEL = "block text-base font-semibold mb-2";
 
 const INTERESTS = [
   { value: "certification", label: "4단계 인증 심사" },
@@ -17,7 +17,7 @@ const INTERESTS = [
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" disabled={pending} className="btn-accent w-full py-3 text-sm disabled:opacity-60">
+    <button type="submit" disabled={pending} className="btn-accent w-full disabled:opacity-60">
       {pending ? "접수 중…" : "醫錄 인증제 신청하기"}
     </button>
   );
@@ -30,7 +30,7 @@ export function ApplyForm() {
 
   if (state.ok) {
     return (
-      <div className="bg-white border border-[var(--color-accent-400)] rounded-lg p-6 md:p-8 mt-6 text-center">
+      <div className="mt-8 rounded-2xl border border-[var(--color-accent-400)] bg-white p-8 text-center">
         <p className="hanja text-3xl text-[var(--color-accent-400)]">錄</p>
         <h2 className="text-lg font-medium mt-3">신청이 접수되었습니다</h2>
         <p className="text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed">
@@ -45,7 +45,7 @@ export function ApplyForm() {
   return (
     <form
       action={action}
-      className="bg-white border border-[var(--color-surface-border)] rounded-lg p-5 md:p-7 mt-6 space-y-5"
+      className="mt-8 space-y-6 rounded-2xl border border-[var(--color-surface-border)] bg-white p-5 md:p-8"
     >
       {/* 허니팟 — 사람에게는 보이지 않는다. 값이 채워지면 서버에서 봇으로 거른다. */}
       <div aria-hidden="true" className="absolute -left-[9999px] h-0 overflow-hidden">
@@ -134,11 +134,11 @@ export function ApplyForm() {
         <label className={LABEL} htmlFor="message">
           문의 내용 (선택)
         </label>
-        <textarea id="message" name="message" rows={4} className={FIELD} />
+        <textarea id="message" name="message" rows={4} className="min-h-32 w-full rounded-lg border border-[var(--color-surface-border)] bg-white px-4 py-3 text-base" />
       </div>
 
       <div className="bg-[var(--color-surface-bg)] border border-[var(--color-surface-border)] rounded-md p-4">
-        <p className="text-xs text-[var(--color-text-muted)] leading-relaxed">
+        <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
           <span className="font-medium text-[var(--color-text-secondary)]">
             개인정보 수집·이용 안내
           </span>

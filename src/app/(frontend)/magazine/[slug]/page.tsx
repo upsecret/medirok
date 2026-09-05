@@ -134,26 +134,26 @@ export default async function MagazineDetailPage({ params }: PageProps) {
     <>
       <JsonLd data={schemas} />
 
-      <nav className="bg-white border-b border-[var(--color-surface-border)] py-2">
-        <div className="container-content text-xs text-[var(--color-text-muted)]">
+      <nav className="bg-white border-b border-[var(--color-surface-border)] py-2.5">
+        <div className="container-content text-sm text-[var(--color-text-muted)]">
           <Link href="/">홈</Link> › <Link href="/magazine">매거진</Link> ›{" "}
           {magazine.category}
         </div>
       </nav>
 
       <article className="bg-white">
-        <header className="container-content pt-7 pb-3">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-[var(--color-accent-100)] text-[var(--color-accent-600)]">
+        <header className="container-content pb-6 pt-10 md:pt-14">
+          <div className="mb-4 flex items-center gap-3">
+            <span className="rounded-full bg-[var(--color-accent-100)] px-3 py-1 text-xs font-semibold text-[var(--color-accent-700)]">
               {magazine.category}
             </span>
             <span className="text-xs text-[var(--color-text-muted)]">
               {magazine.publishedAt}
             </span>
           </div>
-          <h1 className="editorial">{magazine.seoTitle}</h1>
+          <h1 className="editorial !text-[38px] md:!text-[54px]">{magazine.seoTitle}</h1>
           {magazine.authorName && (
-            <p className="text-sm text-[var(--color-text-muted)] mt-3">
+            <p className="mt-5 text-base text-[var(--color-text-muted)]">
               메디록{" "}
               {authorDoctor ? (
                 <>
@@ -176,7 +176,7 @@ export default async function MagazineDetailPage({ params }: PageProps) {
         {/* 히어로는 이미지가 있을 때만 — 목록 카드와 달리 높이를 맞출 형제가 없어
             플레이스홀더를 띄울 이유가 없다 */}
         {magazine.thumbnail && (
-          <div className="container-content pb-4">
+          <div className="container-content pb-8">
             <Thumbnail
               thumbnail={magazine.thumbnail}
               variant="feature"
@@ -185,7 +185,7 @@ export default async function MagazineDetailPage({ params }: PageProps) {
           </div>
         )}
 
-        <div className="container-content">
+        <div className="container-content pb-8">
           <ShortAnswerBlock
             answer={magazine.shortAnswer}
             authorName={magazine.authorName}
@@ -228,10 +228,10 @@ export default async function MagazineDetailPage({ params }: PageProps) {
       </article>
 
       {relatedMagazines.length > 0 && (
-        <section className="bg-[var(--color-surface-bg)] py-7 border-t border-[var(--color-surface-border)]">
-          <div className="container-content">
-            <h2 className="text-lg font-medium mb-3">관련 매거진</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <section className="section-space border-t border-[var(--color-surface-border)] bg-[var(--color-surface-bg)]">
+          <div className="container-page">
+            <h2 className="editorial mb-6">관련 매거진</h2>
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
               {relatedMagazines.map((m) => (
                 <MagazineCard key={m.slug} magazine={m} />
               ))}

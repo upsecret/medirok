@@ -11,7 +11,7 @@ import { SITE_URL } from "@/lib/site";
 export const revalidate = 1800;
 
 export const metadata = {
-  title: "의원 블로그 · 메디록",
+  title: "병원 소식 · 메디록",
   description:
     "메디록 인증 의원이 공식 블로그에 직접 쓴 진료 기록을 주제별로 재구성했습니다. 원문 출처를 함께 밝힙니다.",
   alternates: { canonical: "/blog" },
@@ -23,7 +23,7 @@ export default async function BlogIndexPage() {
   const schemas: Record<string, unknown>[] = [
     breadcrumbSchema([
       { name: "홈", url: SITE_URL },
-      { name: "의원 블로그", url: `${SITE_URL}/blog` },
+      { name: "병원 소식", url: `${SITE_URL}/blog` },
     ]),
   ];
 
@@ -44,27 +44,27 @@ export default async function BlogIndexPage() {
     <>
       <JsonLd data={schemas} />
 
-      <nav className="bg-white border-b border-[var(--color-surface-border)] py-2">
-        <div className="container-content text-xs text-[var(--color-text-muted)]">
-          <Link href="/">홈</Link> › 의원 블로그
+      <nav className="bg-white border-b border-[var(--color-surface-border)] py-2.5">
+        <div className="container-page text-sm text-[var(--color-text-muted)]">
+          <Link href="/">홈</Link> › 병원 소식
         </div>
       </nav>
 
-      <section className="bg-[var(--color-primary-600)] py-8 md:py-10">
-        <div className="container-content">
-          <p className="editorial text-[10px] tracking-[0.14em] uppercase text-[var(--color-accent-400)]">
+      <section className="bg-[var(--color-primary-800)] py-14 md:py-20">
+        <div className="container-page">
+          <p className="eyebrow !text-[var(--color-accent-300)]">
             MEDIROK CLINIC BLOG · 메디록
           </p>
-          <h1 className="editorial text-white mt-2">의원 블로그</h1>
-          <p className="text-[var(--color-accent-300)] text-sm mt-3 leading-relaxed max-w-xl">
-            메디록 인증 의원이 공식 블로그에 직접 쓴 진료 기록을 주제별로 재구성했습니다.
-            각 글에는 재구성의 근거가 된 원문 목록과 링크를 함께 싣습니다.
+          <h1 className="editorial mt-4 text-white">인증 병원의 진료 이야기</h1>
+          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[var(--color-primary-200)]">
+            메디록 인증 병원이 발행한 진료 정보를 주제별로 정리했습니다.
+            모든 글에서 작성 병원과 재구성의 근거가 된 원문을 확인할 수 있습니다.
           </p>
         </div>
       </section>
 
-      <section className="bg-white py-6">
-        <div className="container-content">
+      <section className="section-space bg-white">
+        <div className="container-page">
           {groups.length === 0 ? (
             <div className="border border-dashed border-[var(--color-surface-border)] rounded-md py-12 text-center">
               <p className="text-sm text-[var(--color-text-secondary)]">
@@ -82,15 +82,14 @@ export default async function BlogIndexPage() {
             </div>
           ) : (
             <>
-              <p className="text-[10px] tracking-[0.06em] uppercase text-[var(--color-text-muted)] mb-3">
-                블로그 운영 의원 ({groups.length})
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <p className="eyebrow mb-3">CLINIC STORIES</p>
+              <h2 className="editorial mb-7">소식을 전하는 병원 <span className="font-sans text-base text-[var(--color-text-muted)]">{groups.length}곳</span></h2>
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 {groups.map(({ hospital, posts }, i) => (
                   <Link
                     key={hospital.slug}
                     href={`/blog/${hospital.slug}` as Route}
-                    className="block bg-white border border-[var(--color-surface-border)] rounded-md p-4 transition hover:border-[var(--color-accent-400)]"
+                    className="card-lift block rounded-2xl border border-[var(--color-surface-border)] bg-white p-5"
                   >
                     {/*
                       의원 단위 목록이므로 카드의 주인공은 의원 로고다.
@@ -106,21 +105,21 @@ export default async function BlogIndexPage() {
                     />
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-[var(--color-accent-100)] text-[var(--color-accent-600)]">
-                        의원 블로그
+                        병원 소식
                       </span>
                       <span className="text-[10px] text-[var(--color-text-muted)]">
                         {posts.length}편
                       </span>
                     </div>
-                    <h2 className="font-medium text-base text-[var(--color-text-primary)] leading-snug">
+                    <h3 className="text-xl font-semibold leading-snug text-[var(--color-text-primary)]">
                       {hospital.nameKr}
-                    </h2>
+                    </h3>
                     {hospital.shortDescription && (
-                      <p className="text-xs text-[var(--color-text-muted)] mt-2 leading-relaxed line-clamp-2">
+                      <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-[var(--color-text-muted)]">
                         {hospital.shortDescription}
                       </p>
                     )}
-                    <p className="text-xs text-[var(--color-text-secondary)] mt-3 leading-snug">
+                    <p className="mt-4 text-sm leading-snug text-[var(--color-text-secondary)]">
                       최근 글 · {posts[0].seoTitle}
                     </p>
                   </Link>

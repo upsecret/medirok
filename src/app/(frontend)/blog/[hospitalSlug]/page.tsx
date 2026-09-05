@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: PageProps) {
   ]);
   if (!hospital || posts.length === 0) return {};
 
-  const title = `${hospital.nameKr} 블로그 · 메디록`;
+  const title = `${hospital.nameKr} 병원 소식 · 메디록`;
   const description = `${hospital.nameKr}이 공식 블로그에 직접 쓴 진료 기록을 주제별로 재구성한 ${posts.length}편. 원문 출처를 함께 밝힙니다.`;
   const canonical = `/blog/${hospitalSlug}`;
   return {
@@ -77,24 +77,24 @@ export default async function BlogHospitalPage({ params }: PageProps) {
     <>
       <JsonLd data={schemas} />
 
-      <nav className="bg-white border-b border-[var(--color-surface-border)] py-2">
-        <div className="container-content text-xs text-[var(--color-text-muted)]">
-          <Link href="/">홈</Link> › <Link href={"/blog" as Route}>의원 블로그</Link> ›{" "}
+      <nav className="bg-white border-b border-[var(--color-surface-border)] py-2.5">
+        <div className="container-page text-sm text-[var(--color-text-muted)]">
+          <Link href="/">홈</Link> › <Link href={"/blog" as Route}>병원 소식</Link> ›{" "}
           {hospital.nameKr}
         </div>
       </nav>
 
-      <section className="bg-[var(--color-primary-600)] py-8">
-        <div className="container-content">
-          <p className="editorial text-[10px] tracking-[0.14em] uppercase text-[var(--color-accent-400)]">
+      <section className="bg-[var(--color-primary-800)] py-12 md:py-16">
+        <div className="container-page">
+          <p className="eyebrow !text-[var(--color-accent-300)]">
             CLINIC BLOG · 메디록
           </p>
-          <h1 className="editorial text-white mt-2">{hospital.nameKr} 블로그</h1>
-          <p className="text-[var(--color-accent-300)] text-sm mt-3 leading-relaxed max-w-xl">
+          <h1 className="editorial mt-4 text-white">{hospital.nameKr} 진료 이야기</h1>
+          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-[var(--color-primary-200)]">
             {hospital.nameKr}이 공식 블로그에 직접 쓴 진료 기록을 메디록이 주제별로
             재구성했습니다. 각 글 하단에 재구성의 근거가 된 원문 목록이 있습니다.
           </p>
-          <div className="flex flex-wrap gap-3 mt-4 text-xs">
+          <div className="mt-6 flex flex-wrap gap-5 text-sm">
             <Link
               href={`/hospital/${hospital.slug}` as Route}
               className="text-[var(--color-accent-300)] underline underline-offset-2"
@@ -113,12 +113,10 @@ export default async function BlogHospitalPage({ params }: PageProps) {
         </div>
       </section>
 
-      <section className="bg-white py-6">
-        <div className="container-content">
-          <p className="text-[10px] tracking-[0.06em] uppercase text-[var(--color-text-muted)] mb-3">
-            전체 글 ({posts.length})
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <section className="section-space bg-white">
+        <div className="container-page">
+          <h2 className="editorial mb-7">전체 글 <span className="font-sans text-base text-[var(--color-text-muted)]">{posts.length}편</span></h2>
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
             {posts.map((p, i) => (
               <BlogPostCard
                 key={p.slug}

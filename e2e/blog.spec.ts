@@ -19,7 +19,7 @@ test.describe("의원 블로그 목록", () => {
   test("집계 페이지가 렌더된다", async ({ page }) => {
     const res = await page.goto("/blog");
     expect(res?.status()).toBe(200);
-    await expect(page.getByRole("heading", { name: "의원 블로그", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "인증 병원의 진료 이야기", exact: true })).toBeVisible();
   });
 
   test("집계 → 병원 → 글 3단계로 관통 이동한다", async ({ page }) => {

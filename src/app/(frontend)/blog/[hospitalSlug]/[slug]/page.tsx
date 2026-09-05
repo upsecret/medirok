@@ -96,7 +96,7 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
   const schemas: Record<string, unknown>[] = [
     breadcrumbSchema([
       { name: "홈", url: SITE_URL },
-      { name: "의원 블로그", url: `${SITE_URL}/blog` },
+      { name: "병원 소식", url: `${SITE_URL}/blog` },
       { name: hospital.nameKr, url: hospitalUrl },
       { name: post.seoTitle, url },
     ]),
@@ -127,25 +127,25 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
     <>
       <JsonLd data={schemas} />
 
-      <nav className="bg-white border-b border-[var(--color-surface-border)] py-2">
-        <div className="container-content text-xs text-[var(--color-text-muted)]">
-          <Link href="/">홈</Link> › <Link href={"/blog" as Route}>의원 블로그</Link> ›{" "}
+      <nav className="bg-white border-b border-[var(--color-surface-border)] py-2.5">
+        <div className="container-content text-sm text-[var(--color-text-muted)]">
+          <Link href="/">홈</Link> › <Link href={"/blog" as Route}>병원 소식</Link> ›{" "}
           <Link href={`/blog/${hospital.slug}` as Route}>{hospital.nameKr}</Link>
         </div>
       </nav>
 
       <article className="bg-white">
-        <header className="container-content pt-7 pb-3">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-[var(--color-accent-100)] text-[var(--color-accent-600)]">
-              의원 블로그
+        <header className="container-content pb-6 pt-10 md:pt-14">
+          <div className="mb-4 flex items-center gap-3">
+            <span className="rounded-full bg-[var(--color-accent-100)] px-3 py-1 text-xs font-semibold text-[var(--color-accent-700)]">
+              병원 소식
             </span>
             <span className="text-xs text-[var(--color-text-muted)]">
               {post.publishedAt}
             </span>
           </div>
-          <h1 className="editorial">{post.seoTitle}</h1>
-          <p className="text-sm text-[var(--color-text-muted)] mt-3">
+          <h1 className="editorial !text-[38px] md:!text-[54px]">{post.seoTitle}</h1>
+          <p className="mt-5 text-base text-[var(--color-text-muted)]">
             {hospital.nameKr}
             {authorDoctor && (
               <>
@@ -157,18 +157,18 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
               </>
             )}
           </p>
-          <p className="text-xs text-[var(--color-text-muted)] mt-1">
+          <p className="mt-1 text-sm text-[var(--color-text-muted)]">
             의원 공식 네이버 블로그 기반 재구성 · 원문 {post.sourcePosts.length}편
           </p>
         </header>
 
         {post.thumbnail && (
-          <div className="container-content pb-4">
+          <div className="container-content pb-8">
             <Thumbnail thumbnail={post.thumbnail} variant="feature" priority />
           </div>
         )}
 
-        <div className="container-content">
+        <div className="container-content pb-8">
           <ShortAnswerBlock
             answer={post.shortAnswer}
             authorName={authorName}

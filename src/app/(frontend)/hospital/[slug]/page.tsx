@@ -14,6 +14,7 @@ import {
 } from "@/lib/magazines-data";
 import { MedirokCertBox } from "@/components/MedirokCertBox";
 import { HospitalCard } from "@/components/HospitalCard";
+import { HospitalImage } from "@/components/HospitalImage";
 import { MagazineCard } from "@/components/MagazineCard";
 import { JsonLd } from "@/components/JsonLd";
 import { PriceSection } from "@/components/hospital-detail/PriceSection";
@@ -131,6 +132,12 @@ export default async function HospitalDetailPage({ params }: PageProps) {
       medicalSpecialty: dept?.nameKr,
     }),
   ];
+  const phoneHref = hospital.phone
+    ? `tel:${hospital.phone.replace(/[^0-9+]/g, "")}`
+    : undefined;
+  const mapHref = `https://map.naver.com/p/search/${encodeURIComponent(
+    `${hospital.nameKr} ${hospital.addressLine}`
+  )}`;
 
   return (
     <>
@@ -138,84 +145,70 @@ export default async function HospitalDetailPage({ params }: PageProps) {
 
       <Breadcrumbs items={navItems} schemaItems={schemaItems} />
 
-      <div className="bg-[var(--color-surface-border)] h-44 md:h-56 flex items-center justify-center relative">
-        <span className="text-xs text-[var(--color-text-muted)]">의원 사진 (1 / 8)</span>
-        <span className="absolute bottom-3 right-4 text-[10px] bg-black/60 text-white px-2 py-1 rounded-full">
-          1 / 8
-        </span>
-      </div>
-
-      <section className="bg-white py-5 border-b border-[var(--color-surface-border)]">
-        <div className="container-page">
-          <div className="flex gap-1.5 flex-wrap">
-            {hospital.tier === "PREMIUM" && <span className="badge-premium">PREMIUM</span>}
-            {hospital.certification && (
-              <span className="badge-certified">
-                메디록 4단계 인증
-              </span>
+      <section className="bg-white pb-10 pt-5 md:pb-16 md:pt-8">
+        <div className="container-page grid gap-7 lg:grid-cols-[1.1fr_0.9fr] lg:items-stretch">
+          <HospitalImage
+            hospital={hospital}
+            priority
+            className="aspect-[16/10] rounded-2xl sm:min-h-[260px] lg:aspect-auto"
+          />
+          <div className="flex flex-col justify-center py-2 lg:px-5">
+            <div className="flex flex-wrap gap-2">
+              {hospital.certification && <span className="badge-certified">메디록 4단계 인증</span>}
+              {dept && (
+                <span className="rounded-full bg-[var(--color-accent-100)] px-3 py-1 text-xs font-semibold text-[var(--color-accent-700)]">
+                  {dept.nameKr}
+                </span>
+              )}
+            </div>
+            <h1 className="editorial mt-5">{hospital.nameKr}</h1>
+            {hospital.shortDescription && (
+              <p className="mt-4 text-lg leading-relaxed text-[var(--color-text-secondary)]">
+                {hospital.shortDescription}
+              </p>
             )}
-            <span className="text-[10px] font-medium bg-[var(--color-accent-100)] text-[var(--color-accent-600)] px-2 py-0.5 rounded">
-              시니어 친화
-            </span>
-          </div>
-          <h1 className="mt-2">{hospital.nameKr}</h1>
-          <div className="flex gap-2 items-center mt-2 text-sm">
-            <span className="font-medium">★ {hospital.rating}</span>
-            <span className="text-[var(--color-text-muted)]">({hospital.reviewCount})</span>
-            <span className="text-[var(--color-text-muted)]">·</span>
-            <span className="text-[var(--color-success)]">● 진료 중</span>
-          </div>
-          <p className="text-sm text-[var(--color-text-muted)] mt-1">
-            {hospital.addressLine}
-            {hospital.nearestStation && ` · ${hospital.nearestStation} 도보 ${hospital.walkingMinutes}분`}
-          </p>
-          {hospital.monthlyVisitors && (
-            <p className="text-xs text-[var(--color-success)] mt-2">
-              한 달간 메디록을 통해 {hospital.monthlyVisitors}명 방문완료
+            <p className="mt-5 text-base text-[var(--color-text-secondary)]">
+              <span className="font-semibold text-[var(--color-text-primary)]">
+                <span className="text-[var(--color-warning)]">★</span> {hospital.rating}
+              </span>
+              <span className="text-[var(--color-text-muted)]"> · 후기 {hospital.reviewCount}개</span>
             </p>
-          )}
-        </div>
-      </section>
-
-      <section className="bg-white py-3 border-b border-[var(--color-surface-border)]">
-        <div className="container-page">
-          {/* 이 액션바는 환자가 특정 의원을 보는 자리다. 병원 대상 인증제 신청 CTA는
-              여기 두지 않는다(전역 헤더·탭바가 담당). */}
-          <div className="grid grid-cols-3 gap-1.5">
-            <button className="bg-[var(--color-surface-bg)] border border-[var(--color-surface-border)] rounded-md py-3 text-center">
-              <span className="text-xl">📞</span>
-              <p className="text-[10px] font-medium mt-1">전화</p>
-            </button>
-            <button className="bg-[var(--color-surface-bg)] border border-[var(--color-surface-border)] rounded-md py-3 text-center">
-              <span className="text-xl">📍</span>
-              <p className="text-[10px] font-medium mt-1">길찾기</p>
-            </button>
-            <button className="bg-[var(--color-primary-600)] rounded-md py-3 text-center">
-              <span className="text-xl">📅</span>
-              <p className="text-[10px] font-medium text-white mt-1">예약</p>
-            </button>
+            <p className="mt-2 text-base text-[var(--color-text-muted)]">
+              {hospital.addressLine}
+              {hospital.nearestStation && ` · ${hospital.nearestStation} 도보 ${hospital.walkingMinutes}분`}
+            </p>
+            <div className="mt-7 grid grid-cols-2 gap-3">
+              {phoneHref ? (
+                <a href={phoneHref} className="btn-primary inline-flex items-center justify-center">전화 상담</a>
+              ) : (
+                <span className="inline-flex min-h-12 items-center justify-center rounded-lg bg-[var(--color-surface-bg2)] px-4 text-sm text-[var(--color-text-muted)]">
+                  전화번호 미등록
+                </span>
+              )}
+              <a href={mapHref} target="_blank" rel="noopener noreferrer" className="btn-outline inline-flex items-center justify-center">
+                지도에서 보기
+              </a>
+            </div>
           </div>
         </div>
       </section>
 
       {hospital.certification && (
-        <section className="py-5 bg-[var(--color-surface-bg)]">
-          <div className="container-page">
+        <section className="section-space bg-[var(--color-surface-bg)]">
+          <div className="container-page max-w-5xl">
             <MedirokCertBox cert={hospital.certification} />
           </div>
         </section>
       )}
 
       {hospital.curationNote && (
-        <section className="py-5 bg-white border-y border-[var(--color-surface-border)]">
-          <div className="container-page">
-            <p className="editorial text-[10px] tracking-[0.1em] uppercase text-[var(--color-accent-600)] mb-2">
-              CURATOR&apos;S NOTE
-            </p>
-            <blockquote className="editorial italic text-base leading-relaxed border-l-2 border-[var(--color-accent-400)] pl-4">
-              &ldquo;{hospital.curationNote.text}&rdquo;
+        <section className="section-space border-y border-[var(--color-surface-border)] bg-white">
+          <div className="container-content">
+            <p className="eyebrow mb-3">CURATOR&apos;S NOTE · 선정 이유</p>
+            <blockquote className="editorial border-l-2 border-[var(--color-accent-400)] pl-5 text-xl leading-relaxed md:text-2xl">
+              {hospital.curationNote.text}
             </blockquote>
-            <p className="text-xs text-[var(--color-text-muted)] mt-3">
+            <p className="mt-4 text-sm text-[var(--color-text-muted)]">
               — 메디록 큐레이터 {hospital.curationNote.curatorName}
               {hospital.curationNote.curatorTitle && ` (${hospital.curationNote.curatorTitle})`}
             </p>

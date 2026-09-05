@@ -4,44 +4,34 @@ import { Logo } from "./Logo";
 
 export function Footer() {
   return (
-    <footer className="bg-[var(--color-primary-700)] text-[var(--color-accent-300)] pt-8 pb-20 md:pb-8">
+    <footer className="bg-[var(--color-primary-800)] text-[var(--color-primary-200)] pt-12 pb-24 md:pb-10">
       <div className="container-page">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
+        <div className="grid grid-cols-2 gap-9 md:grid-cols-3 md:gap-12 text-sm">
           <div className="col-span-2 md:col-span-1">
             <Logo size={22} variant="dark" />
-            <p className="mt-3 text-xs leading-relaxed text-[var(--color-accent-300)]">
-              시니어 의료 가이드
+            <p className="mt-4 text-sm leading-relaxed text-[var(--color-primary-200)]">
+              나와 가족의 병원 선택을 돕는<br />의료 정보 플랫폼
               <br />
               <span className="hanja">醫錄</span> · 의료의 기록
             </p>
           </div>
           <div>
-            <p className="text-white font-medium text-xs mb-2">서비스</p>
-            <ul className="space-y-1.5 text-xs">
-              <li><Link href="/hospitals">병원찾기</Link></li>
+            <p className="text-white font-semibold text-sm mb-3">서비스</p>
+            <ul className="space-y-2 text-sm">
+              <li><Link href="/hospitals">병원 찾기</Link></li>
               <li><Link href={"/magazine" as Route}>매거진</Link></li>
-              <li><Link href={"/blog" as Route}>의원 블로그</Link></li>
-              <li><Link href="/verification"><span className="hanja">醫錄</span> 인증제</Link></li>
+              <li><Link href={"/blog" as Route}>병원 소식</Link></li>
             </ul>
           </div>
           <div>
-            <p className="text-white font-medium text-xs mb-2">파트너</p>
-            <ul className="space-y-1.5 text-xs">
+            <p className="text-white font-semibold text-sm mb-3">병원 관계자</p>
+            <ul className="space-y-2 text-sm">
+              <li><Link href="/verification"><span className="hanja">醫錄</span> 인증제 안내</Link></li>
               <li><Link href="/verification/apply"><span className="hanja">醫錄</span> 인증제 신청</Link></li>
-              <li><Link href={"/seo-solution" as Route}>SEO 솔루션</Link></li>
-              <li><Link href={"/curation-criteria" as Route}>큐레이션 심사 기준</Link></li>
-            </ul>
-          </div>
-          <div>
-            <p className="text-white font-medium text-xs mb-2">회사</p>
-            <ul className="space-y-1.5 text-xs">
-              <li><Link href={"/about" as Route}>소개</Link></li>
-              <li><Link href={"/careers" as Route}>채용</Link></li>
-              <li><Link href={"/terms" as Route}>이용약관</Link></li>
             </ul>
           </div>
         </div>
-        <div className="mt-8 pt-5 border-t border-[var(--color-primary-500)] text-[10px] text-[var(--color-accent-300)] opacity-70">
+        <div className="mt-10 pt-6 border-t border-[var(--color-primary-600)] text-xs leading-relaxed text-[var(--color-primary-300)]">
           주식회사 루코르다 · 사업자등록번호 481-87-02246 · 경기도 용인시 기흥구
           <br />
           대표전화 070-8064-0972

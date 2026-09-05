@@ -6,21 +6,21 @@ test.describe("헤더 내비게이션 (데스크톱)", () => {
   test("주요 메뉴 링크가 동작한다", async ({ page }) => {
     await page.goto("/");
 
-    await page.getByRole("navigation").getByRole("link", { name: "병원찾기" }).click();
+    await page.getByRole("navigation").getByRole("link", { name: "병원 찾기" }).click();
     await expect(page).toHaveURL("/hospitals");
-    await expect(page.getByText("홈 › 병원찾기")).toBeVisible();
+    await expect(page.getByText("홈 › 병원 찾기")).toBeVisible();
 
     await page.getByRole("navigation").getByRole("link", { name: "매거진" }).click();
     await expect(page).toHaveURL("/magazine");
 
-    await page.getByRole("navigation").getByRole("link", { name: "블로그", exact: true }).click();
+    await page.getByRole("navigation").getByRole("link", { name: "병원 소식", exact: true }).click();
     await expect(page).toHaveURL("/blog");
 
-    await page.getByRole("navigation").getByRole("link", { name: /인증제/ }).click();
+    await page.getByRole("navigation").getByRole("link", { name: "인증 기준" }).click();
     await expect(page).toHaveURL("/verification");
 
-    await page.getByRole("banner").getByRole("link", { name: /인증제 신청/ }).click();
-    await expect(page).toHaveURL("/verification/apply");
+    await page.getByRole("banner").getByRole("link", { name: "내게 맞는 병원 찾기" }).click();
+    await expect(page).toHaveURL("/hospitals");
   });
 
   test("로고 클릭 시 홈으로 이동한다", async ({ page }) => {
@@ -36,17 +36,14 @@ test.describe("모바일 탭바", () => {
   test("하단 탭으로 주요 페이지를 이동한다", async ({ page }) => {
     await page.goto("/");
 
-    await page.getByRole("link", { name: "병원찾기" }).last().click();
+    await page.getByRole("link", { name: "병원 찾기" }).last().click();
     await expect(page).toHaveURL("/hospitals");
 
     await page.getByRole("link", { name: "매거진" }).last().click();
     await expect(page).toHaveURL("/magazine");
 
-    await page.getByRole("link", { name: "블로그" }).last().click();
+    await page.getByRole("link", { name: "병원 소식" }).last().click();
     await expect(page).toHaveURL("/blog");
-
-    await page.getByRole("link", { name: "인증 신청" }).click();
-    await expect(page).toHaveURL("/verification/apply");
 
     // dev overlay가 하단 탭 클릭을 가로채는 경우가 있어 href·가시성만 검증
     const homeTab = page.locator("nav.fixed.bottom-0 a[href='/']");

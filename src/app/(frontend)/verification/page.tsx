@@ -31,28 +31,28 @@ const stages = [
 export default function VerificationPage() {
   return (
     <>
-      <section className="bg-[var(--color-primary-600)] py-10">
+      <section className="bg-[var(--color-primary-800)] py-14 md:py-20">
         <div className="container-content text-center">
-          <p className="editorial text-[10px] tracking-[0.14em] uppercase text-[var(--color-accent-400)]">
+          <p className="eyebrow !text-[var(--color-accent-300)]">
             MEDIROK CERTIFICATION
           </p>
-          <h1 className="editorial text-white mt-2">
-            <span className="hanja">醫錄</span> 4단계 의원 인증제
+          <h1 className="editorial mt-4 text-white">
+            병원을 살펴보는 메디록의 기준
           </h1>
-          <p className="text-[var(--color-accent-300)] text-sm mt-3 leading-relaxed max-w-xl mx-auto">
+          <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-[var(--color-primary-200)]">
             모든 의원은 진료이력·실방문 후기·의료진 자격·시설장비 4단계 검증을
             통과해야 등재됩니다. 메디록이 무엇을 어떻게 확인하는지 그대로 공개합니다.
           </p>
         </div>
       </section>
 
-      <section className="bg-[var(--color-surface-bg)] py-8">
+      <section className="section-space bg-[var(--color-surface-bg)]">
         <div className="container-content">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             {stages.map((s) => (
               <article
                 key={s.num}
-                className="bg-white border border-[var(--color-accent-400)] rounded-md p-5"
+                className="rounded-2xl border border-[var(--color-surface-border)] bg-white p-6 md:p-8"
               >
                 <div className="flex items-start gap-3">
                   <span
@@ -62,8 +62,8 @@ export default function VerificationPage() {
                     {s.num}
                   </span>
                   <div>
-                    <h3 className="text-base font-medium">{s.title}</h3>
-                    <p className="text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed">
+                    <h3 className="text-xl font-semibold">{s.title}</h3>
+                    <p className="mt-3 text-base leading-relaxed text-[var(--color-text-secondary)]">
                       {s.detail}
                     </p>
                   </div>
@@ -74,21 +74,21 @@ export default function VerificationPage() {
         </div>
       </section>
 
-      <section className="bg-white py-8 border-t border-[var(--color-surface-border)]">
+      <section className="section-space border-t border-[var(--color-surface-border)] bg-white">
         <div className="container-content">
-          <h2 className="text-lg font-medium mb-3">
+          <h2 className="editorial mb-4">
             메디록 큐레이션은 무엇이
             다른가요?
           </h2>
-          <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">
+          <p className="text-base leading-relaxed text-[var(--color-text-secondary)] md:text-lg">
             4단계 인증을 통과한 의원 중 추가 큐레이터 심사를 거쳐 선정됩니다. 임상 경험,
             환자 만족도, 의료진 전문성을 종합 평가하며, 분과·지역별로 3~5곳만
             선정합니다.
           </p>
 
-          <div className="mt-6 bg-[var(--color-surface-bg)] border border-[var(--color-accent-400)] rounded-md p-5">
-            <h2 className="text-base font-medium">인증을 신청하시는 의원이라면</h2>
-            <p className="text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed">
+          <div className="mt-8 rounded-2xl border border-[var(--color-surface-border)] bg-[var(--color-surface-bg)] p-6 md:p-8">
+            <h2 className="text-2xl font-semibold">인증을 신청하시는 병원이라면</h2>
+            <p className="mt-3 text-base leading-relaxed text-[var(--color-text-secondary)]">
               신청 접수 → 서류 검증 → 실사·후기 검증 → 등재 순으로 진행됩니다.
               의원 정보를 남겨주시면 담당자가 절차를 안내드립니다.
             </p>

@@ -64,27 +64,28 @@ export default async function GuPage({ params }: PageProps) {
         ]}
       />
 
-      <section className="bg-[var(--color-surface-bg)] py-8">
+      <section className="section-space bg-[var(--color-surface-bg)]">
         <div className="container-page">
-          <h1>{sidoName} {region.nameKr} 진료과 선택</h1>
-          <p className="text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed">
+          <p className="eyebrow">DEPARTMENT</p>
+          <h1 className="editorial mt-3">{sidoName} {region.nameKr} 진료과 선택</h1>
+          <p className="mt-3 text-base leading-relaxed text-[var(--color-text-secondary)]">
             진료과를 선택하면 {sidoName} {region.nameKr}의 메디록 인증 병원을
             비교할 수 있습니다.
           </p>
 
-          <div className="mt-6 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-9 gap-2">
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
             {departments.map((dept) => (
               <Link
                 key={dept.slug}
                 href={`/hospitals/${sido}/${gu}/${deptUrlName(dept)}`}
-                className="bg-white rounded-md p-3 text-center transition border border-[var(--color-surface-border)] hover:border-[var(--color-accent-400)]"
+                className="card-lift rounded-xl border border-[var(--color-surface-border)] bg-white p-5 text-center"
               >
                 <DepartmentIcon
                   slug={dept.slug}
-                  size={26}
+                  size={34}
                   className="text-[var(--color-primary-600)] mx-auto"
                 />
-                <p className="text-[11px] font-medium text-[var(--color-text-primary)] mt-1.5">
+                <p className="mt-3 text-base font-semibold text-[var(--color-text-primary)]">
                   {dept.nameKr}
                 </p>
               </Link>

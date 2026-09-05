@@ -8,11 +8,11 @@ test.describe("병원찾기", () => {
   test("필터 칩바와 결과 카운터가 표시된다", async ({ page }) => {
     await page.goto("/hospitals");
 
-    await expect(page.getByText("홈 › 병원찾기")).toBeVisible();
+    await expect(page.getByText("홈 › 병원 찾기")).toBeVisible();
     await expect(page.getByRole("button", { name: "지역" })).toBeVisible();
     await expect(page.getByRole("button", { name: "진료과" })).toBeVisible();
     await expect(page.getByRole("button", { name: "추천순" })).toBeVisible();
-    await expect(page.getByText(/醫錄 인증 병원 \d+곳/)).toBeVisible();
+    await expect(page.getByText(/조건에 맞는 병원 \d+곳/)).toBeVisible();
   });
 
   test("지역 선택 모달을 열고 닫을 수 있다", async ({ page }) => {
@@ -62,7 +62,7 @@ test.describe("병원찾기", () => {
   test("조건에 맞는 병원이 없으면 빈 상태 안내가 표시된다", async ({ page }) => {
     await page.goto("/hospitals?dept=존재하지않는진료과");
     await expect(
-      page.getByText("선택한 조건에 맞는 醫錄 인증 병원이 아직 없습니다.")
+      page.getByText("선택한 조건에 맞는 병원이 아직 없습니다.")
     ).toBeVisible();
   });
 
@@ -70,13 +70,7 @@ test.describe("병원찾기", () => {
     test.skip(noHospitals, "Payload DB에 병원 데이터가 없습니다");
     await page.goto("/hospitals");
 
-    const firstRow = page
-      .locator("section")
-      .filter({ hasText: "醫錄 인증 병원" })
-      .locator("button")
-      .filter({ has: page.locator("h3") })
-      .first();
-    await firstRow.click();
+    await page.getByRole("button", { name: "빠른 보기" }).first().click();
 
     const quickView = page.getByRole("dialog");
     await expect(quickView).toBeVisible();
@@ -98,7 +92,7 @@ test.describe("병원 상세", () => {
 
     await expect(page.locator("h1").first()).toBeVisible();
     // 핵심 섹션: 진료/가격 · 의료진 · 실방문 후기 · 위치/진료시간
-    await expect(page.getByRole("heading", { name: "진료 / 가격" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "진료 · 가격 정보" })).toBeVisible();
     await expect(page.getByRole("heading", { name: /의료진 \(\d+명\)/ })).toBeVisible();
     await expect(page.getByRole("heading", { name: /실방문 후기 \(\d+\)/ })).toBeVisible();
     await expect(page.getByRole("heading", { name: "위치 · 진료시간" })).toBeVisible();
@@ -108,7 +102,7 @@ test.describe("병원 상세", () => {
     test.skip(!slug, "Payload DB에 병원 데이터가 없습니다");
     await page.goto(`/hospital/${slug}`);
 
-    await expect(page.getByText("메디록 4단계 의원 인증").first()).toBeVisible();
+    await expect(page.getByText("이 병원에서 확인한 4가지 기준").first()).toBeVisible();
     await expect(page.getByText("진료 이력", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("실방문 후기", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("의료진", { exact: true }).first()).toBeVisible();

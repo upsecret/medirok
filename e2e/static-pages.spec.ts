@@ -4,7 +4,7 @@ test.describe("醫錄 인증제", () => {
   test("4단계 인증 소개가 표시된다", async ({ page }) => {
     await page.goto("/verification");
 
-    await expect(page.getByRole("heading", { name: /4단계 의원 인증제/ })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "병원을 살펴보는 메디록의 기준" })).toBeVisible();
     await expect(page.getByText("진료 이력 검증")).toBeVisible();
     await expect(page.getByText("실방문자 후기 검증")).toBeVisible();
     await expect(page.getByText("의료진 자격 검증")).toBeVisible();
@@ -21,7 +21,7 @@ test.describe("醫錄 인증제 신청", () => {
   test("신청 폼 필드가 표시된다", async ({ page }) => {
     await page.goto("/verification/apply");
 
-    await expect(page.getByRole("heading", { name: /인증제 신청/ })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "메디록 인증 신청" })).toBeVisible();
     await expect(page.getByLabel(/의원명/)).toBeVisible();
     await expect(page.getByLabel(/담당자·원장 성함/)).toBeVisible();
     await expect(page.getByLabel(/연락처/)).toBeVisible();

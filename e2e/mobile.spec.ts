@@ -18,7 +18,7 @@ test.describe("모바일 — 핵심 페이지 렌더링", () => {
     await page.goto("/");
 
     await expect(
-      page.getByRole("heading", { name: "내가 직접 고른 메디록 큐레이션 의원" })
+      page.getByRole("heading", { name: /나와 가족의 병원 선택/ })
     ).toBeVisible();
     await expect(page.locator("nav.fixed.bottom-0")).toBeVisible();
     await expectNoHorizontalScroll(page);
@@ -27,7 +27,7 @@ test.describe("모바일 — 핵심 페이지 렌더링", () => {
   test("병원찾기가 가로 스크롤 없이 렌더된다", async ({ page }) => {
     await page.goto("/hospitals");
 
-    await expect(page.getByText(/醫錄 인증 병원 \d+곳/)).toBeVisible();
+    await expect(page.getByText(/조건에 맞는 병원 \d+곳/)).toBeVisible();
     await expectNoHorizontalScroll(page);
   });
 
@@ -35,7 +35,7 @@ test.describe("모바일 — 핵심 페이지 렌더링", () => {
     await page.goto("/magazine");
 
     await expect(
-      page.getByRole("heading", { name: "의료의 기록 · 메디록 매거진" })
+      page.getByRole("heading", { name: "병원 선택 전 읽어볼 의료 가이드" })
     ).toBeVisible();
     await expectNoHorizontalScroll(page);
   });

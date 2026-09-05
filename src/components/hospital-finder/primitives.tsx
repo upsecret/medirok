@@ -43,7 +43,7 @@ export function Chip({
     <button
       type="button"
       onClick={onClick}
-      className={`shrink-0 inline-flex items-center gap-1 px-3.5 py-2 rounded-full border text-sm whitespace-nowrap transition-colors ${
+      className={`min-h-12 shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full border text-base whitespace-nowrap transition-colors ${
         active
           ? "border-[var(--color-primary-600)] bg-[var(--color-primary-600)] text-white font-medium"
           : "border-[var(--color-surface-border)] bg-white text-[var(--color-text-secondary)]"

@@ -141,16 +141,16 @@ export default async function HospitalListPage({ params, searchParams }: PagePro
         ]}
       />
 
-      <section className="bg-[var(--color-surface-bg)] py-6">
+      <section className="bg-[var(--color-primary-800)] py-12 text-white md:py-16">
         <div className="container-page">
-          <span className="inline-block text-[10px] tracking-[0.05em] bg-[var(--color-accent-100)] text-[var(--color-accent-600)] px-2.5 py-1 rounded font-medium mb-2.5">
+          <span className="eyebrow !text-[var(--color-accent-300)]">
             {regionFull} · <span className="hanja">{department.hanja}</span>{" "}
             {department.nameKr}
           </span>
-          <h1>
+          <h1 className="editorial mt-3 !text-white">
             {regionFull} {department.nameKr}
           </h1>
-          <p className="text-sm text-[var(--color-text-secondary)] mt-2.5 leading-relaxed max-w-2xl">
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-[var(--color-primary-200)]">
             {introCopy}
           </p>
 
@@ -159,15 +159,15 @@ export default async function HospitalListPage({ params, searchParams }: PagePro
       </section>
 
       {curated.length > 0 && (
-        <section className="bg-[var(--color-surface-bg)] py-6 border-t border-[var(--color-surface-border)]">
+        <section className="section-space border-t border-[var(--color-surface-border)] bg-[var(--color-surface-bg)]">
           <div className="container-page">
-            <p className="editorial text-[10px] tracking-[0.14em] uppercase text-[var(--color-accent-600)] mb-1">
+            <p className="eyebrow mb-2">
               TIER 01 · MEDIROK CURATION
             </p>
             <h2 className="editorial mb-4">
               {regionFull} {department.nameKr} 메디록 큐레이션
             </h2>
-            <div className="space-y-3">
+            <div className="space-y-5">
               {curated.map((h) => (
                 <CurationCard key={h.slug} hospital={h} size="lg" />
               ))}
@@ -176,19 +176,16 @@ export default async function HospitalListPage({ params, searchParams }: PagePro
         </section>
       )}
 
-      <section className="bg-white py-6 border-t border-[var(--color-surface-border)]">
-        <div className="container-page">
-          <p className="text-[10px] tracking-[0.1em] uppercase text-[var(--color-text-muted)]">
-            TIER 02 · DIRECTORY
-          </p>
-          <div className="flex justify-between items-baseline mt-1 mb-4">
-            <h2 className="text-base font-medium">
+      <section className="section-space border-t border-[var(--color-surface-border)] bg-white">
+        <div className="container-page max-w-5xl">
+          <p className="eyebrow">DIRECTORY</p>
+          <div className="mb-6 mt-2 flex justify-between items-baseline">
+            <h2>
               전체 메디록 인증 병원 ({standard.length})
             </h2>
-            <span className="text-xs text-[var(--color-text-muted)]">방문 많은 순 ▾</span>
           </div>
           {standard.length > 0 ? (
-            <div className="space-y-2">
+            <div className="space-y-5">
               {standard.map((h) => (
                 <HospitalCard key={h.slug} hospital={h} />
               ))}
@@ -201,8 +198,8 @@ export default async function HospitalListPage({ params, searchParams }: PagePro
         </div>
       </section>
 
-      <section className="bg-[var(--color-surface-bg)] py-6 border-t border-[var(--color-surface-border)]">
-        <div className="container-page">
+      <section className="section-space border-t border-[var(--color-surface-border)] bg-[var(--color-surface-bg)]">
+        <div className="container-content">
           <FaqBlock faqs={faqs} defaultOpenFirst={false} className="" />
         </div>
       </section>

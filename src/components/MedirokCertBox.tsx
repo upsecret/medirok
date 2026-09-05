@@ -16,29 +16,29 @@ export function MedirokCertBox({ cert, compact = false }: MedirokCertBoxProps) {
   const details = [cert.stage1Detail, cert.stage2Detail, cert.stage3Detail, cert.stage4Detail];
 
   return (
-    <section className="bg-[var(--color-primary-600)] py-6 md:py-7 px-5 md:px-7 rounded-lg">
-      <div className="flex justify-between items-baseline mb-4">
+    <section className="rounded-2xl bg-[var(--color-primary-800)] px-5 py-7 md:px-8 md:py-9">
+      <div className="mb-6 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
         <div>
-          <p className="editorial text-[10px] tracking-[0.08em] text-[var(--color-accent-400)]">
+          <p className="eyebrow !text-[var(--color-accent-300)]">
             MEDIROK CERTIFICATION
           </p>
-          <h3 className="text-base md:text-lg font-medium text-white mt-1">
-            메디록 4단계 의원 인증
+          <h3 className="mt-2 text-xl font-semibold text-white md:text-2xl">
+            이 병원에서 확인한 4가지 기준
           </h3>
         </div>
-        <span className="text-xs text-[var(--color-accent-300)]">{cert.certifiedAt} 완료</span>
+        <span className="text-sm text-[var(--color-primary-300)]">{cert.certifiedAt} 확인 완료</span>
       </div>
-      <div className={`grid ${compact ? "grid-cols-2 md:grid-cols-4" : "grid-cols-2 md:grid-cols-4"} gap-2`}>
+      <div className={`grid ${compact ? "grid-cols-2 md:grid-cols-4" : "grid-cols-1 sm:grid-cols-2 md:grid-cols-4"} gap-3`}>
         {stages.map((stage, i) => (
           <div
             key={stage.num}
-            className="bg-[var(--color-primary-700)] border border-[var(--color-accent-400)] rounded-md p-3"
+            className="rounded-xl border border-white/15 bg-white/5 p-4"
           >
-            <span className="editorial text-[var(--color-accent-400)] text-sm font-medium tracking-wider">
+            <span className="editorial text-lg font-medium text-[var(--color-accent-300)]">
               {stage.num}
             </span>
-            <p className="text-[11px] font-medium text-white mt-1.5">{stage.labelKr}</p>
-            <p className="text-[10px] text-[var(--color-accent-300)] mt-1 leading-relaxed">
+            <p className="mt-2 text-base font-semibold text-white">{stage.labelKr}</p>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--color-primary-200)]">
               {details[i]}
             </p>
           </div>

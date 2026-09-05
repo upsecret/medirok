@@ -1,10 +1,9 @@
 "use client";
 
-// GooDoc 스타일 세로 리스팅 행 — 클릭 시 퀵뷰 모달 오픈
-
+import Link from "next/link";
 import type { Hospital } from "@/types";
 import { formatKRW } from "@/lib/format";
-import { DepartmentIcon } from "@/components/DepartmentIcon";
+import { HospitalImage } from "@/components/HospitalImage";
 
 interface Props {
   hospital: Hospital;
@@ -13,96 +12,78 @@ interface Props {
 }
 
 export function HospitalListRow({ hospital: h, deptName, onSelect }: Props) {
-  const isPremium = h.tier === "PREMIUM" || h.tier === "HERITAGE";
   const mainPrice = h.prices[0];
-  const region = h.addressLine.split(" ").slice(1, 3).join(" ");
 
   return (
-    <button
-      type="button"
-      onClick={() => onSelect(h.slug)}
-      className={`w-full text-left flex gap-3 p-3.5 bg-white rounded-lg border transition-colors hover:bg-[var(--color-surface-bg)] ${
-        isPremium
-          ? "border-[var(--color-accent-400)] border-[1.5px]"
-          : "border-[var(--color-surface-border)]"
-      }`}
-    >
-      {/* 썸네일 */}
-      <div className="w-[60px] h-[60px] bg-[var(--color-surface-bg2)] rounded-md shrink-0 flex items-center justify-center">
-        <DepartmentIcon
-          slug={h.departmentSlug}
-          size={30}
-          className="text-[var(--color-primary-600)]"
-        />
-      </div>
-
-      {/* 본문 */}
-      <div className="flex-1 min-w-0">
-        {(isPremium || h.certification?.stage4Facility) && (
-          <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-            <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded bg-[var(--color-primary-600)] text-white">
-              <span className="hanja">醫錄</span> 인증
-            </span>
+    <article className="group overflow-hidden rounded-2xl border border-[var(--color-surface-border)] bg-white transition hover:border-[var(--color-accent-400)] hover:shadow-xl hover:shadow-black/5">
+      <div className="grid sm:grid-cols-[220px_1fr]">
+        <Link href={`/hospital/${h.slug}`} aria-label={`${h.nameKr} 상세 보기`}>
+          <HospitalImage hospital={h} className="aspect-[16/9] sm:aspect-auto sm:h-full sm:min-h-[180px]" />
+        </Link>
+        <div className="flex min-w-0 flex-col p-5 md:p-6">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              {h.certification && (
+                <span className="inline-flex rounded-full bg-[var(--color-primary-700)] px-2.5 py-1 text-xs font-semibold text-white">
+                  메디록 인증
+                </span>
+              )}
+              <Link href={`/hospital/${h.slug}`}>
+                <h3 className="mt-3 text-xl font-semibold hover:text-[var(--color-accent-700)]">{h.nameKr}</h3>
+              </Link>
+              <p className="mt-1 text-sm text-[var(--color-text-muted)]">
+                {deptName} · {h.addressLine.split(" ").slice(0, 3).join(" ")}
+              </p>
+            </div>
+            <p className="shrink-0 text-sm font-semibold">
+              <span className="text-[var(--color-warning)]">★</span> {h.rating}
+              <span className="font-normal text-[var(--color-text-muted)]"> ({h.reviewCount})</span>
+            </p>
           </div>
-        )}
 
-        <div className="flex items-baseline gap-1.5 flex-wrap">
-          <h3 className="text-[15px] font-medium text-[var(--color-text-primary)] leading-tight">
-            {h.nameKr}
-          </h3>
-          {deptName && (
-            <span className="text-[11px] text-[var(--color-text-muted)]">
-              {deptName}
-            </span>
-          )}
-        </div>
-
-        <p className="text-xs text-[var(--color-text-muted)] mt-1">
-          <span className="text-[var(--color-warning)]">★</span> {h.rating}
-          <span className="text-[var(--color-text-muted)]">
-            {" "}
-            ({h.reviewCount})
-          </span>
-          {region && <span> · {region}</span>}
-        </p>
-
-        {h.nearestStation && (
-          <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
-            {h.nearestStation}
-            {h.walkingMinutes ? ` 도보 ${h.walkingMinutes}분` : ""}
-          </p>
-        )}
-
-        {h.tags && h.tags.length > 0 && (
-          <div className="mt-1.5 flex flex-wrap gap-1">
-            {h.tags.slice(0, 3).map((tag) => (
-              <span
-                key={tag}
-                className="text-[10px] text-[var(--color-text-secondary)] bg-[var(--color-surface-bg2)] px-1.5 py-0.5 rounded"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* 가격 */}
-      {mainPrice && (
-        <div className="text-right shrink-0 self-center">
-          {mainPrice.eventLow && (
-            <p className="text-[10px] text-[var(--color-text-muted)] line-through">
-              {formatKRW(mainPrice.normalLow)}~
+          {h.shortDescription && (
+            <p className="mt-4 line-clamp-2 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+              {h.shortDescription}
             </p>
           )}
-          <p className="text-sm font-medium text-[var(--color-primary-600)]">
-            {formatKRW(mainPrice.eventLow ?? mainPrice.normalLow)}~
-          </p>
-          <span className="text-[10px] text-[var(--color-accent-700)]">
-            자세히 ›
-          </span>
+          {h.tags && h.tags.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {h.tags.slice(0, 3).map((tag) => (
+                <span key={tag} className="rounded-full bg-[var(--color-surface-bg2)] px-3 py-1 text-xs text-[var(--color-text-secondary)]">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-auto flex flex-col gap-3 pt-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              {mainPrice ? (
+                <>
+                  <p className="text-xs text-[var(--color-text-muted)]">대표 진료 가격</p>
+                  <p className="mt-0.5 font-semibold text-[var(--color-primary-700)]">
+                    {formatKRW(mainPrice.eventLow ?? mainPrice.normalLow)}부터
+                  </p>
+                </>
+              ) : (
+                <p className="text-sm text-[var(--color-text-muted)]">가격 정보는 상세에서 확인</p>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:flex">
+              <button
+                type="button"
+                onClick={() => onSelect(h.slug)}
+                className="min-h-11 whitespace-nowrap rounded-lg border border-[var(--color-surface-border)] px-4 text-sm font-semibold text-[var(--color-text-secondary)]"
+              >
+                빠른 보기
+              </button>
+              <Link href={`/hospital/${h.slug}`} className="inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-lg bg-[var(--color-primary-700)] px-4 text-sm font-semibold text-white">
+                상세 보기
+              </Link>
+            </div>
+          </div>
         </div>
-      )}
-    </button>
+      </div>
+    </article>
   );
 }

@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import type { Hospital } from "@/types";
 import { getDepartmentBySlug } from "@/lib/hospitals-data";
-import { DepartmentIcon } from "./DepartmentIcon";
+import { HospitalImage } from "./HospitalImage";
 
 interface CurationCardProps {
   hospital: Hospital;
@@ -16,72 +16,44 @@ export async function CurationCard({ hospital, size = "lg" }: CurationCardProps)
   const isLarge = size === "lg";
 
   return (
-    <article className="tier1-card p-5 md:p-6 relative">
-      <span className="absolute top-4 right-4 editorial text-[10px] font-medium tracking-[0.06em] px-2.5 py-1 rounded-full bg-[var(--color-primary-600)] text-[var(--color-accent-400)]">
-        CURATION
-      </span>
-
-      <div className={`grid ${isLarge ? "grid-cols-[80px_1fr]" : "grid-cols-1"} gap-4 items-start`}>
-        {isLarge && dept && (
-          <div className="w-20 h-20 bg-[var(--color-primary-600)] rounded-lg flex items-center justify-center">
-            <DepartmentIcon
-              slug={dept.slug}
-              size={44}
-              strokeWidth={1.4}
-              className="text-[var(--color-accent-400)]"
-            />
-          </div>
-        )}
-        <div>
-          <p className="editorial text-xs tracking-[0.1em] text-[var(--color-accent-600)]">
-            {dept?.nameKr} · {dept?.nameEn?.toUpperCase()}
-          </p>
-          <h3 className={`editorial mt-1.5 ${isLarge ? "text-xl" : "text-base"} text-[var(--color-text-primary)]`}>
-            {hospital.nameKr}
-          </h3>
-          <p className="text-xs text-[var(--color-text-muted)] mt-1.5">
-            {hospital.yearEstablished && `${new Date().getFullYear() - hospital.yearEstablished}년차 · `}
-            {hospital.certification?.stage1Detail}
-          </p>
+    <article className={`group tier1-card card-lift overflow-hidden ${isLarge ? "grid lg:grid-cols-[1.05fr_1fr]" : ""}`}>
+      <HospitalImage
+        hospital={hospital}
+        priority={isLarge}
+        className={isLarge ? "aspect-[16/10] lg:aspect-auto lg:h-full lg:min-h-[360px]" : "aspect-[16/9]"}
+      />
+      <div className={isLarge ? "flex flex-col p-6 md:p-8" : "p-5"}>
+        <div className="flex items-center justify-between gap-3">
+          <p className="eyebrow">{dept?.nameKr} · MEDIROK PICK</p>
+          <span className="rounded-full bg-[var(--color-primary-700)] px-3 py-1 text-xs font-semibold text-[var(--color-accent-300)]">
+            메디록 선정
+          </span>
         </div>
-      </div>
+        <h3 className={`editorial mt-3 ${isLarge ? "text-3xl" : "text-2xl"}`}>
+          {hospital.nameKr}
+        </h3>
+        <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+          {hospital.shortDescription || hospital.certification?.stage1Detail}
+        </p>
 
       {hospital.curationNote && (
-        <div className="mt-4 pt-4 border-t border-[var(--color-surface-border)]">
-          <p className="editorial text-[10px] tracking-[0.08em] text-[var(--color-accent-600)] mb-1.5">
-            CURATOR&apos;S NOTE
-          </p>
-          <p className="editorial italic text-[var(--color-text-primary)] text-sm leading-relaxed">
-            &ldquo;{hospital.curationNote.text}&rdquo;
-          </p>
-          <p className="text-[10px] text-[var(--color-text-muted)] mt-2 tracking-[0.04em]">
-            — 메디록 큐레이터 {hospital.curationNote.curatorName}
-            {hospital.curationNote.curatorTitle && ` (${hospital.curationNote.curatorTitle})`}
+        <div className="mt-5 border-l-2 border-[var(--color-accent-400)] pl-4">
+          <p className="text-sm font-semibold text-[var(--color-accent-700)]">선정 이유</p>
+          <p className={`mt-2 text-base leading-relaxed text-[var(--color-text-primary)] ${isLarge ? "line-clamp-4" : "line-clamp-3"}`}>
+            {hospital.curationNote.text}
           </p>
         </div>
       )}
 
-      {isLarge && (
-        <div className="mt-4 flex justify-between items-center gap-2">
-          <p className="text-xs text-[var(--color-text-muted)]">
-            ★ {hospital.rating} ({hospital.reviewCount})
+        <div className={`mt-auto flex items-center justify-between gap-3 ${hospital.curationNote ? "pt-6" : "pt-5"}`}>
+          <p className="text-sm font-medium text-[var(--color-text-secondary)]">
+            <span className="text-[var(--color-warning)]">★</span> {hospital.rating} · 후기 {hospital.reviewCount}개
           </p>
-          <div className="flex gap-2">
-            <Link
-              href={`/hospital/${hospital.slug}/booking` as Route}
-              className="btn-accent text-xs tracking-wide"
-            >
-              CURATION 예약
-            </Link>
-            <Link
-              href={`/hospital/${hospital.slug}`}
-              className="btn-outline text-xs"
-            >
-              상세 보기
-            </Link>
-          </div>
+          <Link href={`/hospital/${hospital.slug}` as Route} className="inline-flex min-h-12 items-center rounded-lg bg-[var(--color-primary-700)] px-5 text-sm font-semibold text-white">
+            상세 보기 <span aria-hidden="true" className="ml-2">→</span>
+          </Link>
         </div>
-      )}
+      </div>
     </article>
   );
 }

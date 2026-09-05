@@ -4,35 +4,22 @@ import { Logo } from "./Logo";
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-[var(--color-surface-border)]">
-      <div className="container-page flex items-center justify-between py-3">
-        <div className="flex items-center gap-5">
+    <header className="sticky top-0 z-40 bg-white/95 border-b border-[var(--color-surface-border)] backdrop-blur-md">
+      <div className="container-page flex min-h-16 items-center justify-between gap-4">
+        <div className="flex items-center gap-8">
           <Link href="/" aria-label="메디록 홈으로">
             <Logo size={28} />
           </Link>
-          <div className="hidden md:flex items-center gap-1">
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-[var(--color-accent-600)] bg-[var(--color-accent-50)] border border-[var(--color-accent-400)] rounded-full">
-              <span className="hanja text-[var(--color-accent-400)]">醫錄</span>
-              인증
-            </span>
-          </div>
-          <nav className="hidden md:flex items-center gap-4 ml-4 text-sm text-[var(--color-text-secondary)]">
-            <Link href="/hospitals">병원찾기</Link>
+          <nav className="hidden md:flex items-center gap-7 text-[15px] font-medium text-[var(--color-text-secondary)]">
+            <Link href="/hospitals" className="hover:text-[var(--color-accent-700)]">병원 찾기</Link>
             <Link href={"/magazine" as Route}>매거진</Link>
-            <Link href={"/blog" as Route}>블로그</Link>
-            <Link href="/verification">
-              <span className="hanja text-[var(--color-accent-600)]">醫錄</span> 인증제
-            </Link>
+            <Link href={"/blog" as Route}>병원 소식</Link>
+            <Link href="/verification">인증 기준</Link>
           </nav>
         </div>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/verification/apply"
-            className="btn-primary text-xs sm:text-sm"
-          >
-            <span className="hanja">醫錄</span> 인증제 신청
-          </Link>
-        </div>
+        <Link href="/hospitals" className="btn-primary hidden min-h-0 px-5 py-2.5 text-sm md:inline-flex md:items-center">
+          내게 맞는 병원 찾기
+        </Link>
       </div>
     </header>
   );

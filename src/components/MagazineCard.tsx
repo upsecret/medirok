@@ -35,9 +35,9 @@ export function MagazineCard({
   return (
     <Link
       href={`/magazine/${magazine.slug}` as Route}
-      className={`block bg-white border border-[var(--color-surface-border)] rounded-md p-4 ${
+      className={`card-lift block overflow-hidden rounded-2xl border border-[var(--color-surface-border)] bg-white p-4 ${
         isLarge ? "md:p-5" : ""
-      } transition hover:border-[var(--color-accent-400)] ${
+      } ${
         // lg 카드는 한 줄에 하나씩 세로로 쌓인다. 16:9를 전폭으로 두면 카드 하나가
         // 뷰포트 절반을 넘겨 목록이 끝없이 길어지므로, 넓은 화면에선 가로로 배치한다.
         isLarge ? "md:flex md:items-start md:gap-5" : ""
@@ -53,30 +53,30 @@ export function MagazineCard({
       <div className={isLarge ? "md:flex-1 md:min-w-0" : ""}>
         <div className="flex items-center gap-2 mb-2">
           <span
-            className="text-[10px] font-medium px-2 py-0.5 rounded text-white"
+            className="rounded-full px-2.5 py-1 text-xs font-semibold text-white"
             style={{ background: TYPE_COLORS[magazine.type] }}
           >
             {TYPE_LABELS[magazine.type]}
           </span>
-          <span className="text-[10px] text-[var(--color-text-muted)]">
+          <span className="text-xs text-[var(--color-text-muted)]">
             {magazine.category}
           </span>
         </div>
         <h3
           className={`font-medium text-[var(--color-text-primary)] leading-snug ${
-            isLarge ? "text-base md:text-lg" : "text-sm"
+            isLarge ? "text-xl md:text-2xl" : "text-lg"
           }`}
         >
           {magazine.seoTitle}
         </h3>
         <p
           className={`text-[var(--color-text-muted)] mt-2 leading-relaxed line-clamp-2 ${
-            isLarge ? "text-sm" : "text-xs"
+            isLarge ? "text-base" : "text-sm"
           }`}
         >
           {magazine.metaDescription}
         </p>
-        <div className="flex items-center justify-between mt-3 text-[10px] text-[var(--color-text-muted)]">
+        <div className="mt-4 flex items-center justify-between gap-3 text-xs text-[var(--color-text-muted)]">
           <span>
             {magazine.authorName && `${magazine.authorName} · `}
             {magazine.publishedAt}

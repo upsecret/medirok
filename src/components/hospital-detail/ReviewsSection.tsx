@@ -4,21 +4,24 @@ import type { Hospital } from "@/types";
 export function ReviewsSection({ hospital }: { hospital: Hospital }) {
   if (hospital.reviews.length === 0) return null;
   return (
-    <section className="py-5 bg-white border-b border-[var(--color-surface-border)]">
-      <div className="container-page">
-        <div className="flex justify-between items-baseline mb-3">
-          <h2 className="text-base font-medium">실방문 후기 ({hospital.reviewCount})</h2>
-          <span className="text-xs text-[var(--color-text-muted)]">최신순 ▾</span>
+    <section className="section-space bg-white border-b border-[var(--color-surface-border)]">
+      <div className="container-page max-w-5xl">
+        <div className="mb-6 flex justify-between items-end gap-4">
+          <div>
+            <p className="eyebrow">VERIFIED REVIEWS</p>
+            <h2 className="mt-2">실방문 후기 ({hospital.reviewCount})</h2>
+          </div>
+          <span className="text-sm text-[var(--color-text-muted)]">최신순</span>
         </div>
-        <div className="space-y-2">
+        <div className="grid gap-4 md:grid-cols-2">
           {hospital.reviews.map((r) => (
             <div
               key={r.id}
-              className="bg-[var(--color-surface-bg)] border border-[var(--color-surface-border)] rounded-md p-3"
+              className="rounded-xl border border-[var(--color-surface-border)] bg-[var(--color-surface-bg)] p-5"
             >
               <div className="flex justify-between items-start mb-1.5">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm">{"★".repeat(r.rating)}</span>
+                  <span className="text-base text-[var(--color-warning)]">{"★".repeat(r.rating)}</span>
                   {r.isReceiptVerified && (
                     <span className="badge-certified text-[9px]">영수증</span>
                   )}
@@ -28,13 +31,13 @@ export function ReviewsSection({ hospital }: { hospital: Hospital }) {
                     </span>
                   )}
                 </div>
-                <span className="text-[10px] text-[var(--color-text-muted)]">
+                <span className="text-xs text-[var(--color-text-muted)]">
                   {r.reviewerName} · {r.visitedAt.slice(5)}
                 </span>
               </div>
-              <p className="text-sm leading-relaxed">{r.content}</p>
+              <p className="text-base leading-relaxed">{r.content}</p>
               {(r.treatmentName || r.ageGroup) && (
-                <p className="text-[10px] text-[var(--color-text-muted)] mt-2">
+                <p className="mt-3 text-xs text-[var(--color-text-muted)]">
                   {r.treatmentName} · {r.ageGroup}
                 </p>
               )}

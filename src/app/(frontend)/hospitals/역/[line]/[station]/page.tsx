@@ -40,35 +40,35 @@ export default async function StationHospitalsPage({ params }: PageProps) {
 
   return (
     <>
-      <nav className="bg-white border-b border-[var(--color-surface-border)] py-2">
-        <div className="container-page text-xs text-[var(--color-text-muted)]">
+      <nav className="bg-white border-b border-[var(--color-surface-border)] py-2.5">
+        <div className="container-page text-sm text-[var(--color-text-muted)]">
           홈 › <Link href="/hospitals">병원찾기</Link> › 역주변 ›{" "}
           {subwayLine.lineName} › {subwayStation.name}
         </div>
       </nav>
 
-      <section className="bg-[var(--color-surface-bg)] py-6">
+      <section className="bg-[var(--color-primary-800)] py-12 text-white md:py-16">
         <div className="container-page">
-          <span className="inline-block text-[10px] tracking-[0.05em] bg-[var(--color-accent-100)] text-[var(--color-accent-600)] px-2.5 py-1 rounded font-medium mb-2.5">
+          <span className="eyebrow !text-[var(--color-accent-300)]">
             {subwayLine.lineName} · 역주변
           </span>
-          <h1>{subwayStation.name} 인근 병원</h1>
-          <p className="text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed">
+          <h1 className="editorial mt-3 !text-white">{subwayStation.name} 인근 병원</h1>
+          <p className="mt-3 text-base leading-relaxed text-[var(--color-primary-200)]">
             {subwayLine.lineName} {subwayStation.name} 주변의 메디록 4단계 인증
             병원입니다.
           </p>
         </div>
       </section>
 
-      <section className="bg-white py-6 border-t border-[var(--color-surface-border)]">
-        <div className="container-page">
+      <section className="section-space border-t border-[var(--color-surface-border)] bg-white">
+        <div className="container-page max-w-5xl">
           <div className="flex justify-between items-baseline mb-4">
-            <h2 className="text-base font-medium">
+            <h2>
               메디록 인증 병원 ({hospitals.length})
             </h2>
           </div>
           {hospitals.length > 0 ? (
-            <div className="space-y-2">
+            <div className="space-y-5">
               {hospitals.map((h) => (
                 <HospitalCard key={h.slug} hospital={h} />
               ))}

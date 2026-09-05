@@ -1,213 +1,152 @@
 import Link from "next/link";
 import type { Route } from "next";
 import { CurationCard } from "@/components/CurationCard";
-import { HospitalCard } from "@/components/HospitalCard";
-import { RegionQuickNav } from "@/components/RegionQuickNav";
-import { getAllHospitals, getCurationHospitals } from "@/lib/hospitals-data";
+import { HomeHospitalSearch } from "@/components/HomeHospitalSearch";
+import { MagazineCard } from "@/components/MagazineCard";
+import {
+  getAllDepartments,
+  getAllHospitals,
+  getAllRegions,
+  getCurationHospitals,
+} from "@/lib/hospitals-data";
 import { getAllMagazines } from "@/lib/magazines-data";
 
-// 시드는 즉시 라이브라 캐시를 안 쓰고 있었다. 이제 ISR로 두고 발행 직후 반영은
-// /revalidate 엔드포인트가 담당한다(scripts/revalidate.ts · 런북 §9-3).
 export const revalidate = 1800;
 
+const verificationSteps = [
+  { number: "01", title: "진료 이력", body: "운영 이력과 공개된 진료 정보를 살펴봅니다." },
+  { number: "02", title: "방문 후기", body: "실제 방문을 확인할 수 있는 후기를 구분합니다." },
+  { number: "03", title: "의료진 자격", body: "전문의 자격과 주요 진료 분야를 확인합니다." },
+  { number: "04", title: "시설과 장비", body: "환자 안전과 진료에 필요한 환경을 확인합니다." },
+];
+
 export default async function HomePage() {
-  const [curated, allHospitals, magazines] = await Promise.all([
+  const [curated, allHospitals, magazines, regions, departments] = await Promise.all([
     getCurationHospitals(3),
     getAllHospitals(),
     getAllMagazines(),
+    getAllRegions(),
+    getAllDepartments(),
   ]);
-  const standardHospitals = allHospitals
-    .filter((h) => h.departmentSlug === "dental")
-    .slice(0, 5);
-  const recentMagazines = magazines.slice(0, 3);
-  const featuredCuration = curated[0];
-  const sideCurations = curated.slice(1, 3);
+  const recentMagazines = magazines
+    .filter((magazine) => magazine.type !== "qna")
+    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+    .slice(0, 3);
 
   return (
     <>
-      <section className="bg-[var(--color-surface-bg)] py-7 md:py-10">
-        <div className="container-page">
-          <p className="editorial text-[10px] tracking-[0.14em] uppercase text-[var(--color-accent-600)]">
-            TIER 01 · MEDIROK CURATION
+      <section className="relative overflow-hidden bg-[var(--color-primary-800)] text-white">
+        <div className="absolute inset-0 opacity-30 [background:radial-gradient(circle_at_82%_25%,#B89968_0,transparent_28%)]" />
+        <div className="container-page relative py-14 md:py-24">
+          <div className="max-w-4xl">
+            <p className="eyebrow !text-[var(--color-accent-300)]">MEDIROK · 의료 선택의 기준</p>
+            <h1 className="editorial mt-4 !text-white">
+              나와 가족의 병원 선택,<br className="hidden sm:block" /> 기록을 보고 결정하세요.
+            </h1>
+            <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[var(--color-primary-100)] md:text-xl">
+              광고 문구보다 확인 가능한 정보를 먼저 봅니다. 지역과 진료과를 선택해
+              메디록이 살펴본 병원을 비교해 보세요.
+            </p>
+          </div>
+          <HomeHospitalSearch regions={regions} departments={departments} />
+          <p className="mt-4 text-sm text-[var(--color-primary-300)]">
+            현재 등록 병원 {allHospitals.length}곳 · 조건을 선택하지 않아도 전체 병원을 볼 수 있습니다.
           </p>
-          <h1 className="editorial mt-1">
-            내가 직접 고른 메디록 큐레이션 의원
-          </h1>
-          <p className="text-sm text-[var(--color-text-muted)] mt-2 max-w-2xl leading-relaxed">
-            메디록 큐레이터가 4단계 인증 + 추가 심사를 통과한 의원만 매월
-            선정합니다.
-          </p>
+        </div>
+      </section>
 
-          {featuredCuration && (
-            <div className="mt-5">
-              <CurationCard hospital={featuredCuration} size="lg" />
+      <section className="section-space bg-[var(--color-surface-bg)]">
+        <div className="container-page">
+          <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+            <div>
+              <p className="eyebrow">MEDIROK CURATION</p>
+              <h2 className="editorial mt-3">메디록이 직접 살펴본 병원</h2>
+              <p className="mt-3 max-w-2xl text-base text-[var(--color-text-secondary)] md:text-lg">
+                인증 항목과 의료진, 진료 환경을 확인한 뒤 선택한 병원입니다.
+              </p>
+            </div>
+            <Link href="/hospitals" className="text-base font-semibold text-[var(--color-accent-700)]">
+              모든 병원 보기 <span aria-hidden="true">→</span>
+            </Link>
+          </div>
+
+          {curated.length > 0 ? (
+            <div className="mt-8 space-y-5">
+              <CurationCard hospital={curated[0]} size="lg" />
+              {curated.length === 2 && <CurationCard hospital={curated[1]} size="lg" />}
+              {curated.length > 2 && (
+                <div className="grid gap-5 md:grid-cols-2">
+                  {curated.slice(1).map((hospital) => (
+                    <CurationCard key={hospital.slug} hospital={hospital} size="sm" />
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="mt-8 rounded-2xl border border-[var(--color-surface-border)] bg-white p-8 text-center">
+              <p className="text-[var(--color-text-secondary)]">선정 병원을 준비하고 있습니다.</p>
+              <Link href="/hospitals" className="btn-primary mt-5 inline-flex items-center">등록 병원 보기</Link>
             </div>
           )}
+        </div>
+      </section>
 
-          {sideCurations.length > 0 && (
-            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-              {sideCurations.map((h) => (
-                <CurationCard key={h.slug} hospital={h} size="sm" />
+      <section className="section-space border-y border-[var(--color-surface-border)] bg-white">
+        <div className="container-page">
+          <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+            <div>
+              <p className="eyebrow">BEFORE YOUR VISIT</p>
+              <h2 className="editorial mt-3">병원 선택 전 읽어볼 가이드</h2>
+              <p className="mt-4 text-base leading-relaxed text-[var(--color-text-secondary)]">
+                시술 이름보다 선택 기준을 먼저 설명합니다. 의료진과 메디록 편집팀이
+                정리한 글을 확인해 보세요.
+              </p>
+              <Link href={"/magazine" as Route} className="btn-outline mt-6 inline-flex items-center">매거진 전체 보기</Link>
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2">
+              {recentMagazines.map((magazine, index) => (
+                <div key={magazine.slug} className={index === 0 ? "sm:col-span-2" : ""}>
+                  <MagazineCard magazine={magazine} size={index === 0 ? "lg" : "sm"} priority={index === 0} />
+                </div>
               ))}
             </div>
-          )}
-        </div>
-      </section>
-
-      <RegionQuickNav />
-
-      <section className="bg-white py-7 border-b border-[var(--color-surface-border)]">
-        <div className="container-page">
-          <div className="flex justify-between items-baseline mb-3">
-            <h2>
-              6월 특가전
-            </h2>
-            <Link href={"/event" as Route} className="text-xs text-[var(--color-text-muted)]">
-              모든 특가 →
-            </Link>
-          </div>
-          <div className="flex gap-2 mb-3 flex-wrap">
-            {["시니어 임플란트", "백내장 다초점", "도수치료", "종합검진", "노안교정"].map(
-              (tag, i) => (
-                <span
-                  key={tag}
-                  className={`text-xs px-3 py-1.5 rounded-full ${
-                    i === 0
-                      ? "bg-[var(--color-primary-600)] text-white"
-                      : "bg-[var(--color-surface-bg)] text-[var(--color-text-secondary)] border border-[var(--color-surface-border)]"
-                  }`}
-                >
-                  {tag}
-                </span>
-              )
-            )}
-          </div>
-          <div className="bg-[var(--color-surface-bg)] rounded-md p-3 flex gap-3 items-center">
-            <div className="w-14 h-14 bg-[var(--color-primary-600)] rounded-md flex items-center justify-center shrink-0">
-              <span className="text-[var(--color-accent-400)] text-base font-medium">치과</span>
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium">시니어 임플란트 패키지</p>
-              <p className="text-xs text-[var(--color-text-muted)] mt-1">
-                서울 18곳 · 메디록 인증
-              </p>
-            </div>
-            <div className="text-right shrink-0">
-              <p className="text-[10px] text-[var(--color-text-muted)] line-through">120만~</p>
-              <p className="text-sm font-medium text-[var(--color-danger)]">75만원~</p>
-            </div>
           </div>
         </div>
       </section>
 
-      <section className="bg-white py-7 border-b border-[var(--color-surface-border)]">
+      <section className="section-space bg-[var(--color-primary-800)] text-white">
         <div className="container-page">
-          <p className="text-[10px] tracking-[0.1em] uppercase text-[var(--color-text-muted)]">
-            TIER 02 · DIRECTORY
-          </p>
-          <div className="flex justify-between items-baseline mt-1 mb-1">
-            <h2 className="text-base font-medium">
-              전체 메디록 인증 의원
-            </h2>
-            <span className="text-xs text-[var(--color-text-muted)]">312개 · 정렬 ▾</span>
+          <div className="max-w-2xl">
+            <p className="eyebrow !text-[var(--color-accent-300)]">MEDIROK VERIFICATION</p>
+            <h2 className="editorial mt-3 !text-white">무엇을 확인했는지 공개합니다</h2>
+            <p className="mt-4 text-lg leading-relaxed text-[var(--color-primary-200)]">
+              ‘좋은 병원’이라는 말 대신, 메디록이 확인한 항목을 병원 상세에서 직접 볼 수 있습니다.
+            </p>
           </div>
-          <p className="text-xs text-[var(--color-text-muted)] mt-1.5 mb-4">
-            메디록 4단계 인증을 통과한 의원만. 가격·평점·거리·후기를
-            직접 비교하고 선택하세요.
-          </p>
-          <div className="space-y-2">
-            {standardHospitals.map((h) => (
-              <HospitalCard key={h.slug} hospital={h} />
+          <div className="mt-9 grid gap-px overflow-hidden rounded-2xl border border-white/15 bg-white/15 md:grid-cols-4">
+            {verificationSteps.map((step) => (
+              <article key={step.number} className="bg-[var(--color-primary-800)] p-6 md:p-7">
+                <p className="editorial text-2xl text-[var(--color-accent-300)]">{step.number}</p>
+                <h3 className="mt-4 !text-white">{step.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--color-primary-200)]">{step.body}</p>
+              </article>
             ))}
           </div>
-          <div className="mt-4 text-center">
-            <Link
-              href="/hospitals/서울/강남구/치과"
-              className="inline-block btn-outline text-xs"
-            >
-              강남구 치과 더 보기 →
-            </Link>
-          </div>
+          <Link href="/verification" className="btn-accent mt-8 inline-flex items-center">인증 기준 자세히 보기</Link>
         </div>
       </section>
 
-      <section className="bg-[var(--color-primary-600)] py-6">
-        <div className="container-page">
-          <div className="flex gap-3 items-center justify-between">
-            <div>
-              <p className="text-[10px] tracking-[0.06em] text-[var(--color-accent-400)]">
-                메디록 매거진 오픈
-              </p>
-              <p className="text-white font-medium text-sm mt-1">
-                &ldquo;시니어 임플란트, 의사가 답합니다&rdquo;
-              </p>
-              <p className="text-[var(--color-accent-300)] text-xs mt-1">
-                시리즈 12편 · 의사 직접 답변
-              </p>
-            </div>
-            <Link href={"/magazine" as Route} className="btn-accent text-xs">
-              읽기 →
-            </Link>
+      <section className="bg-[var(--color-surface-bg)] py-8">
+        <div className="container-page flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <div>
+            <p className="text-sm font-semibold text-[var(--color-text-primary)]">병원 관계자이신가요?</p>
+            <p className="mt-1 text-sm text-[var(--color-text-muted)]">메디록 인증 및 등재 절차를 안내해 드립니다.</p>
           </div>
+          <Link href="/verification/apply" className="text-sm font-semibold text-[var(--color-accent-700)]">
+            인증 신청 안내 <span aria-hidden="true">→</span>
+          </Link>
         </div>
       </section>
-
-      <section className="bg-[var(--color-surface-bg)] py-7 border-t border-[var(--color-surface-border)]">
-        <div className="container-page">
-          <h2 className="text-base font-medium mb-3">
-            메디록 매거진
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {recentMagazines.map((m) => (
-              <Link
-                key={m.slug}
-                href={`/magazine/${m.slug}` as Route}
-                className="block bg-white rounded-md p-3 border border-[var(--color-surface-border)]"
-              >
-                <p className="text-[10px] text-[var(--color-accent-600)] tracking-wide">
-                  {m.category}
-                </p>
-                <p className="text-sm font-medium text-[var(--color-text-primary)] mt-1.5 leading-snug">
-                  {m.seoTitle}
-                </p>
-                <p className="text-xs text-[var(--color-text-muted)] mt-2 line-clamp-2 leading-relaxed">
-                  {m.metaDescription}
-                </p>
-                <p className="text-[10px] text-[var(--color-text-muted)] mt-2">{m.publishedAt}</p>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-[var(--color-surface-bg)] py-6 border-t border-[var(--color-surface-border)]">
-        <div className="container-page">
-          <div className="grid grid-cols-3 gap-3 text-center">
-            <div>
-              <p className="text-xl md:text-2xl font-medium">312</p>
-              <p className="text-[10px] text-[var(--color-text-muted)] mt-1">
-                메디록 인증 의원
-              </p>
-            </div>
-            <div>
-              <p className="text-xl md:text-2xl font-medium">12,847</p>
-              <p className="text-[10px] text-[var(--color-text-muted)] mt-1">시니어 리뷰</p>
-            </div>
-            <div>
-              <p className="text-xl md:text-2xl font-medium">96%</p>
-              <p className="text-[10px] text-[var(--color-text-muted)] mt-1">재방문율</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <Link
-        href="/verification/apply"
-        className="block bg-[var(--color-primary-700)] py-3 text-center text-xs text-[var(--color-accent-400)]"
-      >
-        혹시 의원장님이신가요?{" "}
-        <span className="text-white">醫錄 인증제 신청하기 →</span>
-      </Link>
     </>
   );
 }
