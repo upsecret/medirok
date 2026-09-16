@@ -19,6 +19,7 @@ import {
   breadcrumbSchema,
 } from "@/lib/schema-generator";
 import { SITE_URL, absMediaUrl } from "@/lib/site";
+import { blogSourceLabel } from "@/lib/blog-source";
 
 // 시드는 즉시 라이브라 캐시를 안 쓰고 있었다. 이제 ISR로 두고 발행 직후 반영은
 // /revalidate 엔드포인트가 담당한다(scripts/revalidate.ts · 런북 §9-3).
@@ -158,7 +159,7 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
             )}
           </p>
           <p className="mt-1 text-sm text-[var(--color-text-muted)]">
-            의원 공식 네이버 블로그 기반 재구성 · 원문 {post.sourcePosts.length}편
+            의원 공식 {blogSourceLabel(post.sourceBlogUrl).channel} 기반 재구성 · 원문 {post.sourcePosts.length}편
           </p>
         </header>
 

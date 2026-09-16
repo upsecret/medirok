@@ -108,6 +108,36 @@ const dod: Target = {
   },
 };
 
+// ── 힐하우스피부과 공식 웹사이트 (5개 지점) ──
+// 지점 페이지마다 그 지점 시설 사진이 번호 파일(/images/clinics/<지점>/NN.jpg)로 걸려 있다.
+// 강남점만 업로드 경로(/images/uploads/clinic-photos/shared/)를 쓴다.
+// ⚠ 모든 지점 페이지가 /images/clinics/gangnam/best/ 를 공유하는데 이건 **시술 전후 사진**이다
+//   (파일명에 after가 들어간다). 의료법상 쓸 수 없으므로 경로로 원천 배제한다.
+const HEALHOUSE_SITE = "https://healhouseskin.com";
+const HEALHOUSE_BRANCHES = ["gangnam", "gundae", "pangyo", "suwon", "daegu"];
+const healhouse: Target = {
+  group: "healhouse-site",
+  resolve: async () => {
+    const out: { url: string; name: string }[] = [];
+    for (const branch of HEALHOUSE_BRANCHES) {
+      const html = await getText(`${HEALHOUSE_SITE}/ko/clinics/${branch}/`);
+      const found = new Set<string>();
+      for (const m of html.matchAll(/(\/images\/[^"'\s,)]+\.(?:jpe?g|png|webp))/gi)) {
+        const p = m[1];
+        if (/\/best\/|before|after|greeting|popup|doctors\//i.test(p)) continue;
+        const own =
+          p.startsWith(`/images/clinics/${branch}/`) ||
+          (branch === "gangnam" && p.startsWith("/images/uploads/clinic-photos/shared/"));
+        if (own) found.add(p);
+      }
+      for (const p of found) {
+        out.push({ url: HEALHOUSE_SITE + p, name: `${branch}_${path.basename(p)}` });
+      }
+    }
+    return out;
+  },
+};
+
 // ── 네이버 블로그 원문 ──
 // 글 하나가 여러 원문을 종합한 것이므로 **참조 원문 전부**를 훑는다.
 // sourcePosts[0]만 보면 그 글이 카드뉴스뿐일 때 쓸 이미지가 없다
@@ -211,11 +241,20 @@ const logos: Target = {
   resolve: async () => [
     { url: `${YEON_SITE}/img_core/logo.svg`, name: "yeon-mark.svg" },
     { url: `${DOD_SITE}/images/brand/logo-mark-dark.png`, name: "dod-mark.png" },
+    // 힐하우스 — 흰색 심볼(healhouse-symbol-wh.svg)은 흰 칩에서 사라진다. 짙은 후보만 받아 눈으로 고른다.
+    { url: `${HEALHOUSE_SITE}/images/brand/symbol-footer.png`, name: "healhouse-symbol-footer.png" },
+    { url: `${HEALHOUSE_SITE}/images/brand/symbol.png`, name: "healhouse-symbol.png" },
+    { url: `${HEALHOUSE_SITE}/images/brand/logo-horizontal-ko.png`, name: "healhouse-logo-horizontal-ko.png" },
   ],
 };
 
 async function run(): Promise<void> {
-  for (const target of [yeon, dod, naver, logos]) {
+  // ONLY=<group,...> 으로 일부 그룹만 받는다 — 네이버 수백 장을 매번 다시 받지 않게
+  const only = process.env.ONLY?.split(",");
+  const targets = [yeon, dod, healhouse, naver, logos].filter(
+    (t) => !only || only.includes(t.group)
+  );
+  for (const target of targets) {
     const dir = path.join(OUT_ROOT, target.group);
     await fs.mkdir(dir, { recursive: true });
     console.log(`\n• ${target.group}`);

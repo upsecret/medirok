@@ -15,6 +15,10 @@ const blog = state.blog;
 const hospitalPath = blog ? `/blog/${encodeURIComponent(blog.hospitalSlug)}` : "";
 const postPath = blog ? `${hospitalPath}/${blog.postSlug}` : "";
 
+// 원문 링크 — 원출처가 네이버 블로그일 수도, 병원 웹사이트일 수도 있다.
+// 출처 박스 안의 외부 절대 URL을 원문 링크로 본다(새 창으로 여는 링크만).
+const EXTERNAL_LINK = 'a[href^="http"][target="_blank"]';
+
 test.describe("의원 블로그 목록", () => {
   test("집계 페이지가 렌더된다", async ({ page }) => {
     const res = await page.goto("/blog");
@@ -44,15 +48,19 @@ test.describe("의원 블로그 목록", () => {
     expect(res.status()).toBe(200);
   });
 
-  test("병원별 목록에 네이버 원본 블로그 링크가 노출된다", async ({ page }) => {
+  test("병원별 목록에 원본 채널 링크가 노출된다", async ({ page }) => {
     test.skip(!blog, "Payload DB에 병원 블로그 데이터가 없습니다");
     await page.goto(hospitalPath);
 
-    const naverLink = page.locator('a[href*="blog.naver.com"]').first();
-    await expect(naverLink).toBeVisible();
+    // 원출처는 네이버 블로그일 수도 병원 웹사이트일 수도 있다 — 채널 표기로 찾는다.
+    const sourceLink = page
+      .locator('a[href^="http"]')
+      .filter({ hasText: /\((네이버|웹사이트)\)/ })
+      .first();
+    await expect(sourceLink).toBeVisible();
     // 외부 링크는 nofollow + 새 창
-    expect(await naverLink.getAttribute("rel")).toContain("nofollow");
-    expect(await naverLink.getAttribute("target")).toBe("_blank");
+    expect(await sourceLink.getAttribute("rel")).toContain("nofollow");
+    expect(await sourceLink.getAttribute("target")).toBe("_blank");
   });
 
   test("블로그 글이 없는 병원은 404를 반환한다", async ({ request }) => {
@@ -135,7 +143,7 @@ test.describe("의원 블로그 상세", () => {
       const src = page.locator('section[aria-label="원문 출처"]');
       await expect(src, `원문 출처 박스가 없습니다 (${path})`).toBeVisible();
       expect(
-        await src.locator('a[href*="blog.naver.com"]').count(),
+        await src.locator(EXTERNAL_LINK).count(),
         `원문 링크가 없습니다 (${path})`
       ).toBeGreaterThan(0);
 
@@ -165,7 +173,7 @@ test.describe("의원 블로그 상세", () => {
     expect((faq.mainEntity as unknown[]).length).toBeGreaterThan(0);
   });
 
-  test("출처 표기: 원문 목록이 노출되고 네이버 링크가 nofollow로 걸린다", async ({ page }) => {
+  test("출처 표기: 원문 목록이 노출되고 원문 링크가 nofollow로 걸린다", async ({ page }) => {
     test.skip(!blog, "Payload DB에 병원 블로그 데이터가 없습니다");
     await page.goto(postPath);
 
@@ -173,8 +181,8 @@ test.describe("의원 블로그 상세", () => {
     await expect(box).toBeVisible();
     await expect(box.getByText(/재구성/)).toBeVisible();
 
-    // 원문 링크가 sourcePosts 수만큼 있어야 한다 (블로그 루트 링크 1개 추가)
-    const links = box.locator('a[href*="blog.naver.com"]');
+    // 원문 링크가 sourcePosts 수만큼 있어야 한다 (채널 루트 링크 1개 추가)
+    const links = box.locator(EXTERNAL_LINK);
     expect(await links.count()).toBeGreaterThanOrEqual(blog!.sourceCount);
     expect(await links.first().getAttribute("rel")).toContain("nofollow");
   });
@@ -192,7 +200,11 @@ test.describe("의원 블로그 상세", () => {
     const isBasedOn = posting.isBasedOn as string[];
     expect(Array.isArray(isBasedOn)).toBe(true);
     expect(isBasedOn.length).toBe(blog!.sourceCount);
-    for (const u of isBasedOn) expect(u).toContain("blog.naver.com");
+    // 원문은 병원 채널(네이버 블로그·병원 웹사이트)의 절대 URL이어야 한다 — 메디록 자기 참조는 안 된다
+    for (const u of isBasedOn) {
+      expect(u).toMatch(/^https?:\/\//);
+      expect(u).not.toContain("medirok.com");
+    }
 
     const citation = posting.citation as Record<string, unknown>[];
     expect(citation.length).toBe(blog!.sourceCount);

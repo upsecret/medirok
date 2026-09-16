@@ -36,6 +36,7 @@ const H = 720;
 
 const YEON_SITE = "https://gd365.ye-on.com/";
 const DOD_SITE = "https://blog.dodskin.com/";
+const HEALHOUSE_SITE = "https://healhouseskin.com/ko/clinics/";
 const naverUrl = (blogId: string, logNo: string): string =>
   `https://blog.naver.com/${blogId}/${logNo}`;
 
@@ -203,6 +204,39 @@ const FROM_NAVER: Entry[] = [
   },
 ];
 
+// ── 병원 웹사이트 원출처 블로그 (힐하우스) ──
+// 칼럼 본문에 이미지가 없어 해당 지점 페이지의 시설 사진에서 고른다. 커버와 다른 장을 쓴다
+// (같은 병원 블로그 목록에서 카드 배경과 글 썸네일이 겹쳐 보이지 않게).
+const FROM_SITE: Entry[] = [
+  {
+    collection: "blog-posts",
+    slug: "healhouse-gangnam-vitiligo",
+    src: cand("healhouse-site", "gangnam_20260813-5be38265c752-5-14-_web.webp"),
+    filename: "healhouse-gangnam-vitiligo.jpg",
+    alt: "힐하우스피부과 강남점 시술실",
+    credit: "힐하우스피부과 공식 웹사이트",
+    sourceUrl: `${HEALHOUSE_SITE}gangnam/`,
+  },
+  {
+    collection: "blog-posts",
+    slug: "healhouse-suwon-acne-scar",
+    src: cand("healhouse-site", "suwon_11.jpg"),
+    filename: "healhouse-suwon-acne-scar.jpg",
+    alt: "힐하우스피부과 수원점 상담 공간",
+    credit: "힐하우스피부과 공식 웹사이트",
+    sourceUrl: `${HEALHOUSE_SITE}suwon/`,
+  },
+  {
+    collection: "blog-posts",
+    slug: "healhouse-daegu-treatment-choice",
+    src: cand("healhouse-site", "daegu_14.jpg"),
+    filename: "healhouse-daegu-treatment-choice.jpg",
+    alt: "힐하우스피부과 대구점 상담실",
+    credit: "힐하우스피부과 공식 웹사이트",
+    sourceUrl: `${HEALHOUSE_SITE}daegu/`,
+  },
+];
+
 // ── 생성 카드 (차용할 사진이 없는 매거진 10편) ──
 const GENERATED_SLUGS = [
   "gangnam-implant-price-guide-2026",
@@ -250,6 +284,67 @@ const LOGOS: Entry[] = [
     kind: "logo",
     field: "logo",
   },
+  // ── 힐하우스피부과 5개 지점 — 짙은 심볼 마크(symbol.png). 흰색 심볼(-wh.svg)은 흰 칩에서 사라진다.
+  {
+    collection: "hospitals",
+    slug: "힐하우스피부과강남점",
+    src: cand("logos", "healhouse-symbol.png"),
+    // 5개 지점이 같은 파일명을 공유한다 — 파일명 기준 멱등이라 media 1건을 재사용한다.
+    filename: "healhouse-logo.png",
+    alt: "힐하우스피부과 로고",
+    credit: "힐하우스피부과",
+    sourceUrl: "https://healhouseskin.com/",
+    kind: "logo",
+    field: "logo",
+  },
+  {
+    collection: "hospitals",
+    slug: "힐하우스피부과건대점",
+    src: cand("logos", "healhouse-symbol.png"),
+    // 5개 지점이 같은 파일명을 공유한다 — 파일명 기준 멱등이라 media 1건을 재사용한다.
+    filename: "healhouse-logo.png",
+    alt: "힐하우스피부과 로고",
+    credit: "힐하우스피부과",
+    sourceUrl: "https://healhouseskin.com/",
+    kind: "logo",
+    field: "logo",
+  },
+  {
+    collection: "hospitals",
+    slug: "힐하우스피부과판교점",
+    src: cand("logos", "healhouse-symbol.png"),
+    // 5개 지점이 같은 파일명을 공유한다 — 파일명 기준 멱등이라 media 1건을 재사용한다.
+    filename: "healhouse-logo.png",
+    alt: "힐하우스피부과 로고",
+    credit: "힐하우스피부과",
+    sourceUrl: "https://healhouseskin.com/",
+    kind: "logo",
+    field: "logo",
+  },
+  {
+    collection: "hospitals",
+    slug: "힐하우스피부과수원점",
+    src: cand("logos", "healhouse-symbol.png"),
+    // 5개 지점이 같은 파일명을 공유한다 — 파일명 기준 멱등이라 media 1건을 재사용한다.
+    filename: "healhouse-logo.png",
+    alt: "힐하우스피부과 로고",
+    credit: "힐하우스피부과",
+    sourceUrl: "https://healhouseskin.com/",
+    kind: "logo",
+    field: "logo",
+  },
+  {
+    collection: "hospitals",
+    slug: "힐하우스피부과대구점",
+    src: cand("logos", "healhouse-symbol.png"),
+    // 5개 지점이 같은 파일명을 공유한다 — 파일명 기준 멱등이라 media 1건을 재사용한다.
+    filename: "healhouse-logo.png",
+    alt: "힐하우스피부과 로고",
+    credit: "힐하우스피부과",
+    sourceUrl: "https://healhouseskin.com/",
+    kind: "logo",
+    field: "logo",
+  },
 ];
 
 // ── 의원 커버 (/blog 카드 배경) ──
@@ -277,11 +372,64 @@ const COVERS: Entry[] = [
     sourceUrl: naverUrl("tj32xdcbiswj9", "224316949261"),
     field: "coverImage",
   },
+  // ── 힐하우스피부과 — 지점 페이지의 시설 사진(글자·인물 없음). /images/clinics/gangnam/best/ 는
+  //    시술 전후 사진이라 수집 단계에서 배제했다(collect.ts).
+  {
+    collection: "hospitals",
+    slug: "힐하우스피부과강남점",
+    src: cand("healhouse-site", "gangnam_20260813-76836a08cbdb-4-6-_web.webp"),
+    filename: "healhouse-gangnam-cover.jpg",
+    alt: "힐하우스피부과 강남점 대기 라운지",
+    credit: "힐하우스피부과 공식 웹사이트",
+    sourceUrl: `${HEALHOUSE_SITE}gangnam/`,
+    field: "coverImage",
+  },
+  {
+    collection: "hospitals",
+    slug: "힐하우스피부과건대점",
+    src: cand("healhouse-site", "gundae_08.jpg"),
+    filename: "healhouse-gundae-cover.jpg",
+    alt: "힐하우스피부과 건대점 대기 라운지",
+    credit: "힐하우스피부과 공식 웹사이트",
+    sourceUrl: `${HEALHOUSE_SITE}gundae/`,
+    field: "coverImage",
+  },
+  {
+    collection: "hospitals",
+    slug: "힐하우스피부과판교점",
+    src: cand("healhouse-site", "pangyo_09.jpg"),
+    filename: "healhouse-pangyo-cover.jpg",
+    alt: "힐하우스피부과 판교점 시술실",
+    credit: "힐하우스피부과 공식 웹사이트",
+    sourceUrl: `${HEALHOUSE_SITE}pangyo/`,
+    field: "coverImage",
+  },
+  {
+    collection: "hospitals",
+    slug: "힐하우스피부과수원점",
+    src: cand("healhouse-site", "suwon_03.jpg"),
+    filename: "healhouse-suwon-cover.jpg",
+    alt: "힐하우스피부과 수원점 대기 공간",
+    credit: "힐하우스피부과 공식 웹사이트",
+    sourceUrl: `${HEALHOUSE_SITE}suwon/`,
+    field: "coverImage",
+  },
+  {
+    collection: "hospitals",
+    slug: "힐하우스피부과대구점",
+    src: cand("healhouse-site", "daegu_03.jpg"),
+    filename: "healhouse-daegu-cover.jpg",
+    alt: "힐하우스피부과 대구점 대기 라운지",
+    credit: "힐하우스피부과 공식 웹사이트",
+    sourceUrl: `${HEALHOUSE_SITE}daegu/`,
+    field: "coverImage",
+  },
 ];
 
 const ENTRIES: Entry[] = [
   ...BORROWED,
   ...FROM_NAVER,
+  ...FROM_SITE,
   ...GENERATED,
   ...LOGOS,
   ...COVERS,

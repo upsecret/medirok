@@ -180,14 +180,14 @@ export interface Magazine {
 }
 
 // ─────────────────────────────────────────────
-// 병원 블로그 — 네이버 블로그 이식 (enterprise)
+// 병원 블로그 — 병원 공식 콘텐츠(네이버 블로그·병원 웹사이트) 재구성 (enterprise)
 // ─────────────────────────────────────────────
 
-/** 재구성의 근거가 된 네이버 블로그 원문 1건 */
+/** 재구성의 근거가 된 원문 1건 (네이버 포스팅 또는 병원 웹사이트 칼럼) */
 export interface BlogSourcePost {
   title: string;
   url: string;
-  /** 네이버 원문 게시일 (YYYY-MM-DD) */
+  /** 원문 게시일 (YYYY-MM-DD) */
   postedAt: string;
 }
 

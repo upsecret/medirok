@@ -480,21 +480,21 @@ export interface BlogPost {
   authorName?: string | null;
   authorTitle?: string | null;
   /**
-   * 예: "예온치과병원 공식 블로그"
+   * 예: "예온치과병원 공식 블로그", "힐하우스피부과 공식 칼럼"
    */
   sourceBlogName: string;
   /**
-   * 네이버 블로그 루트 URL
+   * 원출처 채널 루트 URL (네이버 블로그 또는 병원 웹사이트의 칼럼 목록)
    */
   sourceBlogUrl: string;
   /**
-   * 이 글이 재구성한 네이버 블로그 원문 전체
+   * 이 글이 재구성한 원문 전체
    */
   sourcePosts: {
     title: string;
     url: string;
     /**
-     * 네이버 원문 게시일
+     * 원문 게시일
      */
     postedAt: string;
     id?: string | null;

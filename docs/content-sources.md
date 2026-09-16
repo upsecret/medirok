@@ -23,7 +23,7 @@ DB에도 `sourcePosts`·`media.credit`이 들어가 있지만, DB는 "지금 상
 3. 시드 스크립트(`scripts/seed-blog-posts.ts`, `scripts/seed-thumbnails.ts`)와 값이 일치하는지 확인한다. **이 문서가 아니라 스크립트가 사실의 원본**이므로, 어긋나면 스크립트 쪽을 믿고 문서를 고친다.
 4. 원고 전문은 여기 옮기지 않는다 — `docs/블로그-*.md`에 있다.
 
-**왜 필요한가**: 이 기능은 병원 공식 블로그의 글을 메디록이 재구성해 싣는 것이다. 원출처 표기가 빠지면 출처 없이 옮긴 것이 되고, 이미지는 초상권·의료광고 규제까지 걸린다. 근거를 추적할 수 없는 콘텐츠는 내려야 한다.
+**왜 필요한가**: 이 기능은 병원이 직접 공개한 글(네이버 블로그 포스팅 또는 병원 웹사이트 칼럼)을 메디록이 재구성해 싣는 것이다. 원출처 표기가 빠지면 출처 없이 옮긴 것이 되고, 이미지는 초상권·의료광고 규제까지 걸린다. 근거를 추적할 수 없는 콘텐츠는 내려야 한다.
 
 > **매거진은 이 문서의 대상이 아니다.** 매거진 원고는 `docs/매거진-*.md`, 차용 이미지 출처는 `media.credit`/`sourceUrl`과 `scripts/seed-thumbnails.ts`에 있다.
 
@@ -31,7 +31,21 @@ DB에도 `sourcePosts`·`media.credit`이 들어가 있지만, DB는 "지금 상
 
 ---
 
-## 1. 블로그 글 (9편 · 2026-08-01 3편 · 2026-08-09 2편 · 2026-08-16 2편 · 2026-08-23 2편)
+## 0. 재게시 동의 (2026-09-16 신설)
+
+원문을 재구성해 싣는 권리의 근거를 병원별로 남긴다. **동의 근거가 비어 있는 병원의 글은 새로 발행하지 않는다.** 원출처 사이트가 무단 복제·배포를 명시적으로 금하는 경우가 있다(힐하우스 이용약관 제7조: "사전 동의 없는 무단 복제·배포를 금합니다").
+
+| 병원 | 원출처 채널 | 동의 형태 | 동의 일자 | 범위 | 비고 |
+|---|---|---|---|---|---|
+| 예온치과병원 | 네이버 블로그 | **기록 없음** | — | — | 2026-08 파일럿부터 발행 중이나 동의 근거가 문서로 남아 있지 않다. 확인해 채운다 |
+| 디오디피부과의원 청담 | 네이버 블로그 | **기록 없음** | — | — | 위와 같음 |
+| 힐하우스피부과 (5개 지점) | 병원 웹사이트 칼럼 | 고객 계약에 포함 | **확인 필요** | 칼럼 재구성·발행 | 2026-09 신규 고객. 계약 확보는 담당자 확인(2026-09-16), 정확한 일자는 계약서 기준으로 기입 |
+
+지어내지 않는다 — 확인되지 않은 칸은 "기록 없음"·"확인 필요"로 둔다.
+
+---
+
+## 1. 블로그 글 (12편 · 2026-08-01 3편 · 2026-08-09 2편 · 2026-08-16 2편 · 2026-08-23 2편 · 2026-09-16 3편)
 
 ### 1-1. `yeon-incheon-dental`
 
@@ -215,6 +229,71 @@ DB에도 `sourcePosts`·`media.credit`이 들어가 있지만, DB는 "지금 상
 
 ---
 
+### 1-10. `healhouse-gangnam-vitiligo` *(2026-09-16 신규)*
+
+- **URL**: `/blog/힐하우스피부과강남점/healhouse-gangnam-vitiligo`
+- **제목**: 백반증 치료, 번지는지부터 보고 고릅니다 — 힐하우스피부과 강남점 진료 기록
+- **의원**: 힐하우스피부과 강남점 · **저자**: 병원 명의(의사 지정 없음)
+- **타겟 키워드**: 백반증 치료 · 백반증 레이저 · 엑시머 레이저 · 백반증 광선치료 · 백반증 초기 증상 · 백반증 치료 기간 · 강남 백반증 · 논현역 피부과
+- **원출처**: 힐하우스피부과 공식 칼럼 — https://healhouseskin.com/ko/columns/ **(네이버가 아닌 병원 웹사이트)**
+
+| 원문 게시일 | 원문 제목 | 저자 원장 | 칼럼 |
+|---|---|---|---|
+| 2026-09-11 | 백반증이 번지고 있다면 치료 방법도 달라질까요? | 배정민 | [vitiligo-treatment-methods](https://healhouseskin.com/ko/columns/vitiligo-treatment-methods/) |
+| 2026-07-10 | 백반증은 계속 번질까요? 진행을 막기 위해 확인해야 할 것들 | 배정민 | [vitiligo-progression-signs](https://healhouseskin.com/ko/columns/vitiligo-progression-signs/) |
+| 2026-07-10 | 백반증 바르는 약도 효과가 있을까요? 연고 치료의 역할과 한계 | 배정민 | [vitiligo-topical-treatment](https://healhouseskin.com/ko/columns/vitiligo-topical-treatment/) |
+| 2026-07-10 | 백반증 레이저치료 효과 있나요? 치료 기간과 소아 치료 기준 | 배정민 | [vitiligo-laser-treatment](https://healhouseskin.com/ko/columns/vitiligo-laser-treatment/) |
+| 2026-07-10 | 백반증 치료는 얼마나 걸리나요? 치료 과정과 총 기간 정리 | 배정민 | [vitiligo-treatment-duration](https://healhouseskin.com/ko/columns/vitiligo-treatment-duration/) |
+
+- **썸네일**: `healhouse-gangnam-vitiligo.jpg` — 강남점 시술실. 출처 = 힐하우스피부과 공식 웹사이트 https://healhouseskin.com/ko/clinics/gangnam/ (칼럼 본문에 이미지가 없어 지점 시설 사진에서 골랐다. 커버와 다른 장)
+- 원장 1명(배정민)의 칼럼만 묶었다 — 백반증 칼럼 28편이 전부 강남점 배정민 원장 글이다. 병원 명의 규칙은 그대로이고 인용 표기만 한 사람이다.
+- 보험 적용·장애 인정·병역 감면 칼럼은 시점에 따라 바뀌는 행정 사실이라 제외했다.
+- 팔라스 레이저 → "311nm 파장의 레이저", 프로토픽·엘리델 → "칼시뉴린 억제제 연고"로 바꿔 썼다.
+
+### 1-11. `healhouse-suwon-acne-scar` *(2026-09-16 신규)*
+
+- **URL**: `/blog/힐하우스피부과수원점/healhouse-suwon-acne-scar`
+- **제목**: 여드름 흉터·모공·색소침착, 무엇부터 다룰까 — 힐하우스피부과 수원점 진료 기록
+- **의원**: 힐하우스피부과 수원점 · **저자**: 병원 명의(의사 지정 없음)
+- **타겟 키워드**: 여드름 흉터 · 여드름 흉터 치료 · 모공 줄이는 법 · RF 니들링 · 프랙셔널 레이저 · 레이저 색소침착 · 수원 피부과 · 수원역 피부과
+- **원출처**: 힐하우스피부과 공식 칼럼 — https://healhouseskin.com/ko/columns/ **(네이버가 아닌 병원 웹사이트)**
+
+| 원문 게시일 | 원문 제목 | 저자 원장 | 칼럼 |
+|---|---|---|---|
+| 2026-06-25 | 모공, 줄이는 방법이 있나요? | 고혜림 | [pore-size-reduction](https://healhouseskin.com/ko/columns/pore-size-reduction/) |
+| 2026-06-24 | 레이저 시술 후 색소침착, 왜 생기나요? | 권수현 | [post-laser-pigmentation-causes](https://healhouseskin.com/ko/columns/post-laser-pigmentation-causes/) |
+| 2026-06-19 | 여드름 흉터와 모공, 시술 순서는 어떻게 잡나요? | 김수형 | [acne-scars-pores-order](https://healhouseskin.com/ko/columns/acne-scars-pores-order/) |
+| 2026-06-18 | RF 니들링, 모공과 흉터에 정말 효과가 있나요? | 김수형 | [rf-needling-pores-scars](https://healhouseskin.com/ko/columns/rf-needling-pores-scars/) |
+| 2026-06-15 | 여드름 흉터, 어떤 시술로 개선할 수 있나요? | 김수형 | [acne-scar-treatment](https://healhouseskin.com/ko/columns/acne-scar-treatment/) |
+
+- **썸네일**: `healhouse-suwon-acne-scar.jpg` — 수원점 상담 공간. 출처 = 힐하우스피부과 공식 웹사이트 https://healhouseskin.com/ko/clinics/suwon/ (칼럼 본문에 이미지가 없어 지점 시설 사진에서 골랐다. 커버와 다른 장)
+- 수원점 원장 3명(김수형·고혜림·권수현)의 칼럼을 묶은 병원 명의 글이다.
+- 원문에 장비·제품 브랜드가 가장 많은 묶음이라 전부 방식으로 바꿔 썼다(고주파 니들링, 프랙셔널 레이저, 콜라겐 유도 시술 등).
+- `dod-cheongdam-pigment`(1-9)와 색소·모공이 겹쳐 보이지만, 1-9는 진단 축(이름이 같아도 결이 다르다)이고 이 글은 흉터 중심의 시술 순서와 레이저 후 색소침착이 축이다.
+
+### 1-12. `healhouse-daegu-treatment-choice` *(2026-09-16 신규)*
+
+- **URL**: `/blog/힐하우스피부과대구점/healhouse-daegu-treatment-choice`
+- **제목**: 피부 시술을 고르기 전에 확인할 것 — 힐하우스피부과 대구점 진료 기록
+- **의원**: 힐하우스피부과 대구점 · **저자**: 병원 명의(의사 지정 없음)
+- **타겟 키워드**: 피부과 고르는 법 · 피부과 상담 체크리스트 · 피부과 과잉진료 · 리프팅 효과 개인차 · 시술 전후 사진 · 대구 피부과 · 동대구역 피부과 · 피부 나이
+- **원출처**: 힐하우스피부과 공식 칼럼 — https://healhouseskin.com/ko/columns/ **(네이버가 아닌 병원 웹사이트)**
+
+| 원문 게시일 | 원문 제목 | 저자 원장 | 칼럼 |
+|---|---|---|---|
+| 2026-07-17 | 상담만 받아보고 결정해도 괜찮나요? | 김현욱 | [consultation-only-visit](https://healhouseskin.com/ko/columns/consultation-only-visit/) |
+| 2026-07-14 | 효과가 사람마다 다른 이유는 무엇인가요? | 윤지민 | [individual-results-variation](https://healhouseskin.com/ko/columns/individual-results-variation/) |
+| 2026-07-13 | 시술 효과를 객관적으로 확인하는 방법은? | 윤지민 | [measuring-treatment-results](https://healhouseskin.com/ko/columns/measuring-treatment-results/) |
+| 2026-07-10 | 좋은 병원·의료진을 고르는 기준은 무엇인가요? | 박효진 | [choosing-clinic-doctor](https://healhouseskin.com/ko/columns/choosing-clinic-doctor/) |
+| 2026-07-07 | 나이대별 시술 추천, 그대로 따라도 되나요? | 김현욱 | [skin-condition-over-age](https://healhouseskin.com/ko/columns/skin-condition-over-age/) |
+
+- **썸네일**: `healhouse-daegu-treatment-choice.jpg` — 대구점 상담실. 출처 = 힐하우스피부과 공식 웹사이트 https://healhouseskin.com/ko/clinics/daegu/ (칼럼 본문에 이미지가 없어 지점 시설 사진에서 골랐다. 커버와 다른 장)
+- 대구점 원장 3명(박효진·김현욱·윤지민)의 칼럼을 묶은 병원 명의 글이다.
+- 정품 팁 확인·샷 수 칼럼(`lifting-device-selection`)은 `dod-cheongdam-skin`(1-3)과 겹쳐 제외했다.
+- 원문이 든 의료법 제27조 제3항(영리 목적 환자 유인 금지)은 "원문에 따르면"으로 출처를 밝혀 옮겼다.
+
+---
+
 ## 2. `/blog` 화면에 쓰는 의원 이미지
 
 의원 카드는 **커버(어둡게·흐리게) 위 로고**다. 둘 다 `hospitals` 문서의 필드이며 어드민에서 교체할 수 있다.
@@ -225,10 +304,20 @@ DB에도 `sourcePosts`·`media.credit`이 들어가 있지만, DB는 "지금 상
 | 예온치과병원 | `coverImage` | `yeon-dental-cover.jpg` | 진료실 | 예온 공식 홈페이지 https://gd365.ye-on.com/ |
 | 디오디피부과의원 청담 | `logo` | `dod-cheongdam-logo.png` | dod 모노그램 | 디오디 공식 블로그 https://blog.dodskin.com/ |
 | 디오디피부과의원 청담 | `coverImage` | `dod-cheongdam-cover.jpg` | 대기 라운지 | 디오디 공식 네이버 블로그 [224316949261](https://blog.naver.com/tj32xdcbiswj9/224316949261) |
+| 힐하우스피부과 강남점 | `logo` | `healhouse-logo.png` | 심볼 마크(5개 지점 공유) | 힐하우스피부과 공식 웹사이트 https://healhouseskin.com/ |
+| 힐하우스피부과 강남점 | `coverImage` | `healhouse-gangnam-cover.jpg` | 대기 라운지 | 힐하우스피부과 공식 웹사이트 https://healhouseskin.com/ko/clinics/gangnam/ |
+| 힐하우스피부과 건대점 | `logo` | `healhouse-logo.png` | 심볼 마크(5개 지점 공유) | 힐하우스피부과 공식 웹사이트 https://healhouseskin.com/ |
+| 힐하우스피부과 건대점 | `coverImage` | `healhouse-gundae-cover.jpg` | 대기 라운지 | 힐하우스피부과 공식 웹사이트 https://healhouseskin.com/ko/clinics/gundae/ |
+| 힐하우스피부과 판교점 | `logo` | `healhouse-logo.png` | 심볼 마크(5개 지점 공유) | 힐하우스피부과 공식 웹사이트 https://healhouseskin.com/ |
+| 힐하우스피부과 판교점 | `coverImage` | `healhouse-pangyo-cover.jpg` | 시술실 | 힐하우스피부과 공식 웹사이트 https://healhouseskin.com/ko/clinics/pangyo/ |
+| 힐하우스피부과 수원점 | `logo` | `healhouse-logo.png` | 심볼 마크(5개 지점 공유) | 힐하우스피부과 공식 웹사이트 https://healhouseskin.com/ |
+| 힐하우스피부과 수원점 | `coverImage` | `healhouse-suwon-cover.jpg` | 대기 공간 | 힐하우스피부과 공식 웹사이트 https://healhouseskin.com/ko/clinics/suwon/ |
+| 힐하우스피부과 대구점 | `logo` | `healhouse-logo.png` | 심볼 마크(5개 지점 공유) | 힐하우스피부과 공식 웹사이트 https://healhouseskin.com/ |
+| 힐하우스피부과 대구점 | `coverImage` | `healhouse-daegu-cover.jpg` | 대기 라운지 | 힐하우스피부과 공식 웹사이트 https://healhouseskin.com/ko/clinics/daegu/ |
 
 **이미지 선별 규칙** (자동 판별 불가 — 반드시 눈으로 확인)
 
-- 시술 전후(before/after) 사진 제외 — 의료법상 광고 제한. 디오디 원문에 실제로 있어 배제했다
+- 시술 전후(before/after) 사진 제외 — 의료법상 광고 제한. 디오디 원문에 실제로 있어 배제했다. 힐하우스는 모든 지점 페이지가 `/images/clinics/gangnam/best/`(시술 전후)를 공유해 수집 단계에서 경로로 배제했다(`collect.ts`)
 - 인물 얼굴이 식별되는 사진 제외
 - **커버는 글자가 박힌 이미지 금지** — 어둡게·흐리게 처리해도 읽힌다
 - 로고는 짙은 색만 — 흰 플레이트 위에 얹히므로 흰색 로고는 사라진다
@@ -249,3 +338,5 @@ DB에도 `sourcePosts`·`media.credit`이 들어가 있지만, DB는 "지금 상
 | 2026-08-16 | **신규 2편 발행** — `yeon-incheon-implant`(예온, 원문 5편) · `dod-cheongdam-stemcell`(디오디, 원문 5편, 이준 원장 명의). 썸네일 2건 신규(예온=원문 사진 / 디오디=생성 카드) | **앞선 5편과 달리 주제가 비어 있지 않았다.** 지정된 두 주제(네비게이션 임플란트 / 줄기세포·NK세포)가 각각 1-1·1-3과 겹쳐, 원문을 대조해 기존 편이 다루지 않은 축만 남기고 참조 원문을 0건 겹치게 골랐다. 겹치는 항목은 크로스링크로 넘겼다. 자세한 분리 기준은 각 항목의 ⚠ 및 `docs/블로그-예온-검단임플란트.md`·`docs/블로그-디오디-청담줄기세포.md` |
 | 2026-08-16 | 1-5 썸네일 파일명 표기를 `.png` → `.jpg`로 정정 | 문서만 틀려 있었다. 생성 산출물은 PNG지만 시드가 1280×720 JPEG로 변환해 올리므로 저장된 파일명은 `.jpg`다(스크립트가 사실의 원본) |
 | 2026-08-23 | **신규 2편 발행** — `yeon-incheon-cavity`(예온, 원문 5편) · `dod-cheongdam-pigment`(디오디, 원문 5편, 이준 원장 명의). 썸네일 2건 신규 — **둘 다 원문 사진**(디오디는 세 라운드 만에 처음) | 예온은 1-1과 부분적으로 겹쳐 축을 "재료·술식"에서 "치료 여부의 판단 기준"으로 옮기고 분류축도 4단계 → 인접면 E1~D3로 갈랐다. 디오디는 기존 3편과 아예 겹치지 않는 표면(색·결) 영역이다. 다만 계획 단계 후보 2편이 실제로는 리프팅 글이라 피부장벽·유수분 2편으로 교체했다 — 자세한 내용은 1-9의 ⚠ |
+| 2026-09-16 | **신규 고객 힐하우스피부과 — 5개 지점 등록 + 블로그 3편 발행** (`healhouse-gangnam-vitiligo`·`healhouse-suwon-acne-scar`·`healhouse-daegu-treatment-choice`, 각 원문 5편, 병원 명의). 지점별 로고(공유)·커버 5건, 글 썸네일 3건 신규 | **처음으로 네이버가 아닌 병원 웹사이트 칼럼이 원출처다.** 화면 문구·JSON-LD `citation` 타입·e2e 단언이 네이버를 전제하고 있어 URL 호스트로 채널을 판정하도록 일반화했다(`src/lib/blog-source.ts`). 기존 9편의 화면 문구는 그대로다. 블로그 글은 지점 1곳에 귀속되므로 **같은 지점 원장의 칼럼끼리만** 묶었다 |
+| 2026-09-16 | §0 재게시 동의 표 신설 | 힐하우스 이용약관이 무단 복제·배포를 명시적으로 금한다. 기존 예온·디오디는 동의 근거가 문서에 없어 "기록 없음"으로 표시했다 |

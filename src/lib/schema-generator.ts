@@ -2,6 +2,7 @@
 // 매거진/Q&A/의원 페이지에 적절한 schema 자동 주입
 
 import { SITE_URL } from "@/lib/site";
+import { blogSourceLabel } from "./blog-source";
 
 interface BaseArticleProps {
   type: "Article" | "MedicalWebPage";
@@ -60,7 +61,7 @@ interface BlogPostingProps {
   authorTitle?: string;
   authorIsPerson: boolean;
   authorUrl?: string;
-  /** 재구성의 근거가 된 네이버 원문 — isBasedOn + citation 양쪽에 사용 */
+  /** 재구성의 근거가 된 병원 원문(네이버 블로그·병원 웹사이트) — isBasedOn + citation 양쪽에 사용 */
   sourcePosts: SourcePostProps[];
   sourceBlogUrl: string;
   /** 대표 이미지 절대 URL */
@@ -96,8 +97,9 @@ export function blogPostingSchema(props: BlogPostingProps) {
       logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png` },
     },
     isBasedOn: props.sourcePosts.map((p) => p.url),
+    // 원문 한 편의 타입은 채널을 따른다 — 병원 웹사이트 칼럼은 원본 자체가 Article로 선언돼 있다
     citation: props.sourcePosts.map((p) => ({
-      "@type": "BlogPosting",
+      "@type": blogSourceLabel(p.url).schemaType,
       headline: p.title,
       url: p.url,
       datePublished: p.postedAt,
@@ -111,7 +113,7 @@ interface BlogProps {
   name: string;
   description: string;
   url: string;
-  /** 네이버 원본 블로그 — 이 블로그 섹션의 출처 */
+  /** 원본 채널(네이버 블로그·병원 웹사이트) — 이 블로그 섹션의 출처 */
   sourceBlogUrl: string;
   posts: { title: string; url: string; publishedAt: string; description: string }[];
 }

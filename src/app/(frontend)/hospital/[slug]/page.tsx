@@ -175,7 +175,8 @@ export default async function HospitalDetailPage({ params }: PageProps) {
             </p>
             <p className="mt-2 text-base text-[var(--color-text-muted)]">
               {hospital.addressLine}
-              {hospital.nearestStation && ` · ${hospital.nearestStation} 도보 ${hospital.walkingMinutes}분`}
+              {hospital.nearestStation &&
+                ` · ${hospital.nearestStation}${hospital.walkingMinutes ? ` 도보 ${hospital.walkingMinutes}분` : ""}`}
             </p>
             <div className="mt-7 grid grid-cols-2 gap-3">
               {phoneHref ? (

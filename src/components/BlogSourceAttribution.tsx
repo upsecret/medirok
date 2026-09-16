@@ -1,4 +1,5 @@
 import type { BlogSourcePost } from "@/types";
+import { blogSourceLabel } from "@/lib/blog-source";
 
 interface BlogSourceAttributionProps {
   hospitalName: string;
@@ -10,7 +11,7 @@ interface BlogSourceAttributionProps {
 /**
  * 원출처 고지 — 모든 블로그 상세 하단에 노출한다.
  *
- * 네이버 원문은 그대로 두고 메디록은 재구성본만 싣는다는 관계를 사람과 크롤러 양쪽에
+ * 병원 원문(네이버 블로그 또는 병원 웹사이트)은 그대로 두고 메디록은 재구성본만 싣는다는 관계를 사람과 크롤러 양쪽에
  * 밝히는 자리다. 구조화 선언은 blogPostingSchema의 isBasedOn/citation이 담당하고
  * 여기서는 사람이 읽는 형태로 같은 사실을 반복한다.
  *
@@ -23,6 +24,7 @@ export function BlogSourceAttribution({
   sourceBlogUrl,
   sourcePosts,
 }: BlogSourceAttributionProps) {
+  const source = blogSourceLabel(sourceBlogUrl);
   return (
     <section
       aria-label="원문 출처"
@@ -43,8 +45,8 @@ export function BlogSourceAttribution({
           >
             {sourceBlogName}
           </a>
-          의 포스팅 {sourcePosts.length}편을 메디록이 주제별로 재구성한 것입니다.
-          원문은 네이버 블로그에서 그대로 확인하실 수 있습니다.
+          의 {source.item} {sourcePosts.length}편을 메디록이 주제별로 재구성한 것입니다.
+          원문은 {source.channel}에서 그대로 확인하실 수 있습니다.
         </p>
 
         <ul className="mt-4 space-y-2">
