@@ -6,6 +6,7 @@ import {
   ogContent,
   expectCanonical,
 } from "./helpers";
+import { BLOG_GROUPS } from "../src/lib/blog-groups";
 
 const state = loadState();
 const blog = state.blog;
@@ -277,5 +278,99 @@ test.describe("의원 블로그 SEO", () => {
     expect(decodeURIComponent(xml)).toContain(
       `/blog/${blog!.hospitalSlug}/${blog!.postSlug}`
     );
+  });
+});
+
+// ── 네트워크 병원의 블로그 그룹 (src/lib/blog-groups.ts) ──
+// 여러 지점의 글을 병원 소식에서는 하나로 묶는다. 글은 실제 지점에 귀속된 채로 두고
+// URL 1단계만 그룹 slug로 푼다. 지점 slug로 들어온 옛 URL은 그룹 URL로 영구 이동해야 한다.
+test.describe("병원 소식 — 블로그 그룹", () => {
+  type Doc = Record<string, unknown>;
+  const relId = (v: unknown) =>
+    v != null && typeof v === "object" ? (v as Doc).id : (v as number | string | undefined);
+
+  test("그룹 slug가 실제 병원 slug와 겹치지 않는다", async ({ request }) => {
+    const res = await request.get("/api/hospitals?limit=500&depth=0");
+    expect(res.status()).toBe(200);
+    const slugs = new Set(
+      ((await res.json()).docs as Doc[]).map((h) => String(h.slug ?? ""))
+    );
+    for (const g of BLOG_GROUPS) {
+      expect(slugs.has(g.slug), `그룹 slug "${g.slug}"가 병원 slug와 겹친다`).toBe(false);
+    }
+  });
+
+  test("지점 slug로 들어온 목록·글 URL은 그룹 URL로 영구 이동한다", async ({ request }) => {
+    const [hRes, bRes] = await Promise.all([
+      request.get("/api/hospitals?limit=500&depth=0"),
+      request.get("/api/blog-posts?limit=500&depth=0"),
+    ]);
+    const hospitals = (await hRes.json()).docs as Doc[];
+    const posts = (await bRes.json()).docs as Doc[];
+    const slugById = new Map(hospitals.map((h) => [h.id, String(h.slug ?? "")]));
+
+    let checked = 0;
+    for (const g of BLOG_GROUPS) {
+      const groupPath = `/blog/${encodeURIComponent(g.slug)}`;
+      const grouped = posts.filter((p) =>
+        g.hospitalSlugs.includes(slugById.get(relId(p.hospital) as never) ?? "")
+      );
+      if (grouped.length === 0) continue; // 이 환경엔 그룹 글이 없다
+
+      for (const branch of g.hospitalSlugs) {
+        const res = await request.get(`/blog/${encodeURIComponent(branch)}`, { maxRedirects: 0 });
+        expect(res.status(), `${branch} 목록`).toBe(308);
+        expect(decodeURIComponent(res.headers()["location"] ?? "")).toContain(
+          decodeURIComponent(groupPath)
+        );
+        checked++;
+      }
+      for (const p of grouped) {
+        const branch = slugById.get(relId(p.hospital) as never)!;
+        const slug = String(p.slug);
+        const res = await request.get(
+          `/blog/${encodeURIComponent(branch)}/${encodeURIComponent(slug)}`,
+          { maxRedirects: 0 }
+        );
+        expect(res.status(), `${branch}/${slug}`).toBe(308);
+        expect(decodeURIComponent(res.headers()["location"] ?? "")).toContain(
+          `${decodeURIComponent(groupPath)}/${slug}`
+        );
+        const target = await request.get(`${groupPath}/${encodeURIComponent(slug)}`);
+        expect(target.status(), `${groupPath}/${slug}`).toBe(200);
+        checked++;
+      }
+    }
+    test.skip(checked === 0, "이 환경엔 블로그 그룹에 속한 글이 없습니다");
+  });
+
+  test("병원 소식 목록에 그룹은 카드 1장으로, 그룹 페이지엔 지점 링크가 모두 있다", async ({
+    page,
+    request,
+  }) => {
+    const hRes = await request.get("/api/hospitals?limit=500&depth=0");
+    const slugs = new Set(((await hRes.json()).docs as Doc[]).map((h) => String(h.slug)));
+    const groups = BLOG_GROUPS.filter((g) => g.hospitalSlugs.some((s) => slugs.has(s)));
+
+    await page.goto("/blog");
+    let checked = 0;
+    for (const g of groups) {
+      const cards = page.getByRole("heading", { level: 3, name: g.nameKr, exact: true });
+      if ((await cards.count()) === 0) continue; // 그룹 글이 없는 환경
+      expect(await cards.count(), `${g.nameKr} 카드`).toBe(1);
+      // 지점 이름으로 된 카드가 따로 뜨지 않는다
+      for (const s of g.hospitalSlugs) {
+        await expect(page.locator(`a[href="/blog/${encodeURIComponent(s)}"]`)).toHaveCount(0);
+      }
+
+      await page.goto(`/blog/${encodeURIComponent(g.slug)}`);
+      const branchNav = page.getByRole("navigation", { name: `${g.nameKr} 지점` });
+      await expect(branchNav).toBeVisible();
+      const existing = g.hospitalSlugs.filter((s) => slugs.has(s));
+      await expect(branchNav.locator('a[href^="/hospital/"]')).toHaveCount(existing.length);
+      await page.goto("/blog");
+      checked++;
+    }
+    test.skip(checked === 0, "이 환경엔 블로그 그룹에 속한 글이 없습니다");
   });
 });

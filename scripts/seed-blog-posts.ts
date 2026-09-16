@@ -1233,6 +1233,8 @@ const dodPigmentBody = `## 같은 피부 고민인데 왜 접근이 다른가요
 // 원출처가 네이버가 아니라 병원 웹사이트 칼럼이다. 칼럼은 편마다 저자 원장이 명시돼 있는데,
 // 병원 명의(authorDoctor 없음)로 쓰고 원장 판단은 인용 블록 + 원장 이름으로 밝힌다.
 // 블로그 글은 지점 1곳에 귀속되므로 **그 지점 원장의 칼럼끼리만** 묶는다(저자 소속이 틀어지지 않게).
+// 병원 소식에서는 지점 구분 없이 "힐하우스피부과" 하나로 노출된다(URL /blog/힐하우스피부과/<slug>) —
+// src/lib/blog-groups.ts. hospitalSlug는 사실 귀속(관련 의원 카드·작성 주체)이라 지점 그대로 둔다.
 // 백반증 칼럼은 전부 강남점 배정민 원장 글이다. 근거는 docs/블로그-힐하우스-강남백반증.md.
 //
 // 브랜드·제품명은 일반명으로 바꿨다(런북 §9-6) — 팔라스 → 311nm 파장 레이저,
@@ -1354,8 +1356,8 @@ const healhouseVitiligoBody = `## 백반증 치료를 고르기 전에 무엇부
 
 ## 함께 보면 좋은 글
 
-- [여드름 흉터·모공·색소침착 진료 기록](/blog/힐하우스피부과수원점/healhouse-suwon-acne-scar) — 힐하우스피부과 수원점
-- [피부 시술을 고르기 전에 확인할 것](/blog/힐하우스피부과대구점/healhouse-daegu-treatment-choice) — 힐하우스피부과 대구점
+- [여드름 흉터·모공·색소침착 진료 기록](/blog/힐하우스피부과/healhouse-suwon-acne-scar) — 힐하우스피부과 수원점
+- [피부 시술을 고르기 전에 확인할 것](/blog/힐하우스피부과/healhouse-daegu-treatment-choice) — 힐하우스피부과 대구점
 - [힐하우스피부과 강남점 의원 정보](/hospital/힐하우스피부과강남점) — 진료시간·교통·의료진`;
 
 // ── ⑪ 힐하우스피부과 수원점 · 여드름 흉터·모공·색소침착 ──────────────
@@ -1482,8 +1484,8 @@ const healhouseAcneScarBody = `## 흉터·모공·색소가 함께 있으면 무
 
 ## 함께 보면 좋은 글
 
-- [백반증 치료, 번지는지부터 보고 고릅니다](/blog/힐하우스피부과강남점/healhouse-gangnam-vitiligo) — 힐하우스피부과 강남점
-- [피부 시술을 고르기 전에 확인할 것](/blog/힐하우스피부과대구점/healhouse-daegu-treatment-choice) — 힐하우스피부과 대구점
+- [백반증 치료, 번지는지부터 보고 고릅니다](/blog/힐하우스피부과/healhouse-gangnam-vitiligo) — 힐하우스피부과 강남점
+- [피부 시술을 고르기 전에 확인할 것](/blog/힐하우스피부과/healhouse-daegu-treatment-choice) — 힐하우스피부과 대구점
 - [힐하우스피부과 수원점 의원 정보](/hospital/힐하우스피부과수원점) — 진료시간·교통·의료진`;
 
 // ── ⑫ 힐하우스피부과 대구점 · 시술을 고르기 전에 확인할 것 ──────────
@@ -1628,8 +1630,8 @@ const healhouseTreatmentChoiceBody = `## 피부 시술을 고르기 전에 무�
 
 ## 함께 보면 좋은 글
 
-- [백반증 치료, 번지는지부터 보고 고릅니다](/blog/힐하우스피부과강남점/healhouse-gangnam-vitiligo) — 힐하우스피부과 강남점
-- [여드름 흉터·모공·색소침착 진료 기록](/blog/힐하우스피부과수원점/healhouse-suwon-acne-scar) — 힐하우스피부과 수원점
+- [백반증 치료, 번지는지부터 보고 고릅니다](/blog/힐하우스피부과/healhouse-gangnam-vitiligo) — 힐하우스피부과 강남점
+- [여드름 흉터·모공·색소침착 진료 기록](/blog/힐하우스피부과/healhouse-suwon-acne-scar) — 힐하우스피부과 수원점
 - [힐하우스피부과 대구점 의원 정보](/hospital/힐하우스피부과대구점) — 진료시간·교통·의료진`;
 
 async function main() {

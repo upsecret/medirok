@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Route } from "next";
-import { getBlogHospitals } from "@/lib/blog-data";
+import { getBlogOwners } from "@/lib/blog-data";
 import { JsonLd } from "@/components/JsonLd";
 import { HospitalBrandCover } from "@/components/HospitalBrandCover";
 import { itemListSchema, breadcrumbSchema } from "@/lib/schema-generator";
@@ -18,7 +18,7 @@ export const metadata = {
 };
 
 export default async function BlogIndexPage() {
-  const groups = await getBlogHospitals();
+  const groups = await getBlogOwners();
 
   const schemas: Record<string, unknown>[] = [
     breadcrumbSchema([
@@ -32,9 +32,9 @@ export default async function BlogIndexPage() {
       itemListSchema({
         name: "메디록 의원 블로그",
         items: groups.map((g) => ({
-          name: `${g.hospital.nameKr} 블로그`,
-          url: `${SITE_URL}/blog/${encodeURIComponent(g.hospital.slug)}`,
-          description: g.hospital.shortDescription,
+          name: `${g.owner.nameKr} 블로그`,
+          url: `${SITE_URL}/blog/${encodeURIComponent(g.owner.slug)}`,
+          description: g.owner.shortDescription,
         })),
       })
     );
@@ -85,10 +85,10 @@ export default async function BlogIndexPage() {
               <p className="eyebrow mb-3">CLINIC STORIES</p>
               <h2 className="editorial mb-7">소식을 전하는 병원 <span className="font-sans text-base text-[var(--color-text-muted)]">{groups.length}곳</span></h2>
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                {groups.map(({ hospital, posts }, i) => (
+                {groups.map(({ owner, posts }, i) => (
                   <Link
-                    key={hospital.slug}
-                    href={`/blog/${hospital.slug}` as Route}
+                    key={owner.slug}
+                    href={`/blog/${owner.slug}` as Route}
                     className="card-lift block rounded-2xl border border-[var(--color-surface-border)] bg-white p-5"
                   >
                     {/*
@@ -96,9 +96,9 @@ export default async function BlogIndexPage() {
                       배경(coverImage)은 어둡게·흐리게 깔아 로고만 또렷하게 남긴다.
                     */}
                     <HospitalBrandCover
-                      cover={hospital.coverImage}
-                      logo={hospital.logo}
-                      hospitalName={hospital.nameKr}
+                      cover={owner.coverImage}
+                      logo={owner.logo}
+                      hospitalName={owner.nameKr}
                       // 첫 카드가 LCP 요소다 (2열 그리드라 첫 행 2장까지)
                       priority={i < 2}
                       className="mb-3"
@@ -112,11 +112,11 @@ export default async function BlogIndexPage() {
                       </span>
                     </div>
                     <h3 className="text-xl font-semibold leading-snug text-[var(--color-text-primary)]">
-                      {hospital.nameKr}
+                      {owner.nameKr}
                     </h3>
-                    {hospital.shortDescription && (
+                    {owner.shortDescription && (
                       <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-[var(--color-text-muted)]">
-                        {hospital.shortDescription}
+                        {owner.shortDescription}
                       </p>
                     )}
                     <p className="mt-4 text-sm leading-snug text-[var(--color-text-secondary)]">

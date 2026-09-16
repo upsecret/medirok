@@ -7,6 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { E2EState } from "../helpers";
+import { blogOwnerSlug } from "../../src/lib/blog-groups";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const STATE_PATH = path.join(HERE, "..", ".state.json");
@@ -137,8 +138,9 @@ setup("시드 데이터 확인 및 픽스처 기록", async ({ request }) => {
   const doctorById = new Map(doctors.map((d) => [relId(d.id) ?? (d.id as number | string), d]));
   const hospitalById = new Map(docs.map((h) => [relId(h.id) ?? (h.id as number | string), h]));
 
-  // ── 병원 블로그 (네이버 이식) ──
-  // URL 1단계가 병원 slug이므로 hospital 관계가 해석되는 글만 픽스처로 쓴다.
+  // ── 병원 블로그 ──
+  // URL 1단계는 "소유자" — 병원 slug, 또는 네트워크 병원이면 블로그 그룹 slug(src/lib/blog-groups.ts).
+  // hospital 관계가 해석되는 글만 픽스처로 쓴다.
   const bRes = await request.get("/api/blog-posts?limit=100&depth=0&sort=-publishedAt");
   expect(bRes.status(), "Payload REST /api/blog-posts 응답 확인").toBe(200);
   const bBody = (await bRes.json()) as { docs?: Doc[]; totalDocs?: number };
@@ -149,8 +151,9 @@ setup("시드 데이터 확인 및 픽스처 기록", async ({ request }) => {
   for (const doc of blogDocs) {
     const slug = String(doc.slug ?? "");
     const hospital = hospitalById.get(relId(doc.hospital) ?? "");
-    const hospitalSlug = hospital ? String(hospital.slug ?? "") : "";
-    if (!slug || !hospitalSlug) continue;
+    const branchSlug = hospital ? String(hospital.slug ?? "") : "";
+    if (!slug || !branchSlug) continue;
+    const hospitalSlug = blogOwnerSlug(branchSlug);
     const path = `/blog/${encodeURIComponent(hospitalSlug)}/${encodeURIComponent(slug)}`;
     const res = await request.get(path);
     if (res.status() !== 200) continue;
@@ -185,7 +188,7 @@ setup("시드 데이터 확인 및 픽스처 기록", async ({ request }) => {
     const hospital = hospitalById.get(relId(doc.hospital) ?? "");
     const hSlug = hospital ? String(hospital.slug ?? "") : "";
     if (!hSlug) continue;
-    state.thumbnail.blogHospitalSlug = hSlug;
+    state.thumbnail.blogHospitalSlug = blogOwnerSlug(hSlug);
     state.thumbnail.blogPostSlug = String(doc.slug ?? "") || null;
     break;
   }

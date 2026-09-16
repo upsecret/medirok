@@ -1,7 +1,8 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
 import type { Route } from "next";
-import { getAllBlogPosts, getBlogPost, getBlogPostsByHospital } from "@/lib/blog-data";
+import { getAllBlogPosts, getBlogPost, getBlogPostsByOwner } from "@/lib/blog-data";
+import { blogGroupBySlug, blogGroupOfHospital, blogOwnerSlug } from "@/lib/blog-groups";
 import { getHospitalBySlug, getDoctorBySlug, decodeParam } from "@/lib/hospitals-data";
 import { ShortAnswerBlock } from "@/components/ShortAnswerBlock";
 import { FaqBlock } from "@/components/FaqBlock";
@@ -25,6 +26,8 @@ import { blogSourceLabel } from "@/lib/blog-source";
 // /revalidate 엔드포인트가 담당한다(scripts/revalidate.ts · 런북 §9-3).
 export const revalidate = 3600;
 
+// URL 1단계는 "소유자" — 병원 slug 또는 블로그 그룹 slug(src/lib/blog-groups.ts).
+// 글의 사실 귀속(관련 의원 카드·작성 주체·출처 박스)은 늘 실제 지점(post.hospitalSlug)을 쓴다.
 interface PageProps {
   params: Promise<{ hospitalSlug: string; slug: string }>;
 }
@@ -33,15 +36,15 @@ export async function generateStaticParams() {
   const posts = await getAllBlogPosts();
   return posts
     .filter((p) => p.hospitalSlug)
-    .map((p) => ({ hospitalSlug: p.hospitalSlug, slug: p.slug }));
+    .map((p) => ({ hospitalSlug: blogOwnerSlug(p.hospitalSlug), slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: PageProps) {
   const raw = await params;
-  const hospitalSlug = decodeParam(raw.hospitalSlug);
-  const post = await getBlogPost(hospitalSlug, decodeParam(raw.slug));
+  const ownerSlug = decodeParam(raw.hospitalSlug);
+  const post = await getBlogPost(ownerSlug, decodeParam(raw.slug));
   if (!post) return {};
-  const canonical = `/blog/${hospitalSlug}/${post.slug}`;
+  const canonical = `/blog/${ownerSlug}/${post.slug}`;
   const images = post.thumbnail
     ? [absMediaUrl(post.thumbnail.featureUrl)]
     : undefined;
@@ -69,9 +72,19 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function BlogPostDetailPage({ params }: PageProps) {
   const raw = await params;
-  const hospitalSlug = decodeParam(raw.hospitalSlug);
-  // (병원, slug) 쌍으로 조회 — slug만 맞는 URL이 200이면 같은 글이 중복 색인된다
-  const post = await getBlogPost(hospitalSlug, decodeParam(raw.slug));
+  const ownerSlug = decodeParam(raw.hospitalSlug);
+  const postSlug = decodeParam(raw.slug);
+
+  // 그룹에 묶인 지점 slug로 들어오면 그룹 URL로 영구 이동 — 지점별로 발행됐던 옛 URL 대응
+  const branchGroup = blogGroupOfHospital(ownerSlug);
+  if (branchGroup) {
+    permanentRedirect(
+      `/blog/${encodeURIComponent(branchGroup.slug)}/${encodeURIComponent(postSlug)}`
+    );
+  }
+
+  // (소유자, slug) 쌍으로 조회 — slug만 맞는 URL이 200이면 같은 글이 중복 색인된다
+  const post = await getBlogPost(ownerSlug, postSlug);
   if (!post) notFound();
 
   const authorDoctor = post.authorDoctorSlug
@@ -79,14 +92,16 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
     : undefined;
 
   const [hospital, siblings] = await Promise.all([
-    getHospitalBySlug(hospitalSlug),
-    getBlogPostsByHospital(hospitalSlug),
+    getHospitalBySlug(post.hospitalSlug),
+    getBlogPostsByOwner(ownerSlug),
   ]);
   if (!hospital) notFound();
 
+  // 그룹이면 병원 소식 단위 이름(예: 힐하우스피부과), 아니면 병원 이름
+  const ownerName = blogGroupBySlug(ownerSlug)?.nameKr ?? hospital.nameKr;
   const otherPosts = siblings.filter((p) => p.slug !== post.slug);
-  const hospitalUrl = `${SITE_URL}/blog/${encodeURIComponent(hospitalSlug)}`;
-  const url = `${hospitalUrl}/${post.slug}`;
+  const ownerUrl = `${SITE_URL}/blog/${encodeURIComponent(ownerSlug)}`;
+  const url = `${ownerUrl}/${post.slug}`;
 
   // 저자 = 원문 작성 주체. 원장 명의 글이면 Person, 병원 명의 글이면 병원(Organization).
   // post.authorName(재구성 담당)은 바이라인 표기용이며 저자로 선언하지 않는다 —
@@ -98,7 +113,7 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
     breadcrumbSchema([
       { name: "홈", url: SITE_URL },
       { name: "병원 소식", url: `${SITE_URL}/blog` },
-      { name: hospital.nameKr, url: hospitalUrl },
+      { name: ownerName, url: ownerUrl },
       { name: post.seoTitle, url },
     ]),
     blogPostingSchema({
@@ -131,7 +146,7 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
       <nav className="bg-white border-b border-[var(--color-surface-border)] py-2.5">
         <div className="container-content text-sm text-[var(--color-text-muted)]">
           <Link href="/">홈</Link> › <Link href={"/blog" as Route}>병원 소식</Link> ›{" "}
-          <Link href={`/blog/${hospital.slug}` as Route}>{hospital.nameKr}</Link>
+          <Link href={`/blog/${ownerSlug}` as Route}>{ownerName}</Link>
         </div>
       </nav>
 
@@ -211,14 +226,14 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
         <section className="bg-[var(--color-surface-bg)] py-7 border-t border-[var(--color-surface-border)]">
           <div className="container-content">
             <h2 className="text-lg font-medium mb-3">
-              {hospital.nameKr}의 다른 글
+              {ownerName}의 다른 글
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {otherPosts.slice(0, 3).map((p) => (
                 <BlogPostCard
                   key={p.slug}
                   post={p}
-                  hospitalSlug={hospital.slug}
+                  hospitalSlug={ownerSlug}
                 />
               ))}
             </div>

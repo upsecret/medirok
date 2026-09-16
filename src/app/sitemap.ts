@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { getAllHospitals } from "@/lib/hospitals-data";
 import { getAllMagazines } from "@/lib/magazines-data";
 import { getAllBlogPosts } from "@/lib/blog-data";
+import { blogOwnerSlug } from "@/lib/blog-groups";
 import {
   getRegionRouteParams,
   getStationRouteParams,
@@ -55,9 +56,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  // 의원 블로그 — 병원별 목록 + 글 상세
+  // 의원 블로그 — 소유자(병원 또는 블로그 그룹)별 목록 + 글 상세.
+  // 그룹에 묶인 지점은 지점 URL이 아니라 그룹 URL만 싣는다(지점 URL은 그룹으로 영구 이동한다).
   const blogHospitalSlugs = [
-    ...new Set(blogPosts.map((p) => p.hospitalSlug).filter(Boolean)),
+    ...new Set(blogPosts.map((p) => (p.hospitalSlug ? blogOwnerSlug(p.hospitalSlug) : "")).filter(Boolean)),
   ];
   const blogHospitalEntries: MetadataRoute.Sitemap = blogHospitalSlugs.map((slug) => ({
     url: url(`/blog/${slug}`),
@@ -68,7 +70,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const blogPostEntries: MetadataRoute.Sitemap = blogPosts
     .filter((p) => p.hospitalSlug)
     .map((p) => ({
-      url: url(`/blog/${p.hospitalSlug}/${p.slug}`),
+      url: url(`/blog/${blogOwnerSlug(p.hospitalSlug)}/${p.slug}`),
       lastModified: p.publishedAt ? new Date(p.publishedAt) : now,
       changeFrequency: "monthly",
       priority: 0.7,
