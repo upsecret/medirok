@@ -202,6 +202,25 @@ const FROM_NAVER: Entry[] = [
     credit: "디오디피부과의원 청담 공식 네이버 블로그",
     sourceUrl: naverUrl("tj32xdcbiswj9", "224320242543"),
   },
+  {
+    collection: "blog-posts",
+    slug: "yeon-incheon-gum",
+    // 참조 원문 6편의 이미지 24장이 전부 텍스트 인포그래픽 카드이거나 의료법 고지 배너다.
+    // 800px급 9장도 모두 문구가 박혀 있어 쓸 사진이 없다 — 브랜드 타이포 카드로 간다.
+    src: gen("yeon-incheon-gum"),
+    alt: "메디록 병원 블로그 대표 이미지",
+    credit: "메디록",
+  },
+  {
+    collection: "blog-posts",
+    slug: "dod-cheongdam-cell-safety",
+    // 원문 119장 중 800px급은 대부분 카드뉴스·인증서 배너·영상 썸네일(얼굴 식별)이다.
+    // 유일하게 쓸 만한 공간 사진이라 세로가 길지만, 중앙 크롭이 로비 전경으로 떨어진다.
+    src: cand("naver", "dod-cheongdam-cell-safety_224274122914_07.jpg"),
+    alt: "디오디피부과의원 청담 로비",
+    credit: "디오디피부과의원 청담 공식 네이버 블로그",
+    sourceUrl: naverUrl("tj32xdcbiswj9", "224274122914"),
+  },
 ];
 
 // ── 병원 웹사이트 원출처 블로그 (힐하우스) ──
@@ -234,6 +253,16 @@ const FROM_SITE: Entry[] = [
     alt: "힐하우스피부과 대구점 상담실",
     credit: "힐하우스피부과 공식 웹사이트",
     sourceUrl: `${HEALHOUSE_SITE}daegu/`,
+  },
+  {
+    collection: "blog-posts",
+    slug: "healhouse-pangyo-downtime",
+    // 커버(pangyo_09)와 다른 장 — 목록에서 카드 배경과 글 썸네일이 겹쳐 보이지 않게.
+    src: cand("healhouse-site", "pangyo_13.jpg"),
+    filename: "healhouse-pangyo-downtime.jpg",
+    alt: "힐하우스피부과 판교점 시술실",
+    credit: "힐하우스피부과 공식 웹사이트",
+    sourceUrl: `${HEALHOUSE_SITE}pangyo/`,
   },
 ];
 

@@ -119,7 +119,12 @@ const BLOG_COLOR = "#7C6238"; // globals.css --color-accent-600
  * 카드를 쓰는 블로그 글은 여기에 명시한다. "썸네일이 없으면 만든다"로 두면
  * 원문 사진을 찾는 단계를 건너뛰게 되므로, 사진을 못 찾았다는 판단을 코드에 남긴다.
  */
-const BLOG_CARD_SLUGS = ["dod-cheongdam-lifting", "dod-cheongdam-stemcell"];
+const BLOG_CARD_SLUGS = [
+  "dod-cheongdam-lifting",
+  "dod-cheongdam-stemcell",
+  // 참조 원문 6편의 이미지가 전부 텍스트 인포그래픽·의료법 고지 배너였다(2026-10).
+  "yeon-incheon-gum",
+];
 
 async function run(): Promise<void> {
   const only = process.argv.slice(2);
