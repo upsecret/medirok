@@ -124,6 +124,8 @@ const BLOG_CARD_SLUGS = [
   "dod-cheongdam-stemcell",
   // 참조 원문 6편의 이미지가 전부 텍스트 인포그래픽·의료법 고지 배너였다(2026-10).
   "yeon-incheon-gum",
+  // 원문 6편 90장이 전부 브랜드 카드뉴스·장비 배너·모델 사진이다(2026-10).
+  "dod-cheongdam-cycle",
 ];
 
 async function run(): Promise<void> {

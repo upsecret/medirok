@@ -221,6 +221,24 @@ const FROM_NAVER: Entry[] = [
     credit: "디오디피부과의원 청담 공식 네이버 블로그",
     sourceUrl: naverUrl("tj32xdcbiswj9", "224274122914"),
   },
+  {
+    collection: "blog-posts",
+    slug: "yeon-incheon-tmj",
+    // 예온 원문은 대부분 텍스트 인포그래픽인데 이 한 장만 글자가 없는 의학 일러스트다.
+    // 이악물기(왼쪽)와 턱관절(오른쪽)을 한 장에 담아 주제와도 맞고, 눈 위가 잘려 얼굴은 식별되지 않는다.
+    src: cand("naver", "yeon-incheon-tmj_224274239599_03.jpg"),
+    alt: "맞물린 치아와 턱관절 구조를 나란히 보여 주는 의학 일러스트",
+    credit: "예온치과병원 공식 네이버 블로그",
+    sourceUrl: naverUrl("income3357", "224274239599"),
+  },
+  {
+    collection: "blog-posts",
+    slug: "dod-cheongdam-cycle",
+    // 원문 6편 90장이 전부 브랜드 카드뉴스·장비 배너·모델 사진이라 쓸 사진이 없다.
+    src: gen("dod-cheongdam-cycle"),
+    alt: "메디록 병원 블로그 대표 이미지",
+    credit: "메디록",
+  },
 ];
 
 // ── 병원 웹사이트 원출처 블로그 (힐하우스) ──
@@ -263,6 +281,17 @@ const FROM_SITE: Entry[] = [
     alt: "힐하우스피부과 판교점 시술실",
     credit: "힐하우스피부과 공식 웹사이트",
     sourceUrl: `${HEALHOUSE_SITE}pangyo/`,
+  },
+  {
+    collection: "blog-posts",
+    slug: "healhouse-gangnam-vitiligo-questions",
+    // 강남점 커버(…76836a08cbdb)와 기존 백반증 편 썸네일(…5be38265c752) 둘 다와 다른 장.
+    // 상담실로 이어지는 복도라 "묻는 것"이 축인 이 글과 맞는다.
+    src: cand("healhouse-site", "gangnam_20260813-a0595f9bd330-5-9-_web.webp"),
+    filename: "healhouse-gangnam-vitiligo-questions.jpg",
+    alt: "힐하우스피부과 강남점 상담실 복도",
+    credit: "힐하우스피부과 공식 웹사이트",
+    sourceUrl: `${HEALHOUSE_SITE}gangnam/`,
   },
 ];
 
