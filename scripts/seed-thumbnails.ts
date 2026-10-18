@@ -239,6 +239,22 @@ const FROM_NAVER: Entry[] = [
     alt: "메디록 병원 블로그 대표 이미지",
     credit: "메디록",
   },
+  {
+    collection: "blog-posts",
+    slug: "yeon-incheon-pediatric",
+    // 원문 이미지가 전부 카드뉴스·고지 배너이고 사진은 아이 얼굴이 식별된다 → 생성 카드
+    src: gen("yeon-incheon-pediatric"),
+    alt: "메디록 병원 블로그 대표 이미지",
+    credit: "메디록",
+  },
+  {
+    collection: "blog-posts",
+    slug: "dod-cheongdam-volume",
+    // 원문 29장이 브랜드 카드뉴스·장비 배너·원장 인물 사진뿐이다 → 생성 카드
+    src: gen("dod-cheongdam-volume"),
+    alt: "메디록 병원 블로그 대표 이미지",
+    credit: "메디록",
+  },
 ];
 
 // ── 병원 웹사이트 원출처 블로그 (힐하우스) ──
@@ -292,6 +308,16 @@ const FROM_SITE: Entry[] = [
     alt: "힐하우스피부과 강남점 상담실 복도",
     credit: "힐하우스피부과 공식 웹사이트",
     sourceUrl: `${HEALHOUSE_SITE}gangnam/`,
+  },
+  {
+    collection: "blog-posts",
+    slug: "healhouse-gundae-injection",
+    // 건대점 사진을 쓰는 첫 글. 지점 커버가 쓰는 gundae_08과 다른 장(유리 파사드 너머 대기 공간).
+    src: cand("healhouse-site", "gundae_14.jpg"),
+    filename: "healhouse-gundae-injection.jpg",
+    alt: "힐하우스피부과 건대점 대기 공간",
+    credit: "힐하우스피부과 공식 웹사이트",
+    sourceUrl: `${HEALHOUSE_SITE}gundae/`,
   },
 ];
 
