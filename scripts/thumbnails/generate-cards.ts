@@ -131,6 +131,9 @@ const BLOG_CARD_SLUGS = [
   "yeon-incheon-pediatric",
   // 원문 6편 29장이 브랜드 카드뉴스·장비 배너·모델 사진·원장 인물 사진이다(2026-10).
   "dod-cheongdam-volume",
+  // 원문 6편 115장이 카드뉴스·진료시간 안내·지도·의료법 고지 배너이고,
+  // 시설 사진에도 브랜드 문구가 박혀 있다(2026-10).
+  "yeon-incheon-anterior",
 ];
 
 async function run(): Promise<void> {

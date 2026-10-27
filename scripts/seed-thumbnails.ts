@@ -255,6 +255,26 @@ const FROM_NAVER: Entry[] = [
     alt: "메디록 병원 블로그 대표 이미지",
     credit: "메디록",
   },
+  {
+    collection: "blog-posts",
+    slug: "yeon-incheon-anterior",
+    // 원문 115장이 전부 카드뉴스·진료시간 안내·지도·의료법 고지 배너다.
+    // 시설 사진 몇 장도 "매 순간 환자의 입장에서" 같은 문구가 박혀 있다 → 생성 카드
+    src: gen("yeon-incheon-anterior"),
+    alt: "메디록 병원 블로그 대표 이미지",
+    credit: "메디록",
+  },
+  {
+    collection: "blog-posts",
+    slug: "dod-cheongdam-hairloss",
+    // 원문 82장 중 글자·얼굴 없는 공간 사진이 여섯 장 있었다. 기존 디오디 3편이 쓴
+    // 외관(skin)·시술룸(pigment)·금색 조형물 로비(cell-safety)와 겹치지 않게
+    // 유리 천장 아래 테라스 라운지를 골랐다.
+    src: cand("naver", "dod-cheongdam-hairloss_224230339739_06.jpg"),
+    alt: "디오디피부과의원 청담 라운지",
+    credit: "디오디피부과의원 청담 공식 블로그",
+    sourceUrl: naverUrl("tj32xdcbiswj9", "224230339739"),
+  },
 ];
 
 // ── 병원 웹사이트 원출처 블로그 (힐하우스) ──
@@ -318,6 +338,17 @@ const FROM_SITE: Entry[] = [
     alt: "힐하우스피부과 건대점 대기 공간",
     credit: "힐하우스피부과 공식 웹사이트",
     sourceUrl: `${HEALHOUSE_SITE}gundae/`,
+  },
+  {
+    collection: "blog-posts",
+    slug: "healhouse-gangnam-vitiligo-medication",
+    // 강남점 사진 15장 중 3장이 이미 쓰였다(지점 커버 …76836a08cbdb / 백반증 편
+    // …5be38265c752 / 질문 편 …a0595f9bd330). 약물 상담이 축인 글이라 상담 데스크를 골랐다.
+    src: cand("healhouse-site", "gangnam_20260813-c0b4bf5cc715-5-11-_web.webp"),
+    filename: "healhouse-gangnam-vitiligo-medication.jpg",
+    alt: "힐하우스피부과 강남점 진료실",
+    credit: "힐하우스피부과 공식 웹사이트",
+    sourceUrl: `${HEALHOUSE_SITE}gangnam/`,
   },
 ];
 
