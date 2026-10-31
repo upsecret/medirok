@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { Route } from "next";
 import type { Hospital } from "@/types";
+import { hasRatingAggregate } from "@/lib/format";
 import { getDepartmentBySlug } from "@/lib/hospitals-data";
 import { HospitalImage } from "./HospitalImage";
 
@@ -47,7 +48,14 @@ export async function CurationCard({ hospital, size = "lg" }: CurationCardProps)
 
         <div className={`mt-auto flex items-center justify-between gap-3 ${hospital.curationNote ? "pt-6" : "pt-5"}`}>
           <p className="text-sm font-medium text-[var(--color-text-secondary)]">
-            <span className="text-[var(--color-warning)]">★</span> {hospital.rating} · 후기 {hospital.reviewCount}개
+            {hasRatingAggregate(hospital.rating, hospital.reviewCount) ? (
+              <>
+                <span className="text-[var(--color-warning)]">★</span> {hospital.rating} · 후기{" "}
+                {hospital.reviewCount}개
+              </>
+            ) : (
+              <span className="text-[var(--color-text-muted)]">후기 집계 전</span>
+            )}
           </p>
           <Link href={`/hospital/${hospital.slug}` as Route} className="inline-flex min-h-12 items-center rounded-lg bg-[var(--color-primary-700)] px-5 text-sm font-semibold text-white">
             상세 보기 <span aria-hidden="true" className="ml-2">→</span>

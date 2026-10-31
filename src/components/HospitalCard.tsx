@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { Hospital } from "@/types";
-import { formatKRW } from "@/lib/format";
+import { formatKRW, hasRatingAggregate } from "@/lib/format";
 import { getDepartmentBySlug } from "@/lib/hospitals-data";
 import { HospitalImage } from "./HospitalImage";
 
@@ -38,7 +38,14 @@ export async function HospitalCard({ hospital, showPrice = true }: HospitalCardP
             {dept?.nameKr} · {hospital.addressLine.split(" ").slice(0, 3).join(" ")}
           </p>
           <p className="mt-2 text-sm font-medium text-[var(--color-text-secondary)]">
-            <span className="text-[var(--color-warning)]">★</span> {hospital.rating} · 후기 {hospital.reviewCount}개
+            {hasRatingAggregate(hospital.rating, hospital.reviewCount) ? (
+              <>
+                <span className="text-[var(--color-warning)]">★</span> {hospital.rating} · 후기{" "}
+                {hospital.reviewCount}개
+              </>
+            ) : (
+              <span className="text-[var(--color-text-muted)]">후기 집계 전</span>
+            )}
           </p>
           {showPrice && mainPrice && (
           <div className="mt-3 flex items-baseline gap-2">

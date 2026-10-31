@@ -83,6 +83,7 @@ test.describe("병원찾기", () => {
 
 test.describe("병원 상세", () => {
   const slug = state.hospitalSlug;
+  const zeroSlug = state.hospitalWithoutReviewsSlug;
 
   test("slug 페이지가 200을 반환하고 핵심 섹션이 렌더된다", async ({ page }) => {
     test.skip(!slug, "Payload DB에 병원 데이터가 없습니다");
@@ -94,7 +95,10 @@ test.describe("병원 상세", () => {
     // 핵심 섹션: 진료/가격 · 의료진 · 실방문 후기 · 위치/진료시간
     await expect(page.getByRole("heading", { name: "진료 · 가격 정보" })).toBeVisible();
     await expect(page.getByRole("heading", { name: /의료진 \(\d+명\)/ })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /실방문 후기 \(\d+\)/ })).toBeVisible();
+    // 메디록 검증 후기가 없는 병원은 "방문 후기 발췌 (n)"으로 그려진다 (출처 표기형)
+    await expect(
+      page.getByRole("heading", { name: /(실방문 후기|방문 후기 발췌) \(\d+\)/ })
+    ).toBeVisible();
     await expect(page.getByRole("heading", { name: "위치 · 진료시간" })).toBeVisible();
   });
 
@@ -117,6 +121,53 @@ test.describe("병원 상세", () => {
     const org = await expectJsonLdType(page, "MedicalOrganization");
     expect(org.name, "MedicalOrganization.name이 있어야 합니다").toBeTruthy();
     expect(String(org.url)).toContain("/hospital/");
+  });
+
+  // ── 후기 표기 (2026-10-31) ──
+  // 메디록 검증 후기(영수증·휴대폰)는 아직 0건이고 실려 있는 것은 전부 공개 플랫폼 발췌다.
+  // "실방문 후기"라는 제목과 reviewCount 숫자가 그 사실과 어긋나 있었다.
+  test("외부 발췌 후기는 출처를 표기하고 숫자가 카드 수와 일치한다", async ({ page }) => {
+    test.skip(!slug, "Payload DB에 병원 데이터가 없습니다");
+    await page.goto(`/hospital/${slug}`);
+
+    const heading = page.getByRole("heading", { name: /(실방문 후기|방문 후기 발췌) \(\d+\)/ });
+    await expect(heading).toBeVisible();
+    const shown = Number((await heading.innerText()).match(/\((\d+)\)/)![1]);
+
+    const isExcerpt = (await heading.innerText()).includes("발췌");
+    if (isExcerpt) {
+      await expect(page.getByText("VERIFIED REVIEWS")).toHaveCount(0);
+      await expect(page.getByText(/구글맵|네이버|외부 플랫폼/).first()).toBeVisible();
+      // 제목 숫자는 화면에 실제로 그려진 카드 수여야 한다 (예전엔 공개 집계 114를 띄우고 3장을 그렸다)
+      const cards = page.locator("section").filter({ has: heading }).locator("div.rounded-xl");
+      expect(shown, "제목 숫자가 렌더된 후기 카드 수와 같아야 합니다").toBe(await cards.count());
+    }
+  });
+
+  test("후기 0건 병원: ★ 0이 아니라 수집 상태를 말한다", async ({ page }) => {
+    test.skip(!zeroSlug, "후기가 비어 있는 병원이 없습니다");
+    await page.goto(`/hospital/${zeroSlug}`);
+
+    await expect(page.getByText(/★\s*0(?!\d)/)).toHaveCount(0);
+    await expect(page.getByText("후기 0개")).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "후기 수집 상태" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "지도에서 공개 후기 확인" })).toBeVisible();
+  });
+
+  test("후기 0건 병원: MedicalOrganization에 aggregateRating이 없다", async ({ page }) => {
+    test.skip(!zeroSlug, "후기가 비어 있는 병원이 없습니다");
+    await page.goto(`/hospital/${zeroSlug}`);
+
+    const org = await expectJsonLdType(page, "MedicalOrganization");
+    expect(
+      org.aggregateRating,
+      "제3자 플랫폼 평점을 자사 aggregateRating으로 선언하지 않는다 (런북 §11-5)"
+    ).toBeUndefined();
+  });
+
+  test("병원찾기 목록에 ★ 0이 노출되지 않는다", async ({ page }) => {
+    await page.goto("/hospitals");
+    await expect(page.getByText(/★\s*0(?!\d)/)).toHaveCount(0);
   });
 
   test("메타: 타이틀·canonical이 병원 정보를 담는다", async ({ page }) => {

@@ -5,7 +5,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import type { Hospital } from "@/types";
-import { formatKRW } from "@/lib/format";
+import { formatKRW, hasRatingAggregate } from "@/lib/format";
 import { DepartmentIcon } from "@/components/DepartmentIcon";
 
 interface Props {
@@ -82,16 +82,20 @@ export function HospitalQuickView({ hospital: h, deptName, onClose }: Props) {
 
           {/* 핵심 지표 */}
           <div className="grid grid-cols-3 gap-2 text-center">
-            <Stat
-              label="평점"
-              value={
-                <>
-                  <span className="text-[var(--color-warning)]">★</span>{" "}
-                  {h.rating}
-                </>
-              }
-              sub={`리뷰 ${h.reviewCount}`}
-            />
+            {hasRatingAggregate(h.rating, h.reviewCount) ? (
+              <Stat
+                label="평점"
+                value={
+                  <>
+                    <span className="text-[var(--color-warning)]">★</span>{" "}
+                    {h.rating}
+                  </>
+                }
+                sub={`리뷰 ${h.reviewCount}`}
+              />
+            ) : (
+              <Stat label="평점" value="집계 전" />
+            )}
             <Stat label="의료진" value={`${h.doctorCount}명`} />
             {h.monthlyVisitors ? (
               <Stat

@@ -25,6 +25,7 @@ setup("시드 데이터 확인 및 픽스처 기록", async ({ request }) => {
   const state: E2EState = {
     hospitalCount: 0,
     hospitalSlug: null,
+    hospitalWithoutReviewsSlug: null,
     magazineCount: 0,
     magazineSlug: null,
     magazine: null,
@@ -81,6 +82,14 @@ setup("시드 데이터 확인 및 픽스처 기록", async ({ request }) => {
         d.certification &&
         relId(d.region) != null
     ) ?? docs[0];
+
+  // 후기·평점이 비어 있는 병원 — "집계 전" 렌더와 aggregateRating 미주입을 검증한다
+  const hospitalWithoutReviews = docs.find(
+    (d) => Array.isArray(d.reviews) && (d.reviews as unknown[]).length === 0 && Number(d.rating) === 0
+  );
+  state.hospitalWithoutReviewsSlug = hospitalWithoutReviews
+    ? String(hospitalWithoutReviews.slug ?? "") || null
+    : null;
 
   if (firstHospital) {
     state.hospitalSlug = String(firstHospital.slug ?? "") || null;

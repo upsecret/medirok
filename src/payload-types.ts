@@ -305,7 +305,13 @@ export interface Hospital {
   tier: 'STANDARD' | 'PREMIUM' | 'HERITAGE';
   phone?: string | null;
   yearEstablished?: number | null;
+  /**
+   * 메디록 자체 집계 전용. 외부 플랫폼 평점을 넣지 않는다(런북 §11-1).
+   */
   rating: number;
+  /**
+   * 메디록 검증 후기 수. 외부 플랫폼 집계를 넣지 않는다(런북 §11-1).
+   */
   reviewCount: number;
   doctorCount: number;
   monthlyVisitors?: number | null;

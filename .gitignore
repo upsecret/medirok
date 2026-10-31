@@ -47,6 +47,8 @@ next-env.d.ts
 
 # 썸네일 작업 디렉터리 (수집 원본·생성 카드 — 최종본은 Blob에 올라간다)
 /.thumbnails/
+# 후기 후보 수집 디렉터리 (플랫폼 원본·후보 JSON — 선별분만 시드에 손으로 옮긴다)
+/.reviews/
 # Media 로컬 디스크 폴백 (BLOB_READ_WRITE_TOKEN 없는 환경의 업로드 경로)
 /media/
 

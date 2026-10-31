@@ -91,8 +91,25 @@ export const Hospitals: CollectionConfig = {
     { name: "phone", type: "text" },
     { name: "yearEstablished", type: "number" },
     // 통계 (flat — 프론트가 h.rating 등으로 직접 접근)
-    { name: "rating", type: "number", min: 0, max: 5, required: true, defaultValue: 0 },
-    { name: "reviewCount", type: "number", required: true, defaultValue: 0 },
+    // rating/reviewCount는 **메디록 자체 집계 전용**이다. 이 두 값이 JSON-LD aggregateRating,
+    // 대시보드 "외부 집계 후기", 병원찾기 정렬의 입력이라 플랫폼이 섞이면 의미가 깨진다.
+    // 공개 플랫폼 집계는 certification.stage2Detail에 출처·기준일과 함께 적는다(런북 §11-1).
+    {
+      name: "rating",
+      type: "number",
+      min: 0,
+      max: 5,
+      required: true,
+      defaultValue: 0,
+      admin: { description: "메디록 자체 집계 전용. 외부 플랫폼 평점을 넣지 않는다(런북 §11-1)." },
+    },
+    {
+      name: "reviewCount",
+      type: "number",
+      required: true,
+      defaultValue: 0,
+      admin: { description: "메디록 검증 후기 수. 외부 플랫폼 집계를 넣지 않는다(런북 §11-1)." },
+    },
     { name: "doctorCount", type: "number", required: true, defaultValue: 0 },
     { name: "monthlyVisitors", type: "number" },
     {

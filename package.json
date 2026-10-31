@@ -29,6 +29,7 @@
     "seed:magazine-regenerative": "node --env-file=.env.local --import tsx/esm scripts/seed-magazine-regenerative.ts && npm run revalidate",
     "seed:blog-posts": "node --env-file=.env.local --import tsx/esm scripts/seed-blog-posts.ts && npm run revalidate",
     "thumbnails:collect": "node --import tsx/esm scripts/thumbnails/collect.ts",
+    "reviews:collect": "node --import tsx/esm scripts/reviews/collect.ts",
     "thumbnails:cards": "node --env-file=.env.local --import tsx/esm scripts/thumbnails/generate-cards.ts",
     "seed:thumbnails": "node --env-file=.env.local --import tsx/esm scripts/seed-thumbnails.ts && npm run revalidate",
     "payload:generate-types": "payload generate:types",

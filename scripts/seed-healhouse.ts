@@ -14,7 +14,10 @@
  * 지점 페이지 본문(역 출구·도보 시간), 의료진 페이지(경력·전문 영역·소속 지점).
  *
  * 원칙 — 공식 사이트에서 확인되는 것만 쓴다.
- *   - 후기·별점: 검증된 출처가 없어 0/빈 배열.
+ *   - 후기·별점: rating/reviewCount는 메디록 자체 집계 전용이라 0/빈 배열로 둔다. 네이버 플레이스에
+ *     공개된 방문자 리뷰 수는 stage2Detail에 출처·기준일과 함께만 적는다(런북 §11-1).
+ *     발췌 본문은 넣지 않았다 — 수집한 49건이 기기·제품 브랜드명·효과 단정·시술 권유를 담고 있고
+ *     판교점 상위 2건은 마케팅 대행사 계정이었다. 작성자 개인의 저작물이라 동의도 필요하다(런북 §11-4).
  *   - 인증 단계: stage3(피부과 전문의)만 근거가 있다. stage1(진료이력)·stage4(시설장비)는 근거 문서가
  *     없어 false — 영업 확인 후 올린다. 사이트의 자체 수치("시술 55종" 등)는 쓰지 않는다.
  *   - 동(dong): 주소에 동 표기가 없어 연결하지 않는다.
@@ -71,7 +74,9 @@ async function main() {
     walkingMinutes: 2,
     tier: "PREMIUM",
     phone: "02-6951-5761",
-    // 검증된 후기·별점 출처가 없다 — 0으로 둔다(미조작)
+    // rating/reviewCount는 메디록 자체 집계(영수증·휴대폰 인증) 전용이다 — 런북 §11-1.
+    // 제3자 플랫폼 수치를 넣지 않는다(JSON-LD aggregateRating·대시보드 지표·정렬이 이 값을 읽는다).
+    // 공개 플랫폼 집계는 certification.stage2Detail에 출처·기준일과 함께 적는다.
     rating: 0,
     reviewCount: 0,
     doctorCount: 4,
@@ -80,7 +85,8 @@ async function main() {
       stage1History: false,
       stage1Detail: "",
       stage2Reviews: false,
-      stage2Detail: "실방문 후기 수집 진행 중",
+      stage2Detail:
+        "네이버 방문자 리뷰 175개 공개(2026-10 기준) · 메디록 영수증·휴대폰 인증 후기는 수집 전",
       stage3Credentials: true,
       stage3Detail: "공식 사이트 의료진 소개 기준 피부과 전문의 4명 진료",
       stage4Facility: false,
@@ -174,7 +180,9 @@ async function main() {
     walkingMinutes: 5,
     tier: "PREMIUM",
     phone: "02-444-7585",
-    // 검증된 후기·별점 출처가 없다 — 0으로 둔다(미조작)
+    // rating/reviewCount는 메디록 자체 집계(영수증·휴대폰 인증) 전용이다 — 런북 §11-1.
+    // 제3자 플랫폼 수치를 넣지 않는다(JSON-LD aggregateRating·대시보드 지표·정렬이 이 값을 읽는다).
+    // 공개 플랫폼 집계는 certification.stage2Detail에 출처·기준일과 함께 적는다.
     rating: 0,
     reviewCount: 0,
     doctorCount: 2,
@@ -183,7 +191,8 @@ async function main() {
       stage1History: false,
       stage1Detail: "",
       stage2Reviews: false,
-      stage2Detail: "실방문 후기 수집 진행 중",
+      stage2Detail:
+        "네이버 방문자 리뷰 510개 공개(2026-10 기준) · 메디록 영수증·휴대폰 인증 후기는 수집 전",
       stage3Credentials: true,
       stage3Detail: "공식 사이트 의료진 소개 기준 피부과 전문의 2명 진료",
       stage4Facility: false,
@@ -248,7 +257,9 @@ async function main() {
     // 사이트 표기가 "출구 연결"뿐이라 도보 시간은 지어내지 않는다(상세 페이지는 값이 없으면 생략).
     tier: "PREMIUM",
     phone: "031-701-7438",
-    // 검증된 후기·별점 출처가 없다 — 0으로 둔다(미조작)
+    // rating/reviewCount는 메디록 자체 집계(영수증·휴대폰 인증) 전용이다 — 런북 §11-1.
+    // 제3자 플랫폼 수치를 넣지 않는다(JSON-LD aggregateRating·대시보드 지표·정렬이 이 값을 읽는다).
+    // 공개 플랫폼 집계는 certification.stage2Detail에 출처·기준일과 함께 적는다.
     rating: 0,
     reviewCount: 0,
     doctorCount: 3,
@@ -257,7 +268,8 @@ async function main() {
       stage1History: false,
       stage1Detail: "",
       stage2Reviews: false,
-      stage2Detail: "실방문 후기 수집 진행 중",
+      stage2Detail:
+        "네이버 방문자 리뷰 295개 공개(2026-10 기준) · 메디록 영수증·휴대폰 인증 후기는 수집 전",
       stage3Credentials: true,
       stage3Detail: "공식 사이트 의료진 소개 기준 피부과 전문의 3명 진료",
       stage4Facility: false,
@@ -335,7 +347,9 @@ async function main() {
     walkingMinutes: 3,
     tier: "PREMIUM",
     phone: "031-248-7730",
-    // 검증된 후기·별점 출처가 없다 — 0으로 둔다(미조작)
+    // rating/reviewCount는 메디록 자체 집계(영수증·휴대폰 인증) 전용이다 — 런북 §11-1.
+    // 제3자 플랫폼 수치를 넣지 않는다(JSON-LD aggregateRating·대시보드 지표·정렬이 이 값을 읽는다).
+    // 공개 플랫폼 집계는 certification.stage2Detail에 출처·기준일과 함께 적는다.
     rating: 0,
     reviewCount: 0,
     doctorCount: 4,
@@ -344,7 +358,8 @@ async function main() {
       stage1History: false,
       stage1Detail: "",
       stage2Reviews: false,
-      stage2Detail: "실방문 후기 수집 진행 중",
+      stage2Detail:
+        "네이버 방문자 리뷰 1,471개 공개(2026-10 기준) · 메디록 영수증·휴대폰 인증 후기는 수집 전",
       stage3Credentials: true,
       stage3Detail: "공식 사이트 의료진 소개 기준 피부과 전문의 4명 진료",
       stage4Facility: false,
@@ -435,7 +450,9 @@ async function main() {
     walkingMinutes: 4,
     tier: "PREMIUM",
     phone: "053-710-1127",
-    // 검증된 후기·별점 출처가 없다 — 0으로 둔다(미조작)
+    // rating/reviewCount는 메디록 자체 집계(영수증·휴대폰 인증) 전용이다 — 런북 §11-1.
+    // 제3자 플랫폼 수치를 넣지 않는다(JSON-LD aggregateRating·대시보드 지표·정렬이 이 값을 읽는다).
+    // 공개 플랫폼 집계는 certification.stage2Detail에 출처·기준일과 함께 적는다.
     rating: 0,
     reviewCount: 0,
     doctorCount: 3,
@@ -444,7 +461,8 @@ async function main() {
       stage1History: false,
       stage1Detail: "",
       stage2Reviews: false,
-      stage2Detail: "실방문 후기 수집 진행 중",
+      stage2Detail:
+        "네이버 방문자 리뷰 627개 공개(2026-10 기준) · 메디록 영수증·휴대폰 인증 후기는 수집 전",
       stage3Credentials: true,
       stage3Detail: "공식 사이트 의료진 소개 기준 피부과 전문의 3명 진료",
       stage4Facility: false,

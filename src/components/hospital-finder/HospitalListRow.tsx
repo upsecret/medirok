@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { Hospital } from "@/types";
-import { formatKRW } from "@/lib/format";
+import { formatKRW, hasRatingAggregate } from "@/lib/format";
 import { HospitalImage } from "@/components/HospitalImage";
 
 interface Props {
@@ -36,8 +36,14 @@ export function HospitalListRow({ hospital: h, deptName, onSelect }: Props) {
               </p>
             </div>
             <p className="shrink-0 text-sm font-semibold">
-              <span className="text-[var(--color-warning)]">★</span> {h.rating}
-              <span className="font-normal text-[var(--color-text-muted)]"> ({h.reviewCount})</span>
+              {hasRatingAggregate(h.rating, h.reviewCount) ? (
+                <>
+                  <span className="text-[var(--color-warning)]">★</span> {h.rating}
+                  <span className="font-normal text-[var(--color-text-muted)]"> ({h.reviewCount})</span>
+                </>
+              ) : (
+                <span className="font-normal text-[var(--color-text-muted)]">후기 집계 전</span>
+              )}
             </p>
           </div>
 

@@ -10,6 +10,12 @@ import { fileURLToPath } from "node:url";
 export interface E2EState {
   hospitalCount: number;
   hospitalSlug: string | null;
+  /**
+   * 후기가 0건이고 평점 집계도 없는 병원 slug.
+   * 결측이 정상인 경로라 회귀 대상이다 — 썸네일 픽스처가 "있는 문서"와 "없는 문서" 양쪽을
+   * 고르는 것과 같은 이유다. hospitalSlug는 데이터가 풍부한 쪽을 고르므로 이 경로를 덮지 못한다.
+   */
+  hospitalWithoutReviewsSlug: string | null;
   magazineCount: number;
   magazineSlug: string | null;
   magazine: {
@@ -86,6 +92,7 @@ export function loadState(): E2EState {
     return {
       hospitalCount: 0,
       hospitalSlug: null,
+      hospitalWithoutReviewsSlug: null,
       magazineCount: 0,
       magazineSlug: null,
       magazine: null,

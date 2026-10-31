@@ -10,6 +10,7 @@ export default async function DashboardHomePage() {
   ]);
 
   const premium = hospitals.filter((h) => h.tier === "PREMIUM").length;
+  // reviewCount는 아직 메디록 자체 집계가 아니라 공개 플랫폼 집계가 들어 있다 — 레이블로 구분한다
   const totalReviews = hospitals.reduce((sum, h) => sum + (h.reviewCount ?? 0), 0);
   const recent = [...magazines]
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
@@ -26,7 +27,7 @@ export default async function DashboardHomePage() {
         <StatCard label="등록 의원" value={hospitals.length} suffix="곳" />
         <StatCard label="PREMIUM 큐레이션" value={premium} suffix="곳" />
         <StatCard label="매거진" value={magazines.length} suffix="편" />
-        <StatCard label="누적 리뷰" value={totalReviews.toLocaleString()} suffix="건" />
+        <StatCard label="외부 집계 후기" value={totalReviews.toLocaleString()} suffix="건" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">

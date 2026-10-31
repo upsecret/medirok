@@ -23,6 +23,11 @@ import { ReviewsSection } from "@/components/hospital-detail/ReviewsSection";
 import { LocationHoursSection } from "@/components/hospital-detail/LocationHoursSection";
 import { Breadcrumbs, type Crumb } from "@/components/Breadcrumbs";
 import { medicalOrgSchema } from "@/lib/schema-generator";
+import {
+  formatCertificationBadge,
+  hasRatingAggregate,
+  naverPlaceSearchUrl,
+} from "@/lib/format";
 import { fullRegionName, hospitalUrl } from "@/lib/local-seo";
 import { getHospitalRouteParams } from "@/lib/route-params";
 
@@ -127,17 +132,18 @@ export default async function HospitalDetailPage({ params }: PageProps) {
           ? `${fullRegionName(sidoR.nameKr, guR.nameKr)} ${hospital.addressLine}`
           : hospital.addressLine,
       phone: hospital.phone,
-      rating: hospital.rating > 0 ? hospital.rating : undefined,
-      reviewCount: hospital.reviewCount > 0 ? hospital.reviewCount : undefined,
+      // rating/reviewCount를 넘기지 않는다 — 지금 들어 있는 값은 구글맵 공개 집계이고,
+      // 다른 사이트의 평점을 자사 aggregateRating으로 선언하는 것은 구글 리뷰 스니펫 정책
+      // ("다른 웹사이트의 리뷰·평점을 집계해 쓰지 말 것" + "표시하는 리뷰에 근거해야 한다")에
+      // 어긋난다. 화면에는 출처를 밝혀 그대로 노출하므로 사람이 보는 정보는 줄지 않는다.
+      // 영수증·휴대폰 인증 기반 자체 집계가 가동되면 medicalOrgSchema 시그니처가 그대로 있으니 되살린다.
       medicalSpecialty: dept?.nameKr,
     }),
   ];
   const phoneHref = hospital.phone
     ? `tel:${hospital.phone.replace(/[^0-9+]/g, "")}`
     : undefined;
-  const mapHref = `https://map.naver.com/p/search/${encodeURIComponent(
-    `${hospital.nameKr} ${hospital.addressLine}`
-  )}`;
+  const mapHref = naverPlaceSearchUrl(hospital.nameKr, hospital.addressLine);
 
   return (
     <>
@@ -154,7 +160,11 @@ export default async function HospitalDetailPage({ params }: PageProps) {
           />
           <div className="flex flex-col justify-center py-2 lg:px-5">
             <div className="flex flex-wrap gap-2">
-              {hospital.certification && <span className="badge-certified">메디록 4단계 인증</span>}
+              {hospital.certification && (
+                <span className="badge-certified">
+                  {formatCertificationBadge(hospital.certification)}
+                </span>
+              )}
               {dept && (
                 <span className="rounded-full bg-[var(--color-accent-100)] px-3 py-1 text-xs font-semibold text-[var(--color-accent-700)]">
                   {dept.nameKr}
@@ -167,12 +177,14 @@ export default async function HospitalDetailPage({ params }: PageProps) {
                 {hospital.shortDescription}
               </p>
             )}
-            <p className="mt-5 text-base text-[var(--color-text-secondary)]">
-              <span className="font-semibold text-[var(--color-text-primary)]">
-                <span className="text-[var(--color-warning)]">★</span> {hospital.rating}
-              </span>
-              <span className="text-[var(--color-text-muted)]"> · 후기 {hospital.reviewCount}개</span>
-            </p>
+            {hasRatingAggregate(hospital.rating, hospital.reviewCount) && (
+              <p className="mt-5 text-base text-[var(--color-text-secondary)]">
+                <span className="font-semibold text-[var(--color-text-primary)]">
+                  <span className="text-[var(--color-warning)]">★</span> {hospital.rating}
+                </span>
+                <span className="text-[var(--color-text-muted)]"> · 후기 {hospital.reviewCount}개</span>
+              </p>
+            )}
             <p className="mt-2 text-base text-[var(--color-text-muted)]">
               {hospital.addressLine}
               {hospital.nearestStation &&

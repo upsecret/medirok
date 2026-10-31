@@ -26,7 +26,9 @@ export function MedirokCertBox({ cert, compact = false }: MedirokCertBoxProps) {
             이 병원에서 확인한 4가지 기준
           </h3>
         </div>
-        <span className="text-sm text-[var(--color-primary-300)]">{cert.certifiedAt} 확인 완료</span>
+        <span className="text-sm text-[var(--color-primary-300)]">
+          {cert.certifiedAt ? `${cert.certifiedAt} 확인 완료` : "확인 일자 미등록"}
+        </span>
       </div>
       <div className={`grid ${compact ? "grid-cols-2 md:grid-cols-4" : "grid-cols-1 sm:grid-cols-2 md:grid-cols-4"} gap-3`}>
         {stages.map((stage, i) => (
