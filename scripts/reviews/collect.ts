@@ -218,7 +218,20 @@ async function collectNaver(branch: string): Promise<BranchResult> {
   return result;
 }
 
-/** 구글맵 — curl로는 JS 블록이라 Playwright로 1회 연다 */
+/**
+ * 구글맵 — curl·웹검색으로는 못 가져온다(JS 블록). Playwright로 장소를 열어 리뷰 탭을 읽는다.
+ *
+ * 예온·디오디가 쓰는 것과 같은 출처다(seed-yeon.ts:300 · seed-dod.ts:144). 구글 리뷰는
+ * 네이버와 달리 **별점이 있다** — 집계 평점·리뷰 수와 개별 별점을 그대로 쓸 수 있다.
+ */
+const GOOGLE_QUERY: Record<string, string> = {
+  gangnam: "힐하우스피부과 강남점 서울 강남구 강남대로 518",
+  gundae: "힐하우스피부과 건대점 서울 광진구 능동로",
+  pangyo: "힐하우스피부과 판교점 성남시 분당구 분당내곡로 131",
+  suwon: "힐하우스피부과 수원점 수원시 팔달구 매산로 24",
+  daegu: "힐하우스피부과 대구점 대구 동구 신천동",
+};
+
 async function collectGoogle(branch: string): Promise<BranchResult> {
   const { chromium } = await import("playwright");
   const result: BranchResult = {
@@ -231,21 +244,98 @@ async function collectGoogle(branch: string): Promise<BranchResult> {
     candidates: [],
     note: "",
   };
-  const query = `힐하우스피부과 ${branch}`;
+
   const browser = await chromium.launch();
   try {
-    const page = await browser.newPage({ locale: "ko-KR", userAgent: UA.replace("iPhone", "Macintosh") });
-    await page.goto(`https://www.google.com/maps/search/${encodeURIComponent(query)}?hl=ko`, {
-      waitUntil: "domcontentloaded",
-      timeout: 60000,
+    const page = await browser.newPage({
+      locale: "ko-KR",
+      viewport: { width: 1280, height: 900 },
+      userAgent:
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
     });
-    await page.waitForTimeout(6000);
+    const query = GOOGLE_QUERY[branch] ?? `힐하우스피부과 ${branch}`;
+    await page.goto(`https://www.google.com/maps/search/${encodeURIComponent(query)}?hl=ko&gl=kr`, {
+      waitUntil: "domcontentloaded",
+      timeout: 90000,
+    });
+    await page.waitForTimeout(5000);
+
+    // 검색 결과가 목록으로 뜨면 첫 장소를 연다
+    const firstResult = page.locator('a.hfpxzc').first();
+    if (await firstResult.count()) {
+      await firstResult.click();
+      await page.waitForTimeout(4000);
+    }
     result.placeUrl = page.url();
-    const text = await page.evaluate(() => document.body.innerText);
-    await fs.writeFile(path.join(RAW_ROOT, `${branch}-google.txt`), text);
-    result.rating = Number(text.match(/(\d\.\d)\s*\n?\s*\(?리뷰|(\d\.\d)\s*별/)?.[1] ?? NaN) || null;
-    result.visitorReviewTotal = Number(text.match(/리뷰\s*([\d,]+)개/)?.[1]?.replace(/,/g, "") ?? NaN) || null;
-    result.note = "구글맵 화면 텍스트를 .reviews/raw에 저장했다 — 평점·리뷰 수는 사람이 눈으로 확인한다";
+
+    // 집계 — "4.9" + "리뷰 123개"
+    const header = await page.evaluate(() => document.body.innerText.slice(0, 2000));
+    result.rating = Number(header.match(/\b([1-5]\.\d)\b/)?.[1] ?? NaN) || null;
+    result.visitorReviewTotal =
+      Number(header.match(/리뷰\s*([\d,]+)개/)?.[1]?.replace(/,/g, "") ?? NaN) || null;
+
+    // 리뷰 탭
+    const tab = page.getByRole("tab", { name: /리뷰/ });
+    if (await tab.count()) {
+      await tab.first().click();
+      await page.waitForTimeout(4000);
+      // 스크롤로 더 불러온다 (지점당 3건만 쓰므로 두 번이면 충분하다)
+      for (let i = 0; i < 3; i++) {
+        await page.mouse.wheel(0, 3000);
+        await page.waitForTimeout(1500);
+      }
+      // "더보기"를 눌러 잘린 본문을 펼친다. 누르면 DOM이 바뀌므로 매번 첫 버튼을 다시 집는다
+      for (let i = 0; i < 20; i++) {
+        const more = page.locator('button[aria-label="더보기"], button.w8nwRe').first();
+        if (!(await more.count())) break;
+        await more.click({ timeout: 2000 }).catch(() => {});
+        await page.waitForTimeout(400);
+      }
+      await page.waitForTimeout(1200);
+    }
+
+    const raw = await page.evaluate(() => {
+      const out: { nickname: string; created: string; body: string; stars: number }[] = [];
+      // 같은 리뷰가 중첩 노드 두 개로 잡힌다 — data-review-id로 한 번만 읽는다
+      const seen = new Set<string>();
+      for (const el of document.querySelectorAll("div[data-review-id]")) {
+        const id = el.getAttribute("data-review-id") ?? "";
+        if (seen.has(id)) continue;
+        const body = (el.querySelector(".wiI7pd") as HTMLElement | null)?.innerText?.trim() ?? "";
+        if (!body) continue;
+        seen.add(id);
+        const starLabel =
+          el.querySelector('span[role="img"][aria-label*="별표"]')?.getAttribute("aria-label") ?? "";
+        out.push({
+          nickname: (el.querySelector(".d4r55") as HTMLElement | null)?.innerText?.trim() ?? "",
+          created: (el.querySelector(".rsqaWe") as HTMLElement | null)?.innerText?.trim() ?? "",
+          body,
+          stars: Number(starLabel.match(/(\d)/)?.[1] ?? 0),
+        });
+      }
+      return out;
+    });
+
+    await fs.writeFile(
+      path.join(RAW_ROOT, `${branch}-google.txt`),
+      await page.evaluate(() => document.body.innerText)
+    );
+
+    result.candidates = raw.map((r) => ({
+      nickname: r.nickname,
+      created: r.created,
+      body: r.body.replace(/\s+/g, " ").trim(),
+      hasReply: false,
+      visitCount: String(r.stars),
+      flags: [
+        ...flagBody(r.body),
+        ...(/마케팅|대행|체험단/.test(r.nickname) ? ["비유기적 계정 의심(작성자명)"] : []),
+        ...(r.stars > 0 && r.stars < 4 ? [`별점 ${r.stars}`] : []),
+      ],
+    }));
+    result.note =
+      `구글 리뷰 ${result.candidates.length}건 수집 · 별점은 visitCount 칸에 담았다 · ` +
+      `집계 ${result.rating ?? "?"}/${result.visitorReviewTotal ?? "?"}`;
   } finally {
     await browser.close();
   }

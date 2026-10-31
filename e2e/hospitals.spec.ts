@@ -149,7 +149,7 @@ test.describe("병원 상세", () => {
     await page.goto(`/hospital/${zeroSlug}`);
 
     await expect(page.getByText(/★\s*0(?!\d)/)).toHaveCount(0);
-    await expect(page.getByText("후기 0개")).toHaveCount(0);
+    await expect(page.getByText(/후기\s*0\s*개/)).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "후기 수집 상태" })).toBeVisible();
     await expect(page.getByRole("link", { name: "지도에서 공개 후기 확인" })).toBeVisible();
   });

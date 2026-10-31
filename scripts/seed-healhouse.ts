@@ -14,10 +14,11 @@
  * 지점 페이지 본문(역 출구·도보 시간), 의료진 페이지(경력·전문 영역·소속 지점).
  *
  * 원칙 — 공식 사이트에서 확인되는 것만 쓴다.
- *   - 후기·별점: rating/reviewCount는 메디록 자체 집계 전용이라 0/빈 배열로 둔다. 네이버 플레이스에
- *     공개된 방문자 리뷰 수는 stage2Detail에 출처·기준일과 함께만 적는다(런북 §11-1).
- *     발췌 본문은 넣지 않았다 — 수집한 49건이 기기·제품 브랜드명·효과 단정·시술 권유를 담고 있고
- *     판교점 상위 2건은 마케팅 대행사 계정이었다. 작성자 개인의 저작물이라 동의도 필요하다(런북 §11-4).
+ *   - 후기·별점: 예온·디오디와 같은 방식 — 구글맵 공개 집계를 rating/reviewCount에, 발췌 3건을
+ *     reviews[]에 출처 표기로 넣는다(2026-10-31 확인). 메디록 자체 검증(영수증/전화) 후기가 아니라
+ *     각 리뷰는 isReceiptVerified/isPhoneVerified=false이고 stage2Reviews도 false다.
+ *     **JSON-LD aggregateRating에는 넘기지 않는다** — 런북 §11-5.
+ *     네이버는 2021년 별점 폐지로 평점을 제공하지 않아 집계 출처로 쓸 수 없다(런북 §11-4).
  *   - 인증 단계: stage3(피부과 전문의)만 근거가 있다. stage1(진료이력)·stage4(시설장비)는 근거 문서가
  *     없어 false — 영업 확인 후 올린다. 사이트의 자체 수치("시술 55종" 등)는 쓰지 않는다.
  *   - 동(dong): 주소에 동 표기가 없어 연결하지 않는다.
@@ -74,11 +75,11 @@ async function main() {
     walkingMinutes: 2,
     tier: "PREMIUM",
     phone: "02-6951-5761",
-    // rating/reviewCount는 메디록 자체 집계(영수증·휴대폰 인증) 전용이다 — 런북 §11-1.
-    // 제3자 플랫폼 수치를 넣지 않는다(JSON-LD aggregateRating·대시보드 지표·정렬이 이 값을 읽는다).
-    // 공개 플랫폼 집계는 certification.stage2Detail에 출처·기준일과 함께 적는다.
-    rating: 0,
-    reviewCount: 0,
+    // 평점·후기 출처: 구글맵 "힐하우스피부과의원 강남점" 집계, 2026-10-31 확인.
+    // 메디록 자체 검증(영수증/전화) 후기가 아니므로 각 리뷰는 isReceiptVerified/isPhoneVerified=false.
+    // JSON-LD aggregateRating에는 넘기지 않는다 — 런북 §11-5.
+    rating: 5.0,
+    reviewCount: 48,
     doctorCount: 4,
     tags: ["안티에이징", "리프팅", "스킨부스터", "필러", "색소", "여드름 흉터", "백반증"],
     certification: {
@@ -86,7 +87,7 @@ async function main() {
       stage1Detail: "",
       stage2Reviews: false,
       stage2Detail:
-        "네이버 방문자 리뷰 175개 공개(2026-10 기준) · 메디록 영수증·휴대폰 인증 후기는 수집 전",
+        "구글맵 공개 후기 48개 중 3건 발췌 게시(2026-10 확인) · 메디록 영수증·휴대폰 인증 후기는 수집 전",
       stage3Credentials: true,
       stage3Detail: "공식 사이트 의료진 소개 기준 피부과 전문의 4명 진료",
       stage4Facility: false,
@@ -157,7 +158,39 @@ async function main() {
     ],
     // 비급여 진료가 미공개 — 빈 배열이면 상세 페이지에서 "진료문의하기" 노출(추정가 미조작).
     prices: [],
-    reviews: [],
+    // 구글맵 "힐하우스피부과의원 강남점" 리뷰 발췌 (출처 표기, 메디록 미검증)
+    reviews: [
+      {
+        id: "google-hanryang-lilit",
+        rating: 5,
+        content:
+          "사진을 찍으면 얼굴이 실제보다 넓어 보이는 게 아쉬워 상담을 받았어요. 얼굴 비율과 근육 발달 정도를 하나씩 확인해 주시고, 어떤 부위를 관리하면 자연스러운 변화가 생기는지 설명해 주셔서 신뢰가 갔습니다. 피부과 전문의 원장님이 직접 상담과 시술을 진행해 주셔서 안심하고 받았어요.",
+        reviewerName: "hanryang_lilit (Google)",
+        visitedAt: "2026-08",
+        isReceiptVerified: false,
+        isPhoneVerified: false,
+      },
+      {
+        id: "google-milboriboli",
+        rating: 5,
+        content:
+          "턱 라인이 흐릿해지고 탄력이 떨어진 느낌이 있어 상담했고, 제 상태에 맞춰 올타이트 레이저를 진행했어요. 설명을 자세히 해주시고 시술 중간중간 체크해 주셔서 부담 없이 받았습니다. 드라마틱하기보다 얼굴선이 자연스럽게 정리된 느낌이라 만족하고 있어요.",
+        reviewerName: "밀보리보리 (Google)",
+        visitedAt: "2026-04",
+        isReceiptVerified: false,
+        isPhoneVerified: false,
+      },
+      {
+        id: "google-ahn-hyerim",
+        rating: 5,
+        content:
+          "더엘주사를 1회·2회차로 나눠 진행했어요. 평소 긴장하면 어금니를 꽉 깨무는 편인데 그래서 커진 부분까지 꼼꼼하게 체크해서 잡아주셨어요. 시설도 깔끔했습니다.",
+        reviewerName: "안혜림 (Google)",
+        visitedAt: "2026-07",
+        isReceiptVerified: false,
+        isPhoneVerified: false,
+      },
+    ],
     hours: {
       weekday: "평일 10:00–20:00",
       saturday: "09:00–15:00",
@@ -180,11 +213,11 @@ async function main() {
     walkingMinutes: 5,
     tier: "PREMIUM",
     phone: "02-444-7585",
-    // rating/reviewCount는 메디록 자체 집계(영수증·휴대폰 인증) 전용이다 — 런북 §11-1.
-    // 제3자 플랫폼 수치를 넣지 않는다(JSON-LD aggregateRating·대시보드 지표·정렬이 이 값을 읽는다).
-    // 공개 플랫폼 집계는 certification.stage2Detail에 출처·기준일과 함께 적는다.
-    rating: 0,
-    reviewCount: 0,
+    // 평점·후기 출처: 구글맵 "힐하우스피부과의원 건대점" 집계, 2026-10-31 확인.
+    // 메디록 자체 검증(영수증/전화) 후기가 아니므로 각 리뷰는 isReceiptVerified/isPhoneVerified=false.
+    // JSON-LD aggregateRating에는 넘기지 않는다 — 런북 §11-5.
+    rating: 4.4,
+    reviewCount: 25,
     doctorCount: 2,
     tags: ["안티에이징", "리프팅", "스킨부스터", "필러", "색소", "여드름 흉터"],
     certification: {
@@ -192,7 +225,7 @@ async function main() {
       stage1Detail: "",
       stage2Reviews: false,
       stage2Detail:
-        "네이버 방문자 리뷰 510개 공개(2026-10 기준) · 메디록 영수증·휴대폰 인증 후기는 수집 전",
+        "구글맵 공개 후기 25개 중 3건 발췌 게시(2026-10 확인) · 메디록 영수증·휴대폰 인증 후기는 수집 전",
       stage3Credentials: true,
       stage3Detail: "공식 사이트 의료진 소개 기준 피부과 전문의 2명 진료",
       stage4Facility: false,
@@ -234,7 +267,39 @@ async function main() {
     ],
     // 비급여 진료가 미공개 — 빈 배열이면 상세 페이지에서 "진료문의하기" 노출(추정가 미조작).
     prices: [],
-    reviews: [],
+    // 구글맵 "힐하우스피부과의원 건대점" 리뷰 발췌 (출처 표기, 메디록 미검증)
+    reviews: [
+      {
+        id: "google-joy-seol",
+        rating: 5,
+        content:
+          "원장님이 상담부터 꼼꼼하게 진행해 주시고, 어떤 시술이 필요한지 과하게 권유하지 않고 제 피부에 맞게 솔직하게 설명해 주셔서 신뢰가 갔습니다. 리프팅도 무조건 받는 게 아니라 얼굴 라인과 피부 상태에 맞춰 자연스럽게 디자인해 주시는 느낌이었어요. 리쥬란 통증이 걱정이었는데 실제로 받아 보니 훨씬 편했습니다.",
+        reviewerName: "Jeonghye Joy Seol (Google)",
+        visitedAt: "2026-06",
+        isReceiptVerified: false,
+        isPhoneVerified: false,
+      },
+      {
+        id: "google-kang-seokjun",
+        rating: 5,
+        content:
+          "피부과는 처음이었는데 안내를 친절하게 해주셨어요. 이것저것 더 하고 싶었는데 그러면 오히려 효과가 떨어질 수도 있다고 솔직하게 말해 주셔서 단골이 됐습니다.",
+        reviewerName: "강석준 (Google)",
+        visitedAt: "2026-06",
+        isReceiptVerified: false,
+        isPhoneVerified: false,
+      },
+      {
+        id: "google-hannah",
+        rating: 5,
+        content:
+          "리프팅 시술을 처음 받아 걱정이 많았는데 전문의 선생님이 차근차근 설명해 주시고 질문에도 잘 답해 주셨어요. 실장님도 친절하시고 강요 같은 것도 하나 없었습니다. 세르프 시술을 받았는데 아프지 않았고 만족도가 높았어요.",
+        reviewerName: "Hannah (Google)",
+        visitedAt: "2025-10",
+        isReceiptVerified: false,
+        isPhoneVerified: false,
+      },
+    ],
     hours: {
       weekday: "월·금 10:00–20:00 / 화·수·목 10:00–19:00",
       saturday: "10:00–15:00",
@@ -257,11 +322,11 @@ async function main() {
     // 사이트 표기가 "출구 연결"뿐이라 도보 시간은 지어내지 않는다(상세 페이지는 값이 없으면 생략).
     tier: "PREMIUM",
     phone: "031-701-7438",
-    // rating/reviewCount는 메디록 자체 집계(영수증·휴대폰 인증) 전용이다 — 런북 §11-1.
-    // 제3자 플랫폼 수치를 넣지 않는다(JSON-LD aggregateRating·대시보드 지표·정렬이 이 값을 읽는다).
-    // 공개 플랫폼 집계는 certification.stage2Detail에 출처·기준일과 함께 적는다.
-    rating: 0,
-    reviewCount: 0,
+    // 평점·후기 출처: 구글맵 "힐하우스피부과의원 판교점" 집계, 2026-10-31 확인.
+    // 메디록 자체 검증(영수증/전화) 후기가 아니므로 각 리뷰는 isReceiptVerified/isPhoneVerified=false.
+    // JSON-LD aggregateRating에는 넘기지 않는다 — 런북 §11-5.
+    rating: 4.3,
+    reviewCount: 47,
     doctorCount: 3,
     tags: ["안티에이징", "리프팅", "스킨부스터", "필러", "색소", "여드름 흉터"],
     certification: {
@@ -269,7 +334,7 @@ async function main() {
       stage1Detail: "",
       stage2Reviews: false,
       stage2Detail:
-        "네이버 방문자 리뷰 295개 공개(2026-10 기준) · 메디록 영수증·휴대폰 인증 후기는 수집 전",
+        "구글맵 공개 후기 47개 중 3건 발췌 게시(2026-10 확인) · 메디록 영수증·휴대폰 인증 후기는 수집 전",
       stage3Credentials: true,
       stage3Detail: "공식 사이트 의료진 소개 기준 피부과 전문의 3명 진료",
       stage4Facility: false,
@@ -324,7 +389,39 @@ async function main() {
     ],
     // 비급여 진료가 미공개 — 빈 배열이면 상세 페이지에서 "진료문의하기" 노출(추정가 미조작).
     prices: [],
-    reviews: [],
+    // 구글맵 "힐하우스피부과의원 판교점" 리뷰 발췌 (출처 표기, 메디록 미검증)
+    reviews: [
+      {
+        id: "google-park-hyeri",
+        rating: 5,
+        content:
+          "피부 탄력이 떨어지는 게 느껴져 써마지를 받았어요. 상담 때부터 제 피부 상태에 맞게 꼼꼼히 설명해 주셨고, 통증은 아예 없진 않지만 참을 만했습니다. 시술 직후 얼굴이 살짝 붉어졌지만 몇 시간 뒤 가라앉고 다음 날부터는 일상생활에 지장이 없었어요.",
+        reviewerName: "박혜리 (Google)",
+        visitedAt: "2026-04",
+        isReceiptVerified: false,
+        isPhoneVerified: false,
+      },
+      {
+        id: "google-jjoni",
+        rating: 5,
+        content:
+          "부위별로 고민을 나눠 상담해 주셔서 턱 근육과 이마 주름을 맞춤으로 진행했어요. 단순히 주사만 놓는 게 아니라 얼굴 균형을 같이 봐주셔서 좋았습니다. 과하게 굳는 느낌 없이 자연스럽게 정리됐어요.",
+        reviewerName: "쪼니 (Google)",
+        visitedAt: "2026-03",
+        isReceiptVerified: false,
+        isPhoneVerified: false,
+      },
+      {
+        id: "google-jihye-yoon",
+        rating: 5,
+        content:
+          "결혼을 앞두고 웨딩케어를 받으러 갔어요. 어떤 시술이 필요한지 짚어 주셔서 믿고 받을 수 있었고, 과한 권유 없이 필요한 관리만 안내해 주셔서 더 좋았습니다.",
+        reviewerName: "JiHye Yoon (Google)",
+        visitedAt: "2026-08",
+        isReceiptVerified: false,
+        isPhoneVerified: false,
+      },
+    ],
     hours: {
       weekday: "월·수·목 10:00–19:00 / 화·금 10:00–20:30",
       saturday: "09:30–14:00",
@@ -347,11 +444,11 @@ async function main() {
     walkingMinutes: 3,
     tier: "PREMIUM",
     phone: "031-248-7730",
-    // rating/reviewCount는 메디록 자체 집계(영수증·휴대폰 인증) 전용이다 — 런북 §11-1.
-    // 제3자 플랫폼 수치를 넣지 않는다(JSON-LD aggregateRating·대시보드 지표·정렬이 이 값을 읽는다).
-    // 공개 플랫폼 집계는 certification.stage2Detail에 출처·기준일과 함께 적는다.
-    rating: 0,
-    reviewCount: 0,
+    // 평점·후기 출처: 구글맵 "힐하우스피부과의원 수원점" 집계, 2026-10-31 확인.
+    // 메디록 자체 검증(영수증/전화) 후기가 아니므로 각 리뷰는 isReceiptVerified/isPhoneVerified=false.
+    // JSON-LD aggregateRating에는 넘기지 않는다 — 런북 §11-5.
+    rating: 4.4,
+    reviewCount: 17,
     doctorCount: 4,
     tags: ["안티에이징", "리프팅", "스킨부스터", "필러", "색소", "여드름 흉터"],
     certification: {
@@ -359,7 +456,7 @@ async function main() {
       stage1Detail: "",
       stage2Reviews: false,
       stage2Detail:
-        "네이버 방문자 리뷰 1,471개 공개(2026-10 기준) · 메디록 영수증·휴대폰 인증 후기는 수집 전",
+        "구글맵 공개 후기 17개 중 3건 발췌 게시(2026-10 확인) · 메디록 영수증·휴대폰 인증 후기는 수집 전",
       stage3Credentials: true,
       stage3Detail: "공식 사이트 의료진 소개 기준 피부과 전문의 4명 진료",
       stage4Facility: false,
@@ -427,7 +524,39 @@ async function main() {
     ],
     // 비급여 진료가 미공개 — 빈 배열이면 상세 페이지에서 "진료문의하기" 노출(추정가 미조작).
     prices: [],
-    reviews: [],
+    // 구글맵 "힐하우스피부과의원 수원점" 리뷰 발췌 (출처 표기, 메디록 미검증)
+    reviews: [
+      {
+        id: "google-jung-song",
+        rating: 5,
+        content:
+          "이마 주름 때문에 상담 갔다가 자세하고 친절한 안내에 신뢰가 생겨 보톡스와 써마지를 받았어요. 시술 전부터 마무리까지 편안했습니다. 결과는 아직 며칠 되지 않아 말씀드릴 수 없지만 기대하고 있어요. 다만 마취 크림을 바르고 있던 방의 머리받침이 조금 걸렸습니다.",
+        reviewerName: "JUNG SONG (Google)",
+        visitedAt: "2025-10",
+        isReceiptVerified: false,
+        isPhoneVerified: false,
+      },
+      {
+        id: "google-hwayeon",
+        rating: 5,
+        content:
+          "여드름 때문에 방문했는데 예약하고 가니 많이 기다리지 않고 진료받았어요. 원장님이 친절하고 꼼꼼하셨고, 상담해 주신 분도 제가 원하는 걸 바로 파악해 주셨습니다. 관리해 주시는 분들도 친절했어요.",
+        reviewerName: "화연 (Google)",
+        visitedAt: "2024-10",
+        isReceiptVerified: false,
+        isPhoneVerified: false,
+      },
+      {
+        id: "google-paatjuk",
+        rating: 5,
+        content:
+          "피부과 전문의 선생님들이 모두 꼼꼼하게 진료를 봐주시고 친절하셨어요. 리프팅 기계가 다양해서 좋았습니다.",
+        reviewerName: "달달한팥죽 (Google)",
+        visitedAt: "2022-10",
+        isReceiptVerified: false,
+        isPhoneVerified: false,
+      },
+    ],
     hours: {
       weekday: "월·금 09:30–20:00 / 화·수·목 09:30–18:30",
       saturday: "09:00–14:00",
@@ -450,11 +579,11 @@ async function main() {
     walkingMinutes: 4,
     tier: "PREMIUM",
     phone: "053-710-1127",
-    // rating/reviewCount는 메디록 자체 집계(영수증·휴대폰 인증) 전용이다 — 런북 §11-1.
-    // 제3자 플랫폼 수치를 넣지 않는다(JSON-LD aggregateRating·대시보드 지표·정렬이 이 값을 읽는다).
-    // 공개 플랫폼 집계는 certification.stage2Detail에 출처·기준일과 함께 적는다.
-    rating: 0,
-    reviewCount: 0,
+    // 평점·후기 출처: 구글맵 "힐하우스피부과의원 대구점" 집계, 2026-10-31 확인.
+    // 메디록 자체 검증(영수증/전화) 후기가 아니므로 각 리뷰는 isReceiptVerified/isPhoneVerified=false.
+    // JSON-LD aggregateRating에는 넘기지 않는다 — 런북 §11-5.
+    rating: 5.0,
+    reviewCount: 4,
     doctorCount: 3,
     tags: ["안티에이징", "리프팅", "스킨부스터", "필러", "색소", "여드름 흉터"],
     certification: {
@@ -462,7 +591,7 @@ async function main() {
       stage1Detail: "",
       stage2Reviews: false,
       stage2Detail:
-        "네이버 방문자 리뷰 627개 공개(2026-10 기준) · 메디록 영수증·휴대폰 인증 후기는 수집 전",
+        "구글맵 공개 후기 4개 중 3건 발췌 게시(2026-10 확인) · 메디록 영수증·휴대폰 인증 후기는 수집 전",
       stage3Credentials: true,
       stage3Detail: "공식 사이트 의료진 소개 기준 피부과 전문의 3명 진료",
       stage4Facility: false,
@@ -514,7 +643,39 @@ async function main() {
     ],
     // 비급여 진료가 미공개 — 빈 배열이면 상세 페이지에서 "진료문의하기" 노출(추정가 미조작).
     prices: [],
-    reviews: [],
+    // 구글맵 "힐하우스피부과의원 대구점" 리뷰 발췌 (출처 표기, 메디록 미검증)
+    reviews: [
+      {
+        id: "google-sirisiri",
+        rating: 5,
+        content:
+          "진단기로 찍은 사진으로 원장님이 직접 자세히 상담해 주시고, 꼭 필요한 것만 콕 집어 우선순위를 정해 주시니 믿음이 갔어요. 30대 중후반이 되면서 처지는 윤곽 라인이 고민이었는데 스컬트라 시술을 받았습니다.",
+        reviewerName: "sirisiri (Google)",
+        visitedAt: "2026-03",
+        isReceiptVerified: false,
+        isPhoneVerified: false,
+      },
+      {
+        id: "google-jjkk",
+        rating: 5,
+        content:
+          "리쥬란이 처음이라 아프다는 후기를 보고 걱정했는데 할 만했어요. 원장님이 얼굴을 살펴가며 한 방 한 방 정성스럽게 놔주시는 게 느껴졌고, 시술 중에 제 피부 타입과 앞으로 어떤 관리가 도움될지도 알려주셨어요. 하루에 여러 시술을 받다 보니 과하지 않게 하는 게 좋다고 솔직히 말해 주신 것도 신뢰가 갔습니다.",
+        reviewerName: "JJKK (Google)",
+        visitedAt: "2026-04",
+        isReceiptVerified: false,
+        isPhoneVerified: false,
+      },
+      {
+        id: "google-kumihomi",
+        rating: 5,
+        content:
+          "탄력과 생기를 주고 싶어 방문했어요. 콜라겐 촉진을 돕는다는 리투오를 받았는데 쫀득해진 것 같고, 울쎄라도 받았습니다. 무엇을 하라고 강요하지 않으시고 원장님 직접 상담이 먼저라 진정성이 느껴졌어요.",
+        reviewerName: "Kumihomi (Google)",
+        visitedAt: "2026-05",
+        isReceiptVerified: false,
+        isPhoneVerified: false,
+      },
+    ],
     hours: {
       weekday: "월·금 09:30–20:30 / 화·수·목 09:30–18:30",
       saturday: "09:00–14:00",
