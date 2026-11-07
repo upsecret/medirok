@@ -362,6 +362,29 @@ const FROM_SITE: Entry[] = [
     credit: "힐하우스피부과 공식 웹사이트",
     sourceUrl: `${HEALHOUSE_SITE}suwon/`,
   },
+  {
+    collection: "blog-posts",
+    slug: "yeon-incheon-clear-aligner",
+    // 참조 원문 6편의 이미지 44장이 전부 카드뉴스·브랜드 배너·모델 얼굴·약도였다(§10-4).
+    // 병원 사이트 사진으로 갔고, 시뮬레이션을 함께 보는 상담 부스를 골랐다 —
+    // 기존 예온 편이 쓴 02·06·14와 다른 장.
+    src: cand("yeon-site", "04.jpg"),
+    filename: "yeon-incheon-clear-aligner.jpg",
+    alt: "예온치과병원 상담실",
+    credit: "예온치과병원 공식 웹사이트",
+    sourceUrl: YEON_SITE,
+  },
+  {
+    collection: "blog-posts",
+    slug: "dod-cheongdam-prp",
+    // 원문 이미지 12장 중 쓸 수 있는 건 둘뿐이었다 — 나머지는 원장 얼굴과 제품명 배너다.
+    // 외관은 dod-cheongdam-skin이 이미 썼으므로 대기 부스를 골랐다(로비·시술룸·라운지와도 다른 장).
+    src: cand("naver", "dod-cheongdam-prp_224247537752_07.jpg"),
+    filename: "dod-cheongdam-prp.jpg",
+    alt: "디오디피부과의원 청담 대기 공간",
+    credit: "디오디피부과의원 청담 공식 블로그",
+    sourceUrl: naverUrl("tj32xdcbiswj9", "224247537752"),
+  },
 ];
 
 // ── 생성 카드 (차용할 사진이 없는 매거진 10편) ──

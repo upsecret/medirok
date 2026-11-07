@@ -284,6 +284,16 @@ const NAVER_SOURCES: NaverSource[] = [
       "224445599024",
     ],
   },
+  {
+    postSlug: "dod-cheongdam-prp",
+    blogId: "tj32xdcbiswj9",
+    logNos: ["224276307629", "224129787039", "224153585320", "224229175213", "224266635750", "224247537752"],
+  },
+  {
+    postSlug: "yeon-incheon-clear-aligner",
+    blogId: "income3357",
+    logNos: ["224277887238", "224388769414", "224302999381", "224212889562", "224309299125", "224137599367"],
+  },
 ];
 
 const naver: Target = {
