@@ -26,16 +26,24 @@ const nextConfig: NextConfig = {
   },
   typedRoutes: true,
   // /sitemap.xml은 빌드 프리렌더(ISR) 대신 요청마다 생성한다(src/app/sitemap.ts 주석).
-  // 신선도 상한을 여기서 건다 — s-maxage=60이라 시드 후 최대 1분이면 반영된다.
+  // 신선도 상한을 여기서 건다 — 60초라 시드 후 최대 1분이면 반영된다.
   // stale-while-revalidate는 일부러 안 쓴다: 만료 후 첫 요청이 바로 새 내용을 받아야
   // 발행 직후 검증(e2e 사이트맵 단언)이 한 번에 결론 난다.
-  // max-age=0으로 브라우저 캐시는 끈다 — 공유 캐시(CDN)만 쓴다.
+  //
+  // ⚠ `Cache-Control: s-maxage=60`만으로는 **운영에서 듣지 않았다**(2026-11-07 실측).
+  // 로컬 `next start`는 그 헤더를 그대로 내보냈지만, Vercel에서는 동적 라우트 기본값
+  // `public, max-age=0, must-revalidate`가 덮어써서 공유 캐시 지시가 사라지고
+  // 12회 연속 `x-vercel-cache: MISS`였다. 그래서 CDN 전용 헤더를 함께 보낸다 —
+  // 이쪽은 CDN이 읽고 응답에서 떼어내므로 Next 기본값과 충돌하지 않는다.
+  // Cache-Control의 max-age=0은 남겨 브라우저 캐시는 계속 끈다.
   async headers() {
     return [
       {
         source: "/sitemap.xml",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=0, s-maxage=60" },
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+          { key: "CDN-Cache-Control", value: "public, max-age=60" },
+          { key: "Vercel-CDN-Cache-Control", value: "public, max-age=60" },
         ],
       },
     ];
