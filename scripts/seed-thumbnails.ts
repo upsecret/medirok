@@ -350,6 +350,18 @@ const FROM_SITE: Entry[] = [
     credit: "힐하우스피부과 공식 웹사이트",
     sourceUrl: `${HEALHOUSE_SITE}gangnam/`,
   },
+  {
+    collection: "blog-posts",
+    slug: "healhouse-suwon-side-effects",
+    // 수원점 사진 중 2장이 이미 쓰였다(지점 커버 suwon_03 대기실 / 흉터 편 suwon_11 상담 데스크).
+    // 이상 증상이 생겼을 때 다시 찾아오는 경로가 축인 글이라 진료실 복도를 골랐다.
+    // suwon_02는 커버와 같은 대기실이라 제외, suwon_12는 제품 브랜드명이 박힌 인증서라 제외(§10-4).
+    src: cand("healhouse-site", "suwon_08.jpg"),
+    filename: "healhouse-suwon-side-effects.jpg",
+    alt: "힐하우스피부과 수원점 진료실 복도",
+    credit: "힐하우스피부과 공식 웹사이트",
+    sourceUrl: `${HEALHOUSE_SITE}suwon/`,
+  },
 ];
 
 // ── 생성 카드 (차용할 사진이 없는 매거진 10편) ──
