@@ -26,9 +26,11 @@ export async function POST(req: Request): Promise<Response> {
   // 헤더·푸터까지 포함한 루트 레이아웃 전체를 비운다. 시드가 어떤 컬렉션을
   // 건드렸는지 스크립트마다 추적하는 것보다 통째로 비우는 편이 안전하다.
   revalidatePath("/", "layout");
-  // sitemap은 레이아웃 트리 밖의 라우트 핸들러라 위 호출에 안 걸린다.
-  // 새 글이 sitemap에 안 잡히면 색인이 그만큼 늦는다.
-  revalidatePath("/sitemap.xml");
+  // sitemap은 여기서 비우지 않는다. 레이아웃 트리 밖이라 위 호출에 안 걸리는 데다,
+  // revalidatePath("/sitemap.xml")를 따로 불러 봐도 운영에서는 듣지 않았다
+  // (2026-11-07 실측 — 근거는 src/app/sitemap.ts 주석). 지금은 그 라우트가
+  // force-dynamic이고 신선도는 next.config.ts의 s-maxage=60이 책임진다.
+  // 즉 시드 직후 사이트맵 반영은 "즉시"가 아니라 "최대 1분"이다.
 
-  return Response.json({ ok: true, revalidated: ["layout:/", "/sitemap.xml"] });
+  return Response.json({ ok: true, revalidated: ["layout:/"] });
 }

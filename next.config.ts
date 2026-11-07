@@ -25,6 +25,21 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 31536000,
   },
   typedRoutes: true,
+  // /sitemap.xml은 빌드 프리렌더(ISR) 대신 요청마다 생성한다(src/app/sitemap.ts 주석).
+  // 신선도 상한을 여기서 건다 — s-maxage=60이라 시드 후 최대 1분이면 반영된다.
+  // stale-while-revalidate는 일부러 안 쓴다: 만료 후 첫 요청이 바로 새 내용을 받아야
+  // 발행 직후 검증(e2e 사이트맵 단언)이 한 번에 결론 난다.
+  // max-age=0으로 브라우저 캐시는 끈다 — 공유 캐시(CDN)만 쓴다.
+  async headers() {
+    return [
+      {
+        source: "/sitemap.xml",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=0, s-maxage=60" },
+        ],
+      },
+    ];
+  },
   // 한국어 URL 전환에 따른 구(舊) 영문 경로 → 신규 한국어 경로 301 리다이렉트(SEO 보존)
   async redirects() {
     return [
