@@ -56,3 +56,6 @@ next-env.d.ts
 
 # claude code (로컬 에이전트 설정)
 .claude/
+
+# 참조 원문 (재구성 원재료, 발행 대상 아님 — scripts/dupcheck.mjs 대조군)
+/content-raw/
