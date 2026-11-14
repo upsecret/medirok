@@ -4,6 +4,8 @@
 
 사용자와의 대화·주석·커밋 메시지·콘텐츠는 한국어로 쓴다.
 
+콘텐츠 작성·검수·고객사 QA 반영은 플러그인 `upsecret-medical-content`의 스킬(content-write·content-review·client-qa-apply)을 쓴다. 소스는 `~/upsecret-plugins/upsecret-medical-content`다. **이 레포 문서가 플러그인보다 우선한다** — 다르면 레포를 따르고 플러그인 고객사 프로필을 고친다(content-rules-update). 메디록에는 stylecheck가 없어서 플러그인 게이트가 기준이다. 원고를 JSON으로 만들어 `check.py`·`dupcheck.py`·`newnums.py`를 돌린다(형식은 플러그인 `formats/medirok.md`). 레포 `npm run dupcheck`는 병원 블로그만 읽으므로 매거진은 플러그인 dupcheck로 본다.
+
 ## 쓰기 전에
 
 1. **런북 §1(사실 원칙·"문체 — 쓰지 않는 패턴")과 §9-2(병원 블로그 집필 원칙)를 읽는다.**
